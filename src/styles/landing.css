@@ -1,0 +1,299 @@
+/* ============================================
+   SOBEI Portal — Landing Page Styles
+   ============================================ */
+
+.landing {
+  background-color: var(--color-primary);
+  min-height: 100vh;
+  color: var(--color-white);
+}
+
+/* ---- Hero Section ---- */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--spacing-3xl) var(--spacing-base);
+  padding-top: var(--spacing-sm);
+}
+
+.hero__logo {
+  width: 480px;
+  max-width: 90%;
+  margin-bottom: var(--spacing-md);
+  animation: fadeInDown 0.8s ease;
+}
+
+.hero__title {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-black);
+  margin-bottom: var(--spacing-xl);
+  letter-spacing: -0.5px;
+  animation: fadeInUp 0.8s ease 0.2s both;
+}
+
+.hero__subtitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent);
+  margin-bottom: var(--spacing-lg);
+  animation: fadeInUp 0.8s ease 0.3s both;
+}
+
+.hero__description {
+  max-width: 800px;
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: var(--spacing-2xl);
+  text-align: justify;
+  animation: fadeInUp 0.8s ease 0.4s both;
+}
+
+.hero__cta {
+  animation: fadeInUp 0.8s ease 0.5s both;
+}
+
+.hero__cta .btn {
+  min-width: 280px;
+  font-size: var(--font-size-lg);
+  padding: var(--spacing-base) var(--spacing-3xl);
+}
+
+/* ---- How It Works Section ---- */
+.how-it-works {
+  padding: var(--spacing-3xl) var(--spacing-base);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.how-it-works__title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-black);
+  color: var(--color-accent);
+  text-align: center;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.how-it-works__step {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.how-it-works__step-title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent);
+  margin-bottom: var(--spacing-sm);
+}
+
+.how-it-works__step-text {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: rgba(255, 255, 255, 0.9);
+  text-align: justify;
+}
+
+/* ---- Protocol Search Section ---- */
+.protocol-search {
+  padding: var(--spacing-3xl) var(--spacing-base);
+  max-width: 800px;
+  margin: 0 auto;
+  border-top: 2px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.protocol-search__title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-black);
+  color: var(--color-accent);
+  margin-bottom: var(--spacing-base);
+}
+
+.protocol-search__label {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: var(--spacing-sm);
+}
+
+.protocol-search__input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-base);
+  margin-bottom: var(--spacing-lg);
+  width: 100%;
+  max-width: 480px;
+}
+
+.protocol-search__input {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-base);
+  background-color: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-full);
+  color: var(--color-white);
+  font-size: var(--font-size-base);
+  transition: all var(--transition-fast);
+  min-height: 48px;
+}
+
+.protocol-search__input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.protocol-search__input:focus {
+  border-color: var(--color-accent);
+  background-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 0 3px rgba(232, 255, 0, 0.15);
+}
+
+.protocol-search__protocol-number {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.protocol-search__btn {
+  margin-top: var(--spacing-base);
+}
+
+.protocol-search__btn .btn {
+  min-width: 280px;
+}
+
+/* ---- Timeline ---- */
+.timeline {
+  margin: var(--spacing-xl) 0;
+  padding-left: var(--spacing-sm);
+}
+
+.timeline__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-base);
+  position: relative;
+  padding-bottom: var(--spacing-xl);
+}
+
+.timeline__item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline__item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 22px;
+  width: 2px;
+  height: calc(100% - 18px);
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.timeline__dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.timeline__dot--active {
+  background-color: var(--color-green);
+  box-shadow: 0 0 8px rgba(67, 160, 71, 0.5);
+}
+
+.timeline__dot--pending {
+  background-color: var(--color-gray-500);
+}
+
+.timeline__dot--current {
+  background-color: var(--color-accent);
+  box-shadow: 0 0 8px rgba(232, 255, 0, 0.5);
+}
+
+.timeline__text {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.85);
+  line-height: var(--line-height-normal);
+}
+
+/* ---- Animations ---- */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .hero {
+    padding: var(--spacing-xl) var(--spacing-base);
+    padding-top: var(--spacing-sm);
+  }
+
+  .hero__title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .hero__subtitle {
+    font-size: var(--font-size-lg);
+  }
+
+  .hero__description {
+    font-size: var(--font-size-base);
+    max-width: 100%;
+  }
+
+  .hero__logo {
+    width: 220px;
+  }
+
+  .hero__cta .btn {
+    min-width: 220px;
+    font-size: var(--font-size-base);
+    padding: var(--spacing-md) var(--spacing-xl);
+  }
+
+  .how-it-works {
+    padding: var(--spacing-xl) var(--spacing-base);
+  }
+
+  .how-it-works__title {
+    font-size: var(--font-size-xl);
+  }
+
+  .protocol-search {
+    padding: var(--spacing-xl) var(--spacing-base);
+  }
+
+  .protocol-search__title {
+    font-size: var(--font-size-lg);
+  }
+
+  .protocol-search__input-group {
+    max-width: 100%;
+  }
+
+  .protocol-search__btn .btn {
+    min-width: 220px;
+  }
+}

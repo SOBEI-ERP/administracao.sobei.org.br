@@ -1,0 +1,193 @@
+/* ============================================
+   SOBEI Portal — Modal Styles
+   ============================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: var(--spacing-base);
+  animation: modalFadeIn 0.25s ease;
+}
+
+.modal {
+  background-color: var(--color-white);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: var(--spacing-2xl) var(--spacing-xl);
+  position: relative;
+  animation: modalSlideIn 0.35s ease;
+}
+
+.modal__close {
+  position: absolute;
+  top: var(--spacing-base);
+  right: var(--spacing-base);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xl);
+  color: var(--color-gray-500);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+  background: none;
+}
+
+.modal__close:hover {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-900);
+}
+
+.modal__title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-base);
+  border-bottom: 2px solid var(--color-gray-200);
+}
+
+.modal__section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.modal__section-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-md);
+}
+
+.modal__section-subtitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+  text-align: center;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--color-gray-200);
+}
+
+.modal__blockquote {
+  border-left: 3px solid var(--color-gray-300);
+  padding-left: var(--spacing-base);
+  margin: var(--spacing-sm) 0;
+}
+
+.modal__blockquote p {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-gray-700);
+}
+
+.modal__field {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-700);
+  padding: var(--spacing-xs) 0;
+  padding-left: var(--spacing-base);
+  border-left: 3px solid var(--color-gray-300);
+  margin-bottom: var(--spacing-xs);
+}
+
+.modal__textarea {
+  width: 100%;
+  min-height: 140px;
+  padding: var(--spacing-base);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  font-family: var(--font-family);
+  color: var(--color-gray-700);
+  resize: vertical;
+  transition: border-color var(--transition-fast);
+}
+
+.modal__textarea::placeholder {
+  color: var(--color-gray-400);
+}
+
+.modal__textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(27, 20, 100, 0.08);
+}
+
+.modal__textarea--readonly {
+  background-color: var(--color-gray-50);
+  cursor: default;
+}
+
+.modal__divider {
+  height: 1px;
+  background-color: var(--color-gray-200);
+  margin: var(--spacing-lg) 0;
+}
+
+.modal__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 2px solid var(--color-gray-200);
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 600px) {
+  .modal-overlay {
+    padding: var(--spacing-xs);
+    align-items: flex-end;
+  }
+
+  .modal {
+    padding: var(--spacing-lg) var(--spacing-base);
+    max-height: 95vh;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+
+  .modal__title {
+    font-size: var(--font-size-lg);
+    padding-right: var(--spacing-2xl);
+  }
+
+  .modal__section-title {
+    font-size: var(--font-size-base);
+  }
+
+  .modal__actions {
+    flex-direction: column;
+  }
+
+  .modal__actions .btn {
+    width: 100%;
+  }
+}

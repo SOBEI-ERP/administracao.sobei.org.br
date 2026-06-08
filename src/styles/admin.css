@@ -1,0 +1,154 @@
+/* ============================================
+   SOBEI Portal — Admin Page Styles
+   ============================================ */
+
+.admin-page__title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-black);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-xl);
+  font-style: italic;
+}
+
+.admin-page__description {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-gray-700);
+  max-width: 800px;
+  margin-bottom: var(--spacing-xl);
+}
+
+/* ---- Dashboard Home ---- */
+.dashboard-home__title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-black);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-xl);
+  font-style: italic;
+  text-align: center;
+}
+
+.dashboard-home__content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.dashboard-home__text {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-gray-700);
+  margin-bottom: var(--spacing-lg);
+  text-align: justify;
+}
+
+.dashboard-home__subtitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+.dashboard-home__list {
+  padding-left: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.dashboard-home__list li {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-gray-700);
+  margin-bottom: var(--spacing-sm);
+  list-style-type: disc;
+}
+
+.dashboard-home__list li strong {
+  color: var(--color-gray-900);
+}
+
+/* ---- Filter Bar ---- */
+.filter-bar {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-xl);
+  flex-wrap: wrap;
+  padding: var(--spacing-lg) 0;
+  margin-bottom: var(--spacing-lg);
+}
+
+.filter-bar__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.filter-bar__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-700);
+  margin-bottom: auto;
+}
+
+.filter-bar__actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-left: auto;
+  align-self: flex-end;
+}
+
+@media (max-width: 900px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-base);
+  }
+
+  .filter-bar__actions {
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-home__title {
+    font-size: var(--font-size-xl);
+  }
+
+  .dashboard-home__content {
+    max-width: 100%;
+  }
+
+  .dashboard-home__text {
+    font-size: var(--font-size-sm);
+  }
+
+  .dashboard-home__subtitle {
+    font-size: var(--font-size-base);
+  }
+
+  .admin-page__title {
+    font-size: var(--font-size-xl);
+  }
+
+  .admin-page__description {
+    font-size: var(--font-size-sm);
+  }
+
+  .filter-bar__actions {
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .filter-bar__actions .btn {
+    flex: 1;
+  }
+}
+
+/* ---- Recharts Resets ---- */
+.recharts-wrapper * {
+  outline: none !important;
+}
+
+.recharts-surface {
+  outline: none !important;
+}

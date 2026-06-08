@@ -1,0 +1,202 @@
+/* ============================================
+   SOBEI Portal — Statistics Page Styles
+   ============================================ */
+
+.statistics-page__title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-black);
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-lg);
+  font-style: italic;
+}
+
+.statistics-page__chart-title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-lg);
+  font-style: italic;
+}
+
+.statistics-page__chart-container {
+  width: 100%;
+  margin-bottom: var(--spacing-2xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 2px solid var(--color-gray-200);
+}
+
+/* ---- Filters ---- */
+.statistics-filters {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-lg);
+}
+
+.statistics-filters__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.statistics-filters__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-700);
+  margin-bottom: auto;
+}
+
+.statistics-filters__select {
+  padding: var(--spacing-sm) var(--spacing-base);
+  padding-right: var(--spacing-2xl);
+  background-color: var(--color-gray-100);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-700);
+  appearance: none;
+  cursor: pointer;
+  min-width: 180px;
+  min-height: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23757575' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.statistics-filters__date-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.statistics-filters__date-input {
+  padding: var(--spacing-sm) var(--spacing-base);
+  background-color: var(--color-gray-100);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-700);
+  min-height: 40px;
+  min-width: 140px;
+}
+
+.statistics-filters__date-sep {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+  font-weight: var(--font-weight-medium);
+}
+
+.statistics-filters__actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-left: auto;
+  align-self: flex-end;
+}
+
+/* ---- Tags ---- */
+.statistics-tags {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-xl);
+}
+
+.statistics-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-base);
+  background-color: var(--color-gray-200);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-700);
+}
+
+.statistics-tag__remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: none;
+  border: none;
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-600);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.statistics-tag__remove:hover {
+  background-color: var(--color-gray-400);
+  color: var(--color-white);
+}
+
+/* ---- Charts ---- */
+.statistics-charts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xl);
+}
+
+.statistics-chart {
+  width: 100%;
+}
+
+.statistics-chart__wrapper {
+  width: 100%;
+  min-height: 350px;
+}
+
+/* ---- Report Button ---- */
+.statistics-report {
+  margin-top: var(--spacing-2xl);
+  text-align: center;
+}
+
+.statistics-report .btn {
+  min-width: 320px;
+}
+
+@media (max-width: 900px) {
+  .statistics-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .statistics-filters__actions {
+    margin-left: 0;
+  }
+
+  .statistics-filters__date-group {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .statistics-page__title {
+    font-size: var(--font-size-xl);
+  }
+
+  .statistics-page__chart-container {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .statistics-chart__wrapper {
+    min-height: 260px;
+  }
+
+  .statistics-filters__date-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .statistics-filters__date-sep {
+    text-align: center;
+  }
+
+  .statistics-report .btn {
+    min-width: 100%;
+  }
+}

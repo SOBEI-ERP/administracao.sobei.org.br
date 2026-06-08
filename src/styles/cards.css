@@ -1,0 +1,110 @@
+/* ============================================
+   SOBEI Portal — Denuncia Card Styles
+   ============================================ */
+
+.denuncia-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.denuncia-card {
+  background-color: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl) var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xl);
+  transition: all var(--transition-base);
+  animation: fadeInUp 0.4s ease both;
+}
+
+.denuncia-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-gray-300);
+  transform: translateY(-1px);
+}
+
+.denuncia-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 1;
+}
+
+.denuncia-card__field {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-700);
+}
+
+.denuncia-card__field strong {
+  color: var(--color-gray-900);
+}
+
+.denuncia-card__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+.denuncia-card__protocol {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-900);
+}
+
+.denuncia-card__dates {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.denuncia-card__date {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-600);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .denuncia-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-base);
+  }
+
+  .denuncia-card__right {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: var(--spacing-base);
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .denuncia-card__field {
+    font-size: var(--font-size-sm);
+  }
+
+  .denuncia-card__protocol {
+    font-size: var(--font-size-sm);
+  }
+
+  .denuncia-card__date {
+    font-size: var(--font-size-xs);
+  }
+}

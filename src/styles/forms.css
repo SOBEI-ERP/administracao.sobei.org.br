@@ -1,0 +1,292 @@
+/* ============================================
+   SOBEI Portal — Form Page Styles
+   ============================================ */
+
+/* ---- Form Container (Public) ---- */
+.form-page {
+  min-height: 100vh;
+  background-color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl) var(--spacing-base);
+}
+
+.form-card {
+  background-color: var(--color-white);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-2xl) var(--spacing-xl);
+  width: 100%;
+  max-width: var(--max-form-width);
+  box-shadow: var(--shadow-xl);
+  animation: fadeInScale 0.5s ease;
+}
+
+.form-card__title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-black);
+  text-align: center;
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-xl);
+}
+
+.form-card__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.form-card__actions {
+  margin-top: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* ---- Diretrizes Page ---- */
+.diretrizes-card {
+  max-width: 660px;
+}
+
+.diretrizes-card__title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-black);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-lg);
+}
+
+.diretrizes-card__text {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-gray-700);
+  margin-bottom: var(--spacing-lg);
+}
+
+.diretrizes-card__subtitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-900);
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.diretrizes-card__list {
+  padding-left: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.diretrizes-card__list li {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-gray-700);
+  margin-bottom: var(--spacing-sm);
+  list-style-type: disc;
+}
+
+.diretrizes-card__action {
+  margin-top: var(--spacing-xl);
+  text-align: center;
+}
+
+/* ---- Confirmação de Dados ---- */
+.confirmacao-card {
+  max-width: 660px;
+}
+
+.confirmacao-card__title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-black);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-base);
+}
+
+.confirmacao-card__desc {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-gray-600);
+  margin-bottom: var(--spacing-xl);
+}
+
+.confirmacao-card__section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.confirmacao-card__section-title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-gray-500);
+  margin-bottom: var(--spacing-md);
+}
+
+.confirmacao-card__list {
+  padding-left: var(--spacing-lg);
+}
+
+.confirmacao-card__list li {
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-gray-800);
+  margin-bottom: var(--spacing-sm);
+  list-style-type: disc;
+}
+
+.confirmacao-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xl);
+}
+
+/* ---- Login Page ---- */
+.login-page {
+  min-height: 100vh;
+  background-color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl) var(--spacing-base);
+}
+
+.login-card {
+  background-color: var(--color-white);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-3xl) var(--spacing-2xl);
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--shadow-xl);
+  animation: fadeInScale 0.5s ease;
+}
+
+.login-card__logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.login-card__logo img {
+  width: 260px;
+}
+
+.login-card__fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* ---- Protocol Modal ---- */
+.protocol-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spacing-base);
+  animation: fadeIn 0.3s ease;
+}
+
+.protocol-modal {
+  background-color: var(--color-white);
+  border-radius: var(--radius-2xl);
+  padding: var(--spacing-2xl);
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  position: relative;
+  animation: scaleIn 0.4s ease;
+}
+
+.protocol-modal__close {
+  position: absolute;
+  top: var(--spacing-base);
+  right: var(--spacing-base);
+  font-size: var(--font-size-xl);
+  color: var(--color-gray-500);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all var(--transition-fast);
+}
+
+.protocol-modal__close:hover {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-900);
+}
+
+.protocol-modal__title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent);
+  margin-bottom: var(--spacing-base);
+}
+
+.protocol-modal__subtitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-black);
+  color: var(--color-gray-900);
+  margin-bottom: var(--spacing-lg);
+}
+
+.protocol-modal__number {
+  background-color: var(--color-gray-900);
+  color: var(--color-white);
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 2px;
+  margin-bottom: var(--spacing-lg);
+  display: inline-block;
+}
+
+.protocol-modal__info {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-gray-600);
+}
+
+/* ---- Animations ---- */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 600px) {
+  .form-card {
+    padding: var(--spacing-xl) var(--spacing-base);
+    border-radius: var(--radius-xl);
+  }
+
+  .login-card {
+    padding: var(--spacing-xl) var(--spacing-base);
+  }
+}
