@@ -73,3 +73,9 @@ next-env.d.ts
 *.tmp
 *.temp
 .antigravitycli
+.antigravity
+
+# ---- Pastas Locais Ignoradas ----
+/BD/
+/Caso de uso/
+/Prototipo/
