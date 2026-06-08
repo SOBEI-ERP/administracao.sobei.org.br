@@ -32,35 +32,6 @@ O projeto foi construído focando em performance, acessibilidade e design premiu
 - **Gerenciamento de Formulários:** [React Hook Form](https://react-hook-form.com/) para formulários performáticos.
 - **Validação de Dados:** [Zod](https://zod.dev/) para validação robusta de esquemas de dados.
 
-## 🚀 Como executar o projeto localmente
-
-Siga as instruções abaixo para rodar o projeto na sua máquina local:
-
-### Pré-requisitos
-- [Node.js](https://nodejs.org/) instalado.
-- Gerenciador de pacotes (npm, yarn, pnpm ou bun).
-
-### Passo a passo
-
-1. **Clone o repositório:**
-```bash
-git clone https://github.com/JoseRodriguesF/portal-sobei.git
-cd portal-sobei
-```
-
-2. **Instale as dependências:**
-```bash
-npm install
-```
-
-3. **Inicie o servidor de desenvolvimento:**
-```bash
-npm run dev
-```
-
-4. **Acesse no navegador:**
-Abra [http://localhost:3000](http://localhost:3000) para ver o portal público.  
-Para acessar o painel administrativo (utiliza dados mockados), acesse [http://localhost:3000/admin](http://localhost:3000/admin).
 
 ## 📄 Estrutura do Projeto
 
