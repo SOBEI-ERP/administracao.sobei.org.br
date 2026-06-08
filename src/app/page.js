@@ -4,29 +4,70 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { consultarProtocolo } from '@/lib/api';
+import ConsultaProtocoloModal from '@/components/ConsultaProtocoloModal';
 
 export default function LandingPage() {
   const [protocolo, setProtocolo] = useState('');
   const [resultado, setResultado] = useState(null);
   const [buscando, setBuscando] = useState(false);
-  const [buscou, setBuscou] = useState(false);
+  const [erro, setErro] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   async function handleConsultar(e) {
     e.preventDefault();
     if (!protocolo.trim()) return;
 
     setBuscando(true);
-    setBuscou(false);
+    setErro(false);
     try {
       const res = await consultarProtocolo(protocolo.trim());
-      setResultado(res);
-      setBuscou(true);
+      if (res && res.found) {
+        setResultado(res);
+        setShowModal(true);
+        setErro(false);
+      } else {
+        setResultado(null);
+        setErro(true);
+      }
     } catch {
       setResultado(null);
-      setBuscou(true);
+      setErro(true);
     } finally {
       setBuscando(false);
     }
+  }
+
+  function handleCloseModal() {
+    setShowModal(false);
+  }
+
+  function handleProtocoloChange(e) {
+    let val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    let formatted = '';
+
+    for (let i = 0; i < val.length && i < 9; i++) {
+      let char = val[i];
+      if (i < 3) {
+        // Primeiros 3 devem ser letras
+        if (/[A-Z]/.test(char)) {
+          formatted += char;
+        } else {
+          break; // Ignora se não for letra
+        }
+      } else {
+        // Restante deve ser número
+        if (/[0-9]/.test(char)) {
+          if (i === 3 || i === 6) {
+            formatted += '-';
+          }
+          formatted += char;
+        } else {
+          break; // Ignora se não for número
+        }
+      }
+    }
+
+    setProtocolo(formatted);
   }
 
   return (
@@ -112,33 +153,13 @@ export default function LandingPage() {
               className="protocol-search__input"
               placeholder="Digite seu numero de protocolo"
               value={protocolo}
-              onChange={(e) => setProtocolo(e.target.value)}
+              onChange={handleProtocoloChange}
+              maxLength={11}
               id="protocol-input"
             />
           </div>
 
-          {/* Timeline de status */}
-          {buscou && resultado && resultado.found && (
-            <div style={{ marginBottom: 'var(--spacing-lg)' }}>
-              <p className="protocol-search__protocol-number" style={{ marginBottom: '24px' }}>
-                Protocolo: {resultado.protocolo}
-              </p>
-              <div className="timeline">
-                {resultado.timeline.map((item, i) => (
-                  <div className="timeline__item" key={i}>
-                    <div
-                      className={`timeline__dot ${
-                        item.active ? 'timeline__dot--active' : 'timeline__dot--pending'
-                      }`}
-                    />
-                    <span className="timeline__text">{item.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {buscou && resultado && !resultado.found && (
+          {erro && (
             <p style={{ color: 'var(--color-accent)', textAlign: 'center', margin: '16px 0', fontSize: '14px' }}>
               Protocolo não encontrado. Verifique o número e tente novamente.
             </p>
@@ -158,6 +179,12 @@ export default function LandingPage() {
 
       {/* Footer spacer */}
       <div style={{ height: '80px' }} />
+
+      {/* ---- Modal de Consulta ---- */}
+      {showModal && resultado && (
+        <ConsultaProtocoloModal resultado={resultado} onClose={handleCloseModal} />
+      )}
     </main>
   );
 }
+

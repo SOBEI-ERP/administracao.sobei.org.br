@@ -9,11 +9,13 @@ export default function MobileHeader() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [denunciasOpen, setDenunciasOpen] = useState(true);
+  const [prevPathname, setPrevPathname] = useState(pathname);
 
   // Close menu on route change
-  useEffect(() => {
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setMenuOpen(false);
-  }, [pathname]);
+  }
 
   // Prevent body scroll when menu is open
   useEffect(() => {

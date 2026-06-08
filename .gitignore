@@ -72,3 +72,4 @@ next-env.d.ts
 *.bak
 *.tmp
 *.temp
+.antigravitycli

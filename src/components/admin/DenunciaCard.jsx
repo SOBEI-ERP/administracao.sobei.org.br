@@ -1,8 +1,13 @@
 'use client';
 
 export default function DenunciaCard({ denuncia, status, onVerDetalhes }) {
+  const hash = denuncia.protocolo
+    ? denuncia.protocolo.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+    : 0;
+  const animationDelay = `${(hash % 5) * 0.05}s`;
+
   return (
-    <div className="denuncia-card" style={{ animationDelay: `${Math.random() * 0.2}s` }}>
+    <div className="denuncia-card" style={{ animationDelay }}>
       <div className="denuncia-card__info">
         <span className="denuncia-card__field">
           <strong>Unidade:</strong> {denuncia.unidade}

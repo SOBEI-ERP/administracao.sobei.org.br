@@ -68,6 +68,15 @@ export async function consultarProtocolo(protocolo) {
     protocolo: denuncia.protocolo,
     status: denuncia.status,
     timeline: statusMap[denuncia.status] || [],
+    // Dados do denunciante
+    unidade: denuncia.unidade,
+    tipo: denuncia.tipo,
+    dataEnvio: denuncia.dataEnvio,
+    descricao: denuncia.descricao,
+    envolvidos: denuncia.envolvidos,
+    testemunhas: denuncia.testemunhas,
+    // Esclarecimento do admin
+    medidasAdotadas: denuncia.medidasAdotadas || '',
   };
 }
 

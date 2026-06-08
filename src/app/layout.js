@@ -6,6 +6,7 @@ import '../styles/sidebar.css';
 import '../styles/admin.css';
 import '../styles/cards.css';
 import '../styles/modal.css';
+import '../styles/consulta-modal.css';
 import '../styles/statistics.css';
 import QueryProvider from '@/components/QueryProvider';
 import { AuthProvider } from '@/contexts/AuthContext';

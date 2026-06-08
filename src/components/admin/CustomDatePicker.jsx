@@ -11,16 +11,18 @@ const WEEKDAYS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 export default function CustomDatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', style, className }) {
   const [isOpen, setIsOpen] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
+  const [prevValue, setPrevValue] = useState(value);
   const containerRef = useRef(null);
 
-  useEffect(() => {
+  if (value !== prevValue) {
+    setPrevValue(value);
     if (value) {
       const [y, m, d] = value.split('-');
       if (y && m && d) {
         setViewDate(new Date(parseInt(y), parseInt(m) - 1, parseInt(d)));
       }
     }
-  }, [value]);
+  }
 
   useEffect(() => {
     function handleClickOutside(event) {
