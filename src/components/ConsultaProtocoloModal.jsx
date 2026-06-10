@@ -67,9 +67,11 @@ export default function ConsultaProtocoloModal({ resultado, onClose }) {
         <div className="consulta-modal__section">
           <span className="consulta-modal__field-label">Envolvidos</span>
           <div className="consulta-modal__blockquote">
-            {resultado.envolvidos?.split('\n').map((e, i) => (
-              <p key={i}>{e}</p>
-            ))}
+            {resultado.envolvidos ? (
+              resultado.envolvidos.split('\n').map((e, i) => <p key={i}>{e}</p>)
+            ) : (
+              <p>Não informado</p>
+            )}
           </div>
         </div>
 

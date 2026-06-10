@@ -205,9 +205,11 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
             <div className="modal__section">
               <h3 className="modal__section-title">Quem estava envolvido:</h3>
               <div className="modal__blockquote">
-                {displayDenuncia.envolvidos?.split('\n').map((e, i) => (
-                  <p key={i}>{e}</p>
-                ))}
+                {displayDenuncia.envolvidos ? (
+                  displayDenuncia.envolvidos.split('\n').map((e, i) => <p key={i}>{e}</p>)
+                ) : (
+                  <p>Não informado</p>
+                )}
               </div>
             </div>
 

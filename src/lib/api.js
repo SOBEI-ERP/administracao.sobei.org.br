@@ -72,7 +72,7 @@ export async function consultarProtocolo(protocolo) {
 
 function buildTimeline(estado) {
   const statusMap = {
-    ABERTA: [
+    NA_FILA: [
       { label: 'Denúncia recebida!', active: true },
       { label: 'Sua denúncia está sendo analisada', active: false },
       { label: 'Sua denúncia foi apurada e em breve fecharemos o protocolo', active: false },
@@ -134,8 +134,7 @@ export async function loginAdmin(credentials) {
 export async function fetchDenunciasPorStatus(status, filtros = {}) {
   try {
     let url = new URL(`${API_BASE_URL}/admin/denuncias`);
-    const mappedStatus = status === 'na_fila' ? 'aberta' : status;
-    url.searchParams.append('status', mappedStatus.toUpperCase());
+    url.searchParams.append('status', status.toUpperCase());
     
     if (filtros.tipo) url.searchParams.append('tipo', filtros.tipo.toUpperCase());
     if (filtros.unidade) url.searchParams.append('unidade', filtros.unidade);

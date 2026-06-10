@@ -7,7 +7,8 @@
 // (fila, andamento, fechadas, arquivadas).
 // Basta passar o `status` como prop e toda a lógica é compartilhada.
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useDenuncias, useAtualizarDenuncia } from '@/hooks/useDenuncias';
 import { STATUS_CONFIG, FILTROS_INICIAIS } from '@/lib/navigation';
 import FilterBar from '@/components/admin/FilterBar';
@@ -15,13 +16,24 @@ import DenunciaCard from '@/components/admin/DenunciaCard';
 import DenunciaDetailModal from '@/components/admin/DenunciaDetailModal';
 
 export default function DenunciaListPage({ status }) {
+  const router = useRouter();
   const config = STATUS_CONFIG[status];
   const [filtros, setFiltros] = useState({ ...FILTROS_INICIAIS });
   const [filtrosAtivos, setFiltrosAtivos] = useState({ ...FILTROS_INICIAIS });
   const [selectedDenuncia, setSelectedDenuncia] = useState(null);
 
-  const { data: denuncias = [], isLoading, refetch } = useDenuncias(status, filtrosAtivos);
+  const { data: denuncias = [], isLoading, isError, error, refetch } = useDenuncias(status, filtrosAtivos);
   const atualizarMutation = useAtualizarDenuncia();
+
+  useEffect(() => {
+    if (isError && error) {
+      const msg = error.message || '';
+      if (msg.includes('Não autorizado') || msg.includes('autorizado')) {
+        localStorage.removeItem('sobei_token');
+        router.push('/admin/login');
+      }
+    }
+  }, [isError, error, router]);
 
   function handleAplicar() {
     setFiltrosAtivos({ ...filtros });
@@ -57,6 +69,10 @@ export default function DenunciaListPage({ status }) {
 
       {isLoading ? (
         <p style={{ color: 'var(--color-gray-500)', padding: '24px 0' }}>Carregando...</p>
+      ) : isError ? (
+        <p style={{ color: '#ef4444', padding: '24px 0' }}>
+          Erro ao carregar denúncias: {error?.message || 'Erro desconhecido'}
+        </p>
       ) : denuncias.length === 0 ? (
         <p style={{ color: 'var(--color-gray-500)', padding: '24px 0' }}>
           {config.mensagemVazia}
