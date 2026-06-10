@@ -28,6 +28,21 @@ const DATAS_POR_STATUS = {
   ],
 };
 
+function formatarData(dataStr) {
+  if (!dataStr) return '';
+  if (dataStr.includes('-') || dataStr.includes('T')) {
+    try {
+      const date = new Date(dataStr);
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleDateString('pt-BR');
+      }
+    } catch {
+      return dataStr;
+    }
+  }
+  return dataStr;
+}
+
 export default function DenunciaCard({ denuncia, status, onVerDetalhes }) {
   const hash = denuncia.protocolo
     ? denuncia.protocolo.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
@@ -43,10 +58,10 @@ export default function DenunciaCard({ denuncia, status, onVerDetalhes }) {
           <strong>Unidade:</strong> {denuncia.unidade}
         </span>
         <span className="denuncia-card__field">
-          <strong>Tipo de denuncia:</strong> Denúncia {denuncia.tipo}
+          <strong>Tipo de denuncia:</strong> Denúncia {denuncia.tipo && denuncia.tipo.toLowerCase() === 'anonima' ? 'anônima' : 'identificada'}
         </span>
         <span className="denuncia-card__field">
-          <strong>Data de envio:</strong> {denuncia.dataEnvio}
+          <strong>Data de envio:</strong> {formatarData(denuncia.dataEnvio)}
         </span>
         {status !== 'na_fila' && denuncia.protocolo && (
           <span className="denuncia-card__field">
@@ -66,7 +81,7 @@ export default function DenunciaCard({ denuncia, status, onVerDetalhes }) {
           <div className="denuncia-card__dates">
             {datasExtras.map(({ label, campo }) => (
               <span key={campo} className="denuncia-card__date">
-                {label}: {denuncia[campo]}
+                {label}: {formatarData(denuncia[campo])}
               </span>
             ))}
           </div>

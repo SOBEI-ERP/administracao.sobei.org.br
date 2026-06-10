@@ -16,7 +16,9 @@ export default function CustomDatePicker({ value, onChange, placeholder = 'dd/mm
   const containerRef = useRef(null);
 
   useEffect(() => {
-    setMounted(true);
+    setTimeout(() => {
+      setMounted(true);
+    }, 0);
   }, []);
 
   if (value !== prevValue) {

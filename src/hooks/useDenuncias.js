@@ -36,7 +36,13 @@ export function useAtualizarDenuncia() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }) => atualizarDenuncia(id, data),
+    mutationFn: async ({ id, data }) => {
+      const result = await atualizarDenuncia(id, data);
+      if (!result || !result.success) {
+        throw new Error(result?.message || 'Erro ao atualizar denúncia');
+      }
+      return result;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] });
       queryClient.invalidateQueries({ queryKey: ['denuncia'] });

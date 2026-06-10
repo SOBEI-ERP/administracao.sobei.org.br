@@ -16,7 +16,7 @@ export const denunciaAnonimaSchema = z.object({
 // Schema para denúncia identificada
 export const denunciaIdentificadaSchema = z.object({
   tipo: z.literal('identificada'),
-  nome: z.string().min(2, 'Informe seu nome completo'),
+  nomeCompleto: z.string().min(2, 'Informe seu nome completo'),
   email: z.string().email('Informe um email válido'),
   telefone: z.string().min(8, 'Informe um número de telefone válido'),
   unidade: z.string().min(1, 'Selecione a unidade'),

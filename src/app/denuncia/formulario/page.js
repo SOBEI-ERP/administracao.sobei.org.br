@@ -25,7 +25,7 @@ export default function FormularioPage() {
     resolver: zodResolver(denunciaSchema),
     defaultValues: {
       tipo: 'anonima',
-      nome: '',
+      nomeCompleto: '',
       email: '',
       telefone: '',
       unidade: '',
@@ -45,8 +45,12 @@ export default function FormularioPage() {
     setEnviando(true);
     try {
       const result = await enviarDenuncia(getValues());
-      setProtocolo(result.protocolo);
-      setStep('protocolo');
+      if (result && result.success) {
+        setProtocolo(result.protocolo);
+        setStep('protocolo');
+      } else {
+        alert(result?.message || 'Erro ao enviar denúncia. Tente novamente.');
+      }
     } catch {
       alert('Erro ao enviar denúncia. Tente novamente.');
     } finally {
@@ -104,11 +108,11 @@ export default function FormularioPage() {
                     <input
                       type="text"
                       id="nome"
-                      className={`form-input ${errors.nome ? 'form-input--error' : ''}`}
+                      className={`form-input ${errors.nomeCompleto ? 'form-input--error' : ''}`}
                       placeholder="Digite seu nome."
-                      {...register('nome')}
+                      {...register('nomeCompleto')}
                     />
-                    {errors.nome && <span className="form-error">{errors.nome.message}</span>}
+                    {errors.nomeCompleto && <span className="form-error">{errors.nomeCompleto.message}</span>}
                   </div>
 
                   <div className="form-group">
@@ -241,7 +245,7 @@ export default function FormularioPage() {
               {dados.tipo === 'identificada' && (
                 <>
                   <li>
-                    <strong>Nome completo:</strong> {dados.nome || '[Não informado]'}
+                    <strong>Nome completo:</strong> {dados.nomeCompleto || '[Não informado]'}
                   </li>
                   <li>
                     <strong>Email:</strong> {dados.email || '[Não informado]'}

@@ -32,7 +32,9 @@ export default function EstatisticasPage() {
   const [tags, setTags] = useState([]);
 
   useEffect(() => {
-    setMounted(true);
+    setTimeout(() => {
+      setMounted(true);
+    }, 0);
   }, []);
 
   const { data: stats, isLoading } = useEstatisticas(filtros);
@@ -61,8 +63,18 @@ export default function EstatisticasPage() {
     setTags(tags.filter((t) => t !== tag));
   }
 
-  const barData = stats?.porUnidade || [];
-  const pieData = stats?.distribuicao || [];
+  const barData = stats?.porUnidade
+    ? Object.entries(stats.porUnidade).map(([unidade, total]) => ({ unidade, total }))
+    : [];
+
+  const totalDenuncias = barData.reduce((acc, curr) => acc + curr.total, 0);
+  const pieData = totalDenuncias > 0
+    ? barData.map((item, idx) => ({
+        unidade: item.unidade,
+        percentual: parseFloat(((item.total / totalDenuncias) * 100).toFixed(1)),
+        cor: CORES_PIE[idx % CORES_PIE.length]
+      }))
+    : [];
 
   // Custom label for pie chart
   const renderCustomLabel = ({ unidade, percentual, x, y }) => (

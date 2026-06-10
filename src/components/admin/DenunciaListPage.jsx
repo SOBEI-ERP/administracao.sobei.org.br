@@ -38,6 +38,9 @@ export default function DenunciaListPage({ status }) {
         setSelectedDenuncia(null);
         refetch();
       },
+      onError: (err) => {
+        alert(err.message || 'Erro ao processar a ação. Tente novamente.');
+      },
     });
   }
 
