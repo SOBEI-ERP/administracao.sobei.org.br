@@ -1,10 +1,40 @@
 'use client';
 
+// ============================================
+// SOBEI Portal — Card de Denúncia
+// ============================================
+// Configuração data-driven de datas extras por status,
+// eliminando blocos condicionais repetitivos.
+
+/**
+ * Mapeia cada status às datas extras que devem ser exibidas no card.
+ * Cada entrada tem a label de exibição e o campo correspondente na denúncia.
+ */
+const DATAS_POR_STATUS = {
+  na_fila: [],
+  em_andamento: [
+    { label: 'Data de abertura', campo: 'dataAbertura' },
+    { label: 'Última alteração', campo: 'ultimaAlteracao' },
+  ],
+  fechada: [
+    { label: 'Data de abertura', campo: 'dataAbertura' },
+    { label: 'Última alteração', campo: 'ultimaAlteracao' },
+    { label: 'Data de fechamento', campo: 'dataFechamento' },
+  ],
+  arquivada: [
+    { label: 'Data de abertura', campo: 'dataAbertura' },
+    { label: 'Última alteração', campo: 'ultimaAlteracao' },
+    { label: 'Data de arquivamento', campo: 'dataArquivamento' },
+  ],
+};
+
 export default function DenunciaCard({ denuncia, status, onVerDetalhes }) {
   const hash = denuncia.protocolo
     ? denuncia.protocolo.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
     : 0;
   const animationDelay = `${(hash % 5) * 0.05}s`;
+
+  const datasExtras = DATAS_POR_STATUS[status] || [];
 
   return (
     <div className="denuncia-card" style={{ animationDelay }}>
@@ -32,26 +62,13 @@ export default function DenunciaCard({ denuncia, status, onVerDetalhes }) {
           </span>
         )}
 
-        {(status === 'em_andamento') && (
+        {datasExtras.length > 0 && (
           <div className="denuncia-card__dates">
-            <span className="denuncia-card__date">Data de abertura: {denuncia.dataAbertura}</span>
-            <span className="denuncia-card__date">Ultima alteração: {denuncia.ultimaAlteracao}</span>
-          </div>
-        )}
-
-        {status === 'fechada' && (
-          <div className="denuncia-card__dates">
-            <span className="denuncia-card__date">Data de abertura: {denuncia.dataAbertura}</span>
-            <span className="denuncia-card__date">Ultima alteração: {denuncia.ultimaAlteracao}</span>
-            <span className="denuncia-card__date">Data de fechamento: {denuncia.dataFechamento}</span>
-          </div>
-        )}
-
-        {status === 'arquivada' && (
-          <div className="denuncia-card__dates">
-            <span className="denuncia-card__date">Data de abertura: {denuncia.dataAbertura}</span>
-            <span className="denuncia-card__date">Ultima alteração: {denuncia.ultimaAlteracao}</span>
-            <span className="denuncia-card__date">Data de arquivamento: {denuncia.dataArquivamento}</span>
+            {datasExtras.map(({ label, campo }) => (
+              <span key={campo} className="denuncia-card__date">
+                {label}: {denuncia[campo]}
+              </span>
+            ))}
           </div>
         )}
 

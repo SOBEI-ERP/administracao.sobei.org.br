@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { DENUNCIA_LINKS } from '@/lib/navigation';
 
 export default function MobileHeader() {
   const pathname = usePathname();
@@ -28,13 +29,6 @@ export default function MobileHeader() {
       document.body.style.overflow = '';
     };
   }, [menuOpen]);
-
-  const denunciaLinks = [
-    { href: '/admin/fila', label: 'Na fila' },
-    { href: '/admin/andamento', label: 'Em andamento' },
-    { href: '/admin/fechadas', label: 'Fechadas' },
-    { href: '/admin/arquivadas', label: 'Arquivadas' },
-  ];
 
   return (
     <>
@@ -107,7 +101,7 @@ export default function MobileHeader() {
 
           {denunciasOpen && (
             <div className="mobile-drawer__subitems">
-              {denunciaLinks.map((link) => (
+              {DENUNCIA_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}

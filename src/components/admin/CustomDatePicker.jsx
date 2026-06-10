@@ -9,10 +9,15 @@ const MONTHS = [
 const WEEKDAYS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
 export default function CustomDatePicker({ value, onChange, placeholder = 'dd/mm/aaaa', style, className }) {
+  const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
   const [prevValue, setPrevValue] = useState(value);
   const containerRef = useRef(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (value !== prevValue) {
     setPrevValue(value);
@@ -123,7 +128,7 @@ export default function CustomDatePicker({ value, onChange, placeholder = 'dd/mm
         </svg>
       </div>
       
-      {isOpen && (
+      {mounted && isOpen && (
         <div className="custom-datepicker-dropdown">
           <div className="custom-datepicker-header">
             <button className="custom-datepicker-nav" onClick={handlePrevMonth}>

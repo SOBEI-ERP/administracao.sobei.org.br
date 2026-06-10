@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CustomSelect from '@/components/admin/CustomSelect';
 import CustomDatePicker from '@/components/admin/CustomDatePicker';
 import {
@@ -22,6 +22,7 @@ import { UNIDADES } from '@/lib/mockData';
 const CORES_PIE = ['#7C6BC4', '#FF7043', '#43A047', '#FFB74D', '#9C8FD9', '#E53935'];
 
 export default function EstatisticasPage() {
+  const [mounted, setMounted] = useState(false);
   const [filtros, setFiltros] = useState({
     tipo: '',
     unidade: '',
@@ -30,7 +31,20 @@ export default function EstatisticasPage() {
   });
   const [tags, setTags] = useState([]);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { data: stats, isLoading } = useEstatisticas(filtros);
+
+  if (!mounted) {
+    return (
+      <div>
+        <h1 className="statistics-page__title">Estatísticas</h1>
+        <p style={{ color: 'var(--color-gray-500)', padding: '24px 0' }}>Carregando...</p>
+      </div>
+    );
+  }
 
   function handleAplicar() {
     if (filtros.unidade && !tags.includes(filtros.unidade)) {

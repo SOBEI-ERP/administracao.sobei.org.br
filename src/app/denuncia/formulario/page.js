@@ -119,7 +119,7 @@ export default function FormularioPage() {
                       type="email"
                       id="email"
                       className={`form-input ${errors.email ? 'form-input--error' : ''}`}
-                      placeholder="Digite seu nome."
+                      placeholder="Digite seu email."
                       {...register('email')}
                     />
                     {errors.email && <span className="form-error">{errors.email.message}</span>}

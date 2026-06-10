@@ -3,6 +3,15 @@
    ============================================ */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import '../styles/variables.css';
+@import '../styles/components.css';
+@import '../styles/landing.css';
+@import '../styles/forms.css';
+@import '../styles/sidebar.css';
+@import '../styles/admin.css';
+@import '../styles/cards.css';
+@import '../styles/modal.css';
+@import '../styles/consulta-modal.css';
+@import '../styles/statistics.css';
 @import '../styles/mobile-header.css';
 
 /* ---- Reset ---- */

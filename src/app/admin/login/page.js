@@ -55,7 +55,7 @@ export default function AdminLoginPage() {
                 type="text"
                 id="login"
                 className={`form-input ${errors.login ? 'form-input--error' : ''}`}
-                placeholder="Digite seu nome."
+                placeholder="Digite seu login"
                 {...register('login')}
               />
               {errors.login && <span className="form-error">{errors.login.message}</span>}
@@ -69,7 +69,7 @@ export default function AdminLoginPage() {
                 type="password"
                 id="senha"
                 className={`form-input ${errors.senha ? 'form-input--error' : ''}`}
-                placeholder="Digite seu nome."
+                placeholder="Digite sua senha"
                 {...register('senha')}
               />
               {errors.senha && <span className="form-error">{errors.senha.message}</span>}
@@ -88,7 +88,7 @@ export default function AdminLoginPage() {
             disabled={isSubmitting}
             id="btn-login"
           >
-            {isSubmitting ? 'Entrando...' : 'Enviar denúncia'}
+            {isSubmitting ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
       </div>

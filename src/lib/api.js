@@ -7,15 +7,11 @@ import { MOCK_DENUNCIAS, MOCK_STATS_POR_UNIDADE, MOCK_STATS_DISTRIBUICAO } from 
 // Simula delay de rede
 const delay = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Gera protocolo aleatório
+// Gera protocolo aleatório (formato: ABC-123-456)
 function gerarProtocolo() {
-  const letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const l1 = letras[Math.floor(Math.random() * 26)];
-  const l2 = letras[Math.floor(Math.random() * 26)];
-  const l3 = letras[Math.floor(Math.random() * 26)];
-  const n1 = String(Math.floor(Math.random() * 900) + 100);
-  const n2 = String(Math.floor(Math.random() * 900) + 100);
-  return `${l1}${l2}${l3}-${n1}-${n2}`;
+  const letra = () => String.fromCharCode(65 + Math.floor(Math.random() * 26));
+  const num = () => String(Math.floor(Math.random() * 900) + 100);
+  return `${letra()}${letra()}${letra()}-${num()}-${num()}`;
 }
 
 // ---- API Pública ----
