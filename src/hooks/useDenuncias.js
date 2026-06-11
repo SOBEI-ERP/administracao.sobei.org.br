@@ -23,11 +23,11 @@ export function useDenuncias(status, filtros = {}) {
 }
 
 // Buscar detalhes de uma denúncia
-export function useDenunciaDetalhes(id) {
+export function useDenunciaDetalhes(protocolo) {
   return useQuery({
-    queryKey: ['denuncia', id],
-    queryFn: () => fetchDenunciaDetalhes(id),
-    enabled: !!id,
+    queryKey: ['denuncia', protocolo],
+    queryFn: () => fetchDenunciaDetalhes(protocolo),
+    enabled: !!protocolo,
   });
 }
 
@@ -36,8 +36,8 @@ export function useAtualizarDenuncia() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }) => {
-      const result = await atualizarDenuncia(id, data);
+    mutationFn: async ({ protocolo, data }) => {
+      const result = await atualizarDenuncia(protocolo, data);
       if (!result || !result.success) {
         throw new Error(result?.message || 'Erro ao atualizar denúncia');
       }

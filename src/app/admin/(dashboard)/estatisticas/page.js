@@ -76,6 +76,29 @@ export default function EstatisticasPage() {
       }))
     : [];
 
+  const tiposData = stats?.distribuicao?.tipos
+    ? stats.distribuicao.tipos.map((item, idx) => ({
+        name: item.name === 'ANONIMA' ? 'Anônima' : 'Identificada',
+        value: item.value,
+        cor: idx === 0 ? '#7C6BC4' : '#FF7043',
+      }))
+    : [];
+
+  const statusData = stats?.distribuicao?.status
+    ? stats.distribuicao.status.map((item) => {
+        const statusNames = {
+          NA_FILA: 'Aguardando Análise',
+          EM_ANDAMENTO: 'Em Andamento',
+          FECHADA: 'Protocolo Fechado',
+          ARQUIVADA: 'Arquivada',
+        };
+        return {
+          name: statusNames[item.name] || item.name,
+          value: item.value,
+        };
+      })
+    : [];
+
   // Custom label for pie chart
   const renderCustomLabel = ({ unidade, percentual, x, y }) => (
     <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={12} fill="#333">
@@ -209,49 +232,79 @@ export default function EstatisticasPage() {
         </div>
       )}
 
-      {/* Pie Chart */}
+      {/* Gráficos Secundários */}
       {!isLoading && (
-        <div className="statistics-chart__wrapper" style={{ marginTop: '24px' }}>
-          <ResponsiveContainer width="100%" height={420}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                dataKey="percentual"
-                nameKey="unidade"
-                cx="50%"
-                cy="50%"
-                outerRadius={160}
-                innerRadius={0}
-                label={({ unidade, percentual }) => `${percentual}%`}
-                labelLine={true}
-              >
-                {pieData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={entry.cor || CORES_PIE[index % CORES_PIE.length]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip
-                formatter={(value) => `${value}%`}
-                contentStyle={{
-                  borderRadius: '8px',
-                  border: 'none',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                }}
-              />
-              <Legend
-                layout="vertical"
-                verticalAlign="middle"
-                align="left"
-                formatter={(value, entry) => {
-                  const item = pieData.find((d) => d.unidade === value);
-                  return `${value} ${item ? item.percentual + '%' : ''}`;
-                }}
-                wrapperStyle={{ fontSize: '14px', lineHeight: '28px' }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
+        <div className="statistics-secondary-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginTop: '24px' }}>
+          
+          {/* Pie Chart de Tipos */}
+          <div className="statistics-page__chart-container" style={{ margin: 0 }}>
+            <h2 className="statistics-page__chart-title" style={{ padding: '0 var(--spacing-md)' }}>Distribuição por tipo de denúncia:</h2>
+            <div className="statistics-chart__wrapper" style={{ padding: '10px 0' }}>
+              {tiposData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={tiposData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    >
+                      {tiposData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.cor} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: '8px',
+                        border: 'none',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <p style={{ color: 'var(--color-gray-500)', textAlign: 'center', padding: '40px 0' }}>Sem dados para exibir</p>
+              )}
+            </div>
+          </div>
+
+          {/* Cards de Status */}
+          <div className="statistics-page__chart-container" style={{ margin: 0 }}>
+            <h2 className="statistics-page__chart-title" style={{ padding: '0 var(--spacing-md)' }}>Distribuição por status das denúncias:</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', padding: '24px' }}>
+              {statusData.length > 0 ? (
+                statusData.map((item, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      backgroundColor: 'rgba(124, 107, 196, 0.05)',
+                      border: '1px solid rgba(124, 107, 196, 0.15)',
+                      borderRadius: '12px',
+                      padding: '20px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      textAlign: 'center',
+                    }}
+                  >
+                    <span style={{ fontSize: '32px', fontWeight: 'bold', color: '#2A1F8A' }}>
+                      {item.value}
+                    </span>
+                    <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--color-gray-600)', marginTop: '4px' }}>
+                      {item.name}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p style={{ color: 'var(--color-gray-500)', textAlign: 'center', padding: '40px 0' }}>Sem dados para exibir</p>
+              )}
+            </div>
+          </div>
+
         </div>
       )}
 
