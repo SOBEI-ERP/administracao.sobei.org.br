@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { denunciaSchema } from '@/lib/schemas';
 import { enviarDenuncia } from '@/lib/api';
 import { UNIDADES } from '@/lib/mockData';
+import CustomSelect from '@/components/admin/CustomSelect';
 
 export default function FormularioPage() {
   const router = useRouter();
@@ -73,7 +74,7 @@ export default function FormularioPage() {
             <div className="form-card__fields">
               {/* Tipo de denúncia */}
               <div className="form-group">
-                <label className="form-label">Tipo de denuncia:</label>
+                <label className="form-label">Tipo de denúncia:</label>
                 <div className="radio-group">
                   <label className="radio-option">
                     <input
@@ -131,13 +132,13 @@ export default function FormularioPage() {
 
                   <div className="form-group">
                     <label className="form-label" htmlFor="telefone">
-                      Numero de telefone:
+                      Número de telefone:
                     </label>
                     <input
                       type="tel"
                       id="telefone"
                       className={`form-input ${errors.telefone ? 'form-input--error' : ''}`}
-                      placeholder="Digite seu numero."
+                      placeholder="Digite seu número."
                       {...register('telefone')}
                     />
                     {errors.telefone && (
@@ -152,18 +153,14 @@ export default function FormularioPage() {
                 <label className="form-label" htmlFor="unidade">
                   Em qual unidade ocorreu?
                 </label>
-                <select
-                  id="unidade"
-                  className={`form-select ${errors.unidade ? 'form-input--error' : ''}`}
-                  {...register('unidade')}
-                >
-                  <option value="">Selecione a unidade</option>
-                  {UNIDADES.map((u) => (
-                    <option key={u} value={u}>
-                      {u}
-                    </option>
-                  ))}
-                </select>
+                <input type="hidden" {...register('unidade')} />
+                <CustomSelect
+                  value={watch('unidade')}
+                  onChange={(val) => setValue('unidade', val, { shouldValidate: true })}
+                  options={UNIDADES.map((u) => ({ value: u, label: u }))}
+                  defaultOption="Selecione a unidade"
+                  className={errors.unidade ? 'form-input--error' : ''}
+                />
                 {errors.unidade && <span className="form-error">{errors.unidade.message}</span>}
               </div>
 
@@ -175,7 +172,7 @@ export default function FormularioPage() {
                 <textarea
                   id="descricao"
                   className={`form-textarea ${errors.descricao ? 'form-input--error' : ''}`}
-                  placeholder="Descreva como aconteceu(contexto, cronologia e etc.)."
+                  placeholder="Descreva como aconteceu (contexto, cronologia, etc.)."
                   rows={8}
                   {...register('descricao')}
                 />
@@ -312,7 +309,7 @@ export default function FormularioPage() {
             >
               ×
             </button>
-            <h2 className="protocol-modal__title">Sua denuncia foi registrada com sucesso!</h2>
+            <h2 className="protocol-modal__title">Sua denúncia foi registrada com sucesso!</h2>
             <h3 className="protocol-modal__subtitle">ANOTE SEU NÚMERO DE PROTOCOLO</h3>
             <div className="protocol-modal__number">{protocolo}</div>
             <p className="protocol-modal__info">

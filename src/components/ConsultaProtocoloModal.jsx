@@ -63,7 +63,7 @@ export default function ConsultaProtocoloModal({ resultado, onClose }) {
         <div className="consulta-modal__field">
           <span className="consulta-modal__field-label">Tipo de denúncia</span>
           <span className="consulta-modal__field-value">
-            Denúncia {resultado.tipo}
+            {resultado.tipo === 'ANONIMA' || resultado.tipo === 'anonima' ? 'Denúncia anônima' : 'Denúncia identificada'}
           </span>
         </div>
 

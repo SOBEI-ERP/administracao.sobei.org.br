@@ -96,7 +96,7 @@ export default function LandingPage() {
         </p>
         <div className="hero__cta">
           <Link href="/denuncia" className="btn btn--outline-white">
-            <strong>Denúnciar</strong>
+            <strong>Denunciar</strong>
           </Link>
         </div>
       </section>
@@ -143,7 +143,7 @@ export default function LandingPage() {
       <section className="protocol-search">
         <h2 className="protocol-search__title">Consulte o andamento da sua denúncia</h2>
         <p className="protocol-search__label">
-          Digite o numero de protocolo da sua denúncia:
+          Digite o número de protocolo da sua denúncia:
         </p>
 
         <form onSubmit={handleConsultar}>
@@ -151,7 +151,7 @@ export default function LandingPage() {
             <input
               type="text"
               className="protocol-search__input"
-              placeholder="Digite seu numero de protocolo"
+              placeholder="Digite seu número de protocolo"
               value={protocolo}
               onChange={handleProtocoloChange}
               maxLength={11}

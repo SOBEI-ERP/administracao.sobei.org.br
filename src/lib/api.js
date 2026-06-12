@@ -163,12 +163,14 @@ function normalizeDenunciasList(raw) {
 }
 
 function getAuthHeaders() {
-  const token = localStorage.getItem('sobei_token');
-  if (token) {
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
-    };
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('sobei_token');
+    if (token) {
+      return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+    }
   }
   return {
     'Content-Type': 'application/json'

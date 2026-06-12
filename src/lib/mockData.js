@@ -3,12 +3,24 @@
 // ============================================
 
 export const UNIDADES = [
-  'Hortênsias',
-  'Leblon',
-  'Montanaro',
-  'Ipês',
+  'Acácias',
+  'Araucárias',
   'Bela Vista',
-  'Araucarias',
+  'CCINTER',
+  'CEDESP',
+  'Cedro',
+  'Cerejeiras/Jacomo Tatto',
+  'Imbuias',
+  'Ipês',
+  'Leblon',
+  'Macaúbas',
+  'Matriz',
+  'Montanaro',
+  'NCI Imbuias',
+  'Oliveiras',
+  'Orquídeas',
+  'Sabiás',
+  'Telecentro'
 ];
 
 export const MOCK_DENUNCIAS = [
@@ -16,7 +28,7 @@ export const MOCK_DENUNCIAS = [
     id: '1',
     protocolo: 'DXH-957-437',
     tipo: 'anonima',
-    unidade: 'Hortênsias',
+    unidade: 'Leblon',
     descricao:
       'Gostaria de relatar uma inconsistência grave que vem ocorrendo de forma recorrente nas últimas três semanas. O supervisor Carlos Eduardo tem dado baixa no sistema acusando o recebimento de lotes completos de caixas de papelão da empresa LogPack. No entanto, fisicamente, apenas metade da carga descrita na nota fiscal está entrando no galpão.\nNa última terça-feira (26/05), presenciei o momento em que o caminhão descarregou 50 pallets, mas a nota fiscal assinada e validada por ele constava o recebimento de 100 pallets. Suspeito de um esquema fraudulento de faturamento duplicado entre o supervisor e o fornecedor externo, gerando prejuízo financeiro direto para a nossa unidade. Os relatórios de inventário do sistema não vão bater com o estoque físico se uma auditoria for realizada de surpresa.',
     envolvidos: 'Mariana Alencar (Coordenadora de Atendimento)\nMariana 2 (Coordenadora de algo)',
@@ -135,7 +147,7 @@ export const MOCK_DENUNCIAS = [
     id: '6',
     protocolo: 'JNH-889-553',
     tipo: 'anonima',
-    unidade: 'Hortênsias',
+    unidade: 'Leblon',
     descricao:
       'Denúncia duplicada sobre o mesmo assunto da DXH-957-437. Sem informações adicionais relevantes.',
     envolvidos: 'Não informado',
@@ -258,7 +270,7 @@ export const MOCK_STATS_POR_UNIDADE = [
   { unidade: 'Ipês', total: 95 },
   { unidade: 'Bela Vista', total: 22 },
   { unidade: 'Araucarias', total: 45 },
-  { unidade: 'Hortênsias', total: 60 },
+  { unidade: 'Matriz', total: 60 },
 ];
 
 export const MOCK_STATS_DISTRIBUICAO = [

@@ -2,11 +2,20 @@
    SOBEI Portal — Statistics Page Styles
    ============================================ */
 
+.statistics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+  gap: var(--spacing-base);
+}
+
 .statistics-page__title {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-black);
   color: var(--color-primary);
-  margin-bottom: var(--spacing-lg);
+  margin: 0;
   font-style: italic;
 }
 
@@ -19,19 +28,33 @@
 }
 
 .statistics-page__chart-container {
+  background: var(--color-white);
+  border: 1px solid rgba(27, 20, 100, 0.08);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
   width: 100%;
-  margin-bottom: var(--spacing-2xl);
-  padding-bottom: var(--spacing-lg);
-  border-bottom: 2px solid var(--color-gray-200);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ---- Filters ---- */
+.statistics-filters-glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05);
+  margin-bottom: var(--spacing-xl);
+}
+
 .statistics-filters {
   display: flex;
-  align-items: stretch;
+  align-items: flex-end;
   gap: var(--spacing-lg);
   flex-wrap: wrap;
-  margin-bottom: var(--spacing-lg);
 }
 
 .statistics-filters__group {
@@ -133,11 +156,12 @@
   color: var(--color-white);
 }
 
-/* ---- Charts ---- */
-.statistics-charts {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xl);
+/* ---- Charts Bento Grid ---- */
+.statistics-bento {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-2xl);
 }
 
 .statistics-chart {
@@ -151,12 +175,12 @@
 
 /* ---- Report Button ---- */
 .statistics-report {
-  margin-top: var(--spacing-2xl);
-  text-align: center;
+  margin-top: 0;
+  text-align: right;
 }
 
 .statistics-report .btn {
-  min-width: 320px;
+  min-width: 200px;
 }
 
 @media (max-width: 900px) {
@@ -174,13 +198,24 @@
   }
 }
 
+@media (max-width: 1024px) {
+  .statistics-bento {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
+  .statistics-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .statistics-page__title {
     font-size: var(--font-size-xl);
   }
 
   .statistics-page__chart-container {
-    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-base);
   }
 
   .statistics-chart__wrapper {
@@ -199,4 +234,111 @@
   .statistics-report .btn {
     min-width: 100%;
   }
+}
+
+/* ---- KPI Cards ---- */
+.statistics-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--spacing-base);
+  margin-bottom: var(--spacing-xl);
+}
+
+.kpi-card {
+  background: var(--color-white);
+  border: 1px solid rgba(27, 20, 100, 0.08);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-base);
+}
+
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(27, 20, 100, 0.08);
+  border-color: rgba(27, 20, 100, 0.15);
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--color-primary);
+  opacity: 0.8;
+}
+
+.kpi-card--accent::before {
+  background: var(--color-purple);
+}
+
+.kpi-card--green::before {
+  background: var(--color-green);
+}
+
+.kpi-card--orange::before {
+  background: var(--color-orange);
+}
+
+.kpi-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.kpi-card__title {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.kpi-card__icon {
+  color: var(--color-gray-400);
+  transition: color var(--transition-fast);
+}
+
+.kpi-card:hover .kpi-card__icon {
+  color: var(--color-primary);
+}
+
+.kpi-card__value {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-black);
+  color: var(--color-primary);
+  line-height: var(--line-height-tight);
+}
+
+.kpi-card__desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-600);
+  margin-top: var(--spacing-xs);
+}
+
+/* ---- Chart Explanation Cards ---- */
+.chart-explanation-card {
+  background-color: rgba(27, 20, 100, 0.02);
+  border: 1px solid rgba(27, 20, 100, 0.05);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-base);
+  margin-top: var(--spacing-md);
+}
+
+.chart-explanation-card__text {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-gray-700);
+  margin: 0;
+}
+
+.chart-explanation-card__text strong {
+  color: var(--color-primary);
 }
