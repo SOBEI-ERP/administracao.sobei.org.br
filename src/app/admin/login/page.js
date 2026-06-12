@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -10,8 +10,14 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, isAuthenticated, loading } = useAuth();
   const [erro, setErro] = useState('');
+
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      router.push('/admin');
+    }
+  }, [isAuthenticated, loading, router]);
 
   const {
     register,

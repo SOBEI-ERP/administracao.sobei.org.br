@@ -1,14 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { DENUNCIA_LINKS } from '@/lib/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, logout } = useAuth();
   const [denunciasOpen, setDenunciasOpen] = useState(true);
+
+  const handleLogout = () => {
+    logout();
+    router.push('/admin/login');
+  };
 
   return (
     <aside className="sidebar">
@@ -91,7 +99,48 @@ export default function Sidebar() {
           />
           <span className="sidebar__text">Estatísticas</span>
         </Link>
+
+        {user?.nivel?.toUpperCase() === 'SUPORTE' && (
+          <>
+            <div className="sidebar__divider" />
+            {/* Usuários */}
+            <Link
+              href="/admin/usuarios"
+              className={`sidebar__link ${
+                pathname === '/admin/usuarios' ? 'sidebar__link--active' : ''
+              }`}
+            >
+              <Image 
+                src="/images/user_icon.svg" 
+                alt="" 
+                width={20} 
+                height={20} 
+                className="sidebar__icon" 
+              />
+              <span className="sidebar__text">Gerenciar Usuários</span>
+            </Link>
+          </>
+        )}
       </nav>
+
+      <div className="sidebar__logout" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', padding: 'var(--spacing-md) 0' }}>
+        <button
+          onClick={handleLogout}
+          className="sidebar__link"
+          style={{ color: 'var(--color-red)' }}
+          type="button"
+        >
+          <Image 
+            src="/images/Log_Out.svg" 
+            alt="" 
+            width={20} 
+            height={20} 
+            className="sidebar__icon" 
+            style={{ filter: 'invert(20%) sepia(85%) saturate(6669%) hue-rotate(354deg) brightness(96%) contrast(92%)' }}
+          />
+          <span className="sidebar__text" style={{ fontWeight: 'var(--font-weight-bold)' }}>Sair da Conta</span>
+        </button>
+      </div>
     </aside>
   );
 }

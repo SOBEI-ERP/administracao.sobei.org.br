@@ -297,7 +297,9 @@ export async function loginAdmin(credentials) {
 export async function fetchDenunciasPorStatus(status, filtros = {}) {
   try {
     let url = new URL(`${API_BASE_URL}/admin/denuncias`);
-    url.searchParams.append('status', status.toUpperCase());
+    if (status) {
+      url.searchParams.append('status', status.toUpperCase());
+    }
     
     if (filtros.tipo) url.searchParams.append('tipo', filtros.tipo.toUpperCase());
     if (filtros.unidade) url.searchParams.append('unidade', filtros.unidade);
@@ -380,3 +382,74 @@ export async function fetchEstatisticas(filtros = {}) {
     return null;
   }
 }
+
+export async function fetchUsuarios() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/usuarios`, {
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) return [];
+    return await response.json();
+  } catch (error) {
+    return [];
+  }
+}
+
+export async function criarUsuario(payload) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/usuarios`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      return { success: false, message: err.message || 'Erro ao criar usuário' };
+    }
+
+    const data = await response.json();
+    return { success: true, usuario: data };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function alterarSenhaUsuario(id, senha) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/usuarios/${id}/senha`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ senha }),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      return { success: false, message: err.message || 'Erro ao alterar senha' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function deletarUsuario(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/usuarios/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      return { success: false, message: err.message || 'Erro ao deletar usuário' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+

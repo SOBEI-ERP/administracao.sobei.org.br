@@ -4,7 +4,7 @@
 // SOBEI Portal — Auth Context (Mock)
 // ============================================
 
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { loginAdmin as loginApi } from '@/lib/api';
 
 const AuthContext = createContext(null);
@@ -12,13 +12,30 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Restaura a sessão ao montar o componente
+  useEffect(() => {
+    const token = localStorage.getItem('sobei_token');
+    const storedUser = localStorage.getItem('sobei_user');
+    if (token && storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+        setIsAuthenticated(true);
+      } catch {
+        localStorage.removeItem('sobei_token');
+        localStorage.removeItem('sobei_user');
+      }
+    }
+    setLoading(false);
+  }, []);
 
   const login = useCallback(async (credentials) => {
     setLoading(true);
     try {
       const result = await loginApi(credentials);
       if (result.success) {
+        localStorage.setItem('sobei_user', JSON.stringify(result.user));
         setUser(result.user);
         setIsAuthenticated(true);
         return { success: true };
@@ -32,6 +49,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(() => {
+    localStorage.removeItem('sobei_token');
+    localStorage.removeItem('sobei_user');
     setUser(null);
     setIsAuthenticated(false);
   }, []);
@@ -50,3 +69,4 @@ export function useAuth() {
   }
   return context;
 }
+

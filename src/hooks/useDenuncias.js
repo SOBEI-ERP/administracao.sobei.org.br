@@ -59,6 +59,15 @@ export function useEstatisticas(filtros = {}) {
   });
 }
 
+// Buscar todas as denúncias
+export function useTodasDenuncias(filtros = {}) {
+  return useQuery({
+    queryKey: ['todas-denuncias', filtros],
+    queryFn: () => fetchDenunciasPorStatus('', filtros),
+    staleTime: 30000,
+  });
+}
+
 // Consultar protocolo (público)
 export function useConsultarProtocolo(protocolo) {
   return useQuery({
