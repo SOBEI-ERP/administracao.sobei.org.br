@@ -151,6 +151,7 @@ function normalizeDenuncia(raw) {
       conclusao.tipoConclusao ??
       conclusao.tipo_conclusao ??
       null,
+    prioridade: denuncia.prioridade ?? 'BAIXA',
   };
 }
 

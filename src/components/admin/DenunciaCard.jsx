@@ -60,6 +60,11 @@ export default function DenunciaCard({ denuncia, status, onVerDetalhes }) {
         <span className="denuncia-card__field">
           <strong>Tipo de denuncia:</strong> Denúncia {denuncia.tipo && denuncia.tipo.toLowerCase() === 'anonima' ? 'anônima' : 'identificada'}
         </span>
+        <span className="denuncia-card__field" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+          <strong>Prioridade:</strong> <span className={`priority-badge priority-badge--${(denuncia.prioridade || 'baixa').toLowerCase()}`}>
+            {denuncia.prioridade === 'ALTA' ? 'Alta' : denuncia.prioridade === 'MEDIA' ? 'Média' : 'Baixa'}
+          </span>
+        </span>
         <span className="denuncia-card__field">
           <strong>Data de envio:</strong> {formatarData(denuncia.dataEnvio)}
         </span>
@@ -88,7 +93,7 @@ export default function DenunciaCard({ denuncia, status, onVerDetalhes }) {
         )}
 
         <button
-          className="btn btn--purple btn--sm"
+          className="btn btn--blue btn--sm"
           onClick={() => onVerDetalhes(denuncia)}
           type="button"
         >
