@@ -560,3 +560,18 @@
 .custom-datepicker-action:hover {
   background-color: rgba(27, 20, 100, 0.06);
 }
+
+@media (max-width: 600px) {
+  .btn {
+    white-space: normal;
+    line-height: 1.4;
+  }
+  .form-card .btn {
+    width: 100%;
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+  .form-card .btn--lg {
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-size: var(--font-size-base);
+  }
+}

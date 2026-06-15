@@ -9,6 +9,19 @@ import { enviarDenuncia } from '@/lib/api';
 import { UNIDADES } from '@/lib/mockData';
 import CustomSelect from '@/components/admin/CustomSelect';
 
+const formatPhone = (value) => {
+  if (!value) return '';
+  const phoneNumber = value.replace(/[^\d]/g, '');
+  const phoneNumberLength = phoneNumber.length;
+  if (phoneNumberLength === 0) return '';
+  if (phoneNumberLength <= 2) return `(${phoneNumber}`;
+  if (phoneNumberLength <= 6) return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2)}`;
+  if (phoneNumberLength <= 10) {
+    return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2, 6)}-${phoneNumber.slice(6)}`;
+  }
+  return `(${phoneNumber.slice(0, 2)}) ${phoneNumber.slice(2, 7)}-${phoneNumber.slice(7, 11)}`;
+};
+
 export default function FormularioPage() {
   const router = useRouter();
   const [step, setStep] = useState('form'); // 'form' | 'confirmacao' | 'protocolo'
@@ -111,6 +124,7 @@ export default function FormularioPage() {
                       id="nome"
                       className={`form-input ${errors.nomeCompleto ? 'form-input--error' : ''}`}
                       placeholder="Digite seu nome."
+                      maxLength={150}
                       {...register('nomeCompleto')}
                     />
                     {errors.nomeCompleto && <span className="form-error">{errors.nomeCompleto.message}</span>}
@@ -118,13 +132,14 @@ export default function FormularioPage() {
 
                   <div className="form-group">
                     <label className="form-label" htmlFor="email">
-                      Email(corporativo ou pessoal):
+                      Email (corporativo ou pessoal):
                     </label>
                     <input
                       type="email"
                       id="email"
                       className={`form-input ${errors.email ? 'form-input--error' : ''}`}
-                      placeholder="Digite seu email."
+                      placeholder="exemplo@sobei.org.br"
+                      maxLength={150}
                       {...register('email')}
                     />
                     {errors.email && <span className="form-error">{errors.email.message}</span>}
@@ -138,8 +153,13 @@ export default function FormularioPage() {
                       type="tel"
                       id="telefone"
                       className={`form-input ${errors.telefone ? 'form-input--error' : ''}`}
-                      placeholder="Digite seu número."
-                      {...register('telefone')}
+                      placeholder="(11) 99999-9999"
+                      maxLength={15}
+                      {...register('telefone', {
+                        onChange: (e) => {
+                          e.target.value = formatPhone(e.target.value);
+                        }
+                      })}
                     />
                     {errors.telefone && (
                       <span className="form-error">{errors.telefone.message}</span>
@@ -174,6 +194,7 @@ export default function FormularioPage() {
                   className={`form-textarea ${errors.descricao ? 'form-input--error' : ''}`}
                   placeholder="Descreva como aconteceu (contexto, cronologia, etc.)."
                   rows={8}
+                  maxLength={5000}
                   {...register('descricao')}
                 />
                 {errors.descricao && (
@@ -191,6 +212,7 @@ export default function FormularioPage() {
                   id="envolvidos"
                   className="form-input"
                   placeholder="Liste ou escreva quem foram os envolvidos."
+                  maxLength={1000}
                   {...register('envolvidos')}
                 />
               </div>
@@ -205,6 +227,7 @@ export default function FormularioPage() {
                   id="testemunhas"
                   className="form-input"
                   placeholder="Liste ou escreva quem testemunhou os fatos."
+                  maxLength={1000}
                   {...register('testemunhas')}
                 />
               </div>

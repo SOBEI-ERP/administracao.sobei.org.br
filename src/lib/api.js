@@ -164,7 +164,7 @@ function normalizeDenunciasList(raw) {
 
 function getAuthHeaders() {
   if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('sobei_token');
+    const token = sessionStorage.getItem('sobei_token');
     if (token) {
       return {
         'Content-Type': 'application/json',
@@ -203,7 +203,9 @@ export async function enviarDenuncia(data) {
 
 export async function consultarProtocolo(protocolo) {
   try {
-    const response = await fetch(`${API_BASE_URL}/public/denuncias/protocolo/${protocolo}`);
+    const response = await fetch(`${API_BASE_URL}/public/denuncias/protocolo/${protocolo}`, {
+      cache: 'no-store'
+    });
     if (!response.ok) {
       return { found: false, protocolo, status: null, timeline: [] };
     }
@@ -238,26 +240,22 @@ function buildTimeline(estado) {
     NA_FILA: [
       { label: 'Denúncia recebida!', active: true },
       { label: 'Sua denúncia está sendo analisada', active: false },
-      { label: 'Sua denúncia foi apurada e em breve fecharemos o protocolo', active: false },
       { label: 'Protocolo fechado!', active: false },
     ],
     EM_ANDAMENTO: [
       { label: 'Denúncia recebida!', active: true },
       { label: 'Sua denúncia está sendo analisada', active: true },
-      { label: 'Sua denúncia foi apurada e em breve fecharemos o protocolo', active: false },
       { label: 'Protocolo fechado!', active: false },
     ],
     FECHADA: [
       { label: 'Denúncia recebida!', active: true },
       { label: 'Sua denúncia está sendo analisada', active: true },
-      { label: 'Sua denúncia foi apurada e em breve fecharemos o protocolo', active: true },
       { label: 'Protocolo fechado!', active: true },
     ],
     ARQUIVADA: [
       { label: 'Denúncia recebida!', active: true },
       { label: 'Sua denúncia está sendo analisada', active: true },
       { label: 'Denúncia arquivada', active: true },
-      { label: 'Protocolo fechado!', active: false },
     ],
   };
   return statusMap[estado] || [];
@@ -284,8 +282,8 @@ export async function loginAdmin(credentials) {
     const data = await response.json();
     
     // Armazena token para usar nas próximas rotas
-    if (data.token) {
-      localStorage.setItem('sobei_token', data.token);
+    if (data.token && typeof window !== 'undefined') {
+      sessionStorage.setItem('sobei_token', data.token);
     }
     
     return data;

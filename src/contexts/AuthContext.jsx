@@ -16,15 +16,15 @@ export function AuthProvider({ children }) {
 
   // Restaura a sessão ao montar o componente
   useEffect(() => {
-    const token = localStorage.getItem('sobei_token');
-    const storedUser = localStorage.getItem('sobei_user');
+    const token = sessionStorage.getItem('sobei_token');
+    const storedUser = sessionStorage.getItem('sobei_user');
     if (token && storedUser) {
       try {
         setUser(JSON.parse(storedUser));
         setIsAuthenticated(true);
       } catch {
-        localStorage.removeItem('sobei_token');
-        localStorage.removeItem('sobei_user');
+        sessionStorage.removeItem('sobei_token');
+        sessionStorage.removeItem('sobei_user');
       }
     }
     setLoading(false);
@@ -35,7 +35,7 @@ export function AuthProvider({ children }) {
     try {
       const result = await loginApi(credentials);
       if (result.success) {
-        localStorage.setItem('sobei_user', JSON.stringify(result.user));
+        sessionStorage.setItem('sobei_user', JSON.stringify(result.user));
         setUser(result.user);
         setIsAuthenticated(true);
         return { success: true };
@@ -49,8 +49,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('sobei_token');
-    localStorage.removeItem('sobei_user');
+    sessionStorage.removeItem('sobei_token');
+    sessionStorage.removeItem('sobei_user');
     setUser(null);
     setIsAuthenticated(false);
   }, []);

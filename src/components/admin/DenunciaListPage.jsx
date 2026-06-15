@@ -29,7 +29,7 @@ export default function DenunciaListPage({ status }) {
     if (isError && error) {
       const msg = error.message || '';
       if (msg.includes('Não autorizado') || msg.includes('autorizado')) {
-        localStorage.removeItem('sobei_token');
+        sessionStorage.removeItem('sobei_token');
         router.push('/admin/login');
       }
     }
