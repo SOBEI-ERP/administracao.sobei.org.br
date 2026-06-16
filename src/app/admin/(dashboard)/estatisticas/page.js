@@ -33,41 +33,53 @@ const parseDate = (dateStr) => {
   return isNaN(date.getTime()) ? null : date;
 };
 
-const buildEvolucaoReal = (denuncias = []) => {
+const buildEvolucaoReal = (denuncias = [], dataFim = null) => {
   const mesesNomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-  const counts = {};
-  const now = new Date();
-  const monthsToPrint = [];
   
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const key = `${mesesNomes[d.getMonth()]}/${d.getFullYear().toString().substr(-2)}`;
+  const dates = denuncias
+    .map(d => parseDate(d.dataEnvio))
+    .filter(Boolean);
+
+  if (dates.length === 0) {
+    const now = new Date();
+    const key = `${mesesNomes[now.getMonth()]}/${now.getFullYear().toString().substr(-2)}`;
+    return [{ data: key, total: 0 }];
+  }
+
+  const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
+  let maxDate = new Date();
+  if (dataFim) {
+    const parsedFim = parseDate(dataFim);
+    if (parsedFim) {
+      maxDate = parsedFim;
+    }
+  }
+
+  const start = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+  const end = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
+
+  const monthsToPrint = [];
+  const counts = {};
+  
+  let current = new Date(start.getTime());
+  while (current <= end) {
+    const key = `${mesesNomes[current.getMonth()]}/${current.getFullYear().toString().substr(-2)}`;
     monthsToPrint.push(key);
     counts[key] = 0;
+    current.setMonth(current.getMonth() + 1);
   }
 
   denuncias.forEach(den => {
     const date = parseDate(den.dataEnvio);
     if (date) {
       const key = `${mesesNomes[date.getMonth()]}/${date.getFullYear().toString().substr(-2)}`;
-      if (counts[key] === undefined) {
-        counts[key] = 0;
-        monthsToPrint.push(key);
+      if (counts[key] !== undefined) {
+        counts[key]++;
       }
-      counts[key]++;
     }
   });
 
-  const sortedMonths = monthsToPrint.sort((a, b) => {
-    const [aMes, aAno] = a.split('/');
-    const [bMes, bAno] = b.split('/');
-    const aIdx = mesesNomes.indexOf(aMes) + parseInt(aAno) * 12;
-    const bIdx = mesesNomes.indexOf(bMes) + parseInt(bAno) * 12;
-    return aIdx - bIdx;
-  });
-
-  const finalMonths = sortedMonths.slice(-12);
-  return finalMonths.map(key => ({ data: key, total: counts[key] }));
+  return monthsToPrint.map(key => ({ data: key, total: counts[key] }));
 };
 
 export default function EstatisticasPage() {
@@ -551,7 +563,7 @@ export default function EstatisticasPage() {
     </text>
   );
 
-  const evolucaoData = buildEvolucaoReal(todasDenuncias || []);
+  const evolucaoData = buildEvolucaoReal(todasDenuncias || [], filtros.dataFim);
 
   return (
     <div className="statistics-container">
