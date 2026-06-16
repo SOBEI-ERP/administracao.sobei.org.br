@@ -62,8 +62,8 @@ export default function DenunciaCard({ denuncia, status, onVerDetalhes }) {
         </span>
         {status === 'em_andamento' && (
           <span className="denuncia-card__field" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-            <strong>Prioridade:</strong> <span className={`priority-badge priority-badge--${(denuncia.prioridade || 'baixa').toLowerCase()}`}>
-              {denuncia.prioridade === 'ALTA' ? 'Alta' : denuncia.prioridade === 'MEDIA' ? 'Média' : 'Baixa'}
+            <strong>Prioridade:</strong> <span className={`priority-badge priority-badge--${(denuncia.prioridade || 'neutra').toLowerCase()}`}>
+              {denuncia.prioridade === 'ALTA' ? 'Alta' : denuncia.prioridade === 'MEDIA' ? 'Média' : denuncia.prioridade === 'BAIXA' ? 'Baixa' : 'Neutra'}
             </span>
           </span>
         )}
