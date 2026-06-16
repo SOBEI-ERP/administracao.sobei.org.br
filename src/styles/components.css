@@ -126,32 +126,26 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 2px 8px;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
-  border-radius: var(--radius-sm);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   line-height: 1.2;
 }
 
 .priority-badge--baixa {
-  background-color: rgba(67, 160, 71, 0.15) !important;
   color: var(--color-green) !important;
 }
 
 .priority-badge--neutra {
-  background-color: var(--color-gray-200) !important;
   color: var(--color-gray-700) !important;
 }
 
 .priority-badge--media {
-  background-color: rgba(255, 152, 0, 0.15) !important;
   color: var(--color-orange) !important;
 }
 
 .priority-badge--alta {
-  background-color: rgba(229, 57, 53, 0.15) !important;
   color: var(--color-red) !important;
 }
 

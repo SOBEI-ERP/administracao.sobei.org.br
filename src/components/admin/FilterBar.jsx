@@ -72,6 +72,63 @@ export default function FilterBar({ filtros, setFiltros, onAplicar, onLimpar }) 
         </div>
       </div>
 
+      {/* Prioridade */}
+      <div className="filter-bar__group">
+        <span className="filter-bar__label">Prioridade:</span>
+        <div className="radio-group" style={{ flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+          <label className="radio-option">
+            <input
+              type="radio"
+              name="filtro-prioridade"
+              value=""
+              checked={filtros.prioridade === ''}
+              onChange={(e) => setFiltros({ ...filtros, prioridade: e.target.value })}
+            />
+            Todas
+          </label>
+          <label className="radio-option">
+            <input
+              type="radio"
+              name="filtro-prioridade"
+              value="neutra"
+              checked={filtros.prioridade === 'neutra'}
+              onChange={(e) => setFiltros({ ...filtros, prioridade: e.target.value })}
+            />
+            Neutra
+          </label>
+          <label className="radio-option">
+            <input
+              type="radio"
+              name="filtro-prioridade"
+              value="baixa"
+              checked={filtros.prioridade === 'baixa'}
+              onChange={(e) => setFiltros({ ...filtros, prioridade: e.target.value })}
+            />
+            Baixa
+          </label>
+          <label className="radio-option">
+            <input
+              type="radio"
+              name="filtro-prioridade"
+              value="media"
+              checked={filtros.prioridade === 'media'}
+              onChange={(e) => setFiltros({ ...filtros, prioridade: e.target.value })}
+            />
+            Média
+          </label>
+          <label className="radio-option">
+            <input
+              type="radio"
+              name="filtro-prioridade"
+              value="alta"
+              checked={filtros.prioridade === 'alta'}
+              onChange={(e) => setFiltros({ ...filtros, prioridade: e.target.value })}
+            />
+            Alta
+          </label>
+        </div>
+      </div>
+
       {/* Ações */}
       <div className="filter-bar__actions">
         <button className="btn btn--limpar" onClick={onLimpar} type="button">
