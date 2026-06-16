@@ -67,6 +67,7 @@ export default function DenunciaListPage({ status }) {
         setFiltros={setFiltros}
         onAplicar={handleAplicar}
         onLimpar={handleLimpar}
+        status={status}
       />
 
       {isLoading ? (

@@ -3,7 +3,7 @@
 import { UNIDADES } from '@/lib/mockData';
 import CustomSelect from './CustomSelect';
 
-export default function FilterBar({ filtros, setFiltros, onAplicar, onLimpar }) {
+export default function FilterBar({ filtros, setFiltros, onAplicar, onLimpar, status }) {
   return (
     <div className="filter-bar">
       {/* Tipo de denúncia */}
@@ -69,63 +69,30 @@ export default function FilterBar({ filtros, setFiltros, onAplicar, onLimpar }) 
             />
             Mais antigos primeiro
           </label>
-        </div>
-      </div>
-
-      {/* Prioridade */}
-      <div className="filter-bar__group">
-        <span className="filter-bar__label">Prioridade:</span>
-        <div className="radio-group" style={{ flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
-          <label className="radio-option">
-            <input
-              type="radio"
-              name="filtro-prioridade"
-              value=""
-              checked={filtros.prioridade === ''}
-              onChange={(e) => setFiltros({ ...filtros, prioridade: e.target.value })}
-            />
-            Todas
-          </label>
-          <label className="radio-option">
-            <input
-              type="radio"
-              name="filtro-prioridade"
-              value="neutra"
-              checked={filtros.prioridade === 'neutra'}
-              onChange={(e) => setFiltros({ ...filtros, prioridade: e.target.value })}
-            />
-            Neutra
-          </label>
-          <label className="radio-option">
-            <input
-              type="radio"
-              name="filtro-prioridade"
-              value="baixa"
-              checked={filtros.prioridade === 'baixa'}
-              onChange={(e) => setFiltros({ ...filtros, prioridade: e.target.value })}
-            />
-            Baixa
-          </label>
-          <label className="radio-option">
-            <input
-              type="radio"
-              name="filtro-prioridade"
-              value="media"
-              checked={filtros.prioridade === 'media'}
-              onChange={(e) => setFiltros({ ...filtros, prioridade: e.target.value })}
-            />
-            Média
-          </label>
-          <label className="radio-option">
-            <input
-              type="radio"
-              name="filtro-prioridade"
-              value="alta"
-              checked={filtros.prioridade === 'alta'}
-              onChange={(e) => setFiltros({ ...filtros, prioridade: e.target.value })}
-            />
-            Alta
-          </label>
+          {status === 'em_andamento' && (
+            <>
+              <label className="radio-option">
+                <input
+                  type="radio"
+                  name="filtro-ordem"
+                  value="maior_prioridade"
+                  checked={filtros.ordem === 'maior_prioridade'}
+                  onChange={(e) => setFiltros({ ...filtros, ordem: e.target.value })}
+                />
+                Maior prioridade primeiro
+              </label>
+              <label className="radio-option">
+                <input
+                  type="radio"
+                  name="filtro-ordem"
+                  value="menor_prioridade"
+                  checked={filtros.ordem === 'menor_prioridade'}
+                  onChange={(e) => setFiltros({ ...filtros, ordem: e.target.value })}
+                />
+                Menor prioridade primeiro
+              </label>
+            </>
+          )}
         </div>
       </div>
 

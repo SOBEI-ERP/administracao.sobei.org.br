@@ -289,7 +289,7 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
                       <CustomSelect
                         value={prioridadeLocal}
                         onChange={setPrioridadeLocal}
-                        defaultOption="Selecione..."
+                        allowEmpty={false}
                         className={`priority-select priority-badge--${prioridadeLocal.toLowerCase()}`}
                         options={[
                           { value: 'NEUTRA', label: 'Neutra' },

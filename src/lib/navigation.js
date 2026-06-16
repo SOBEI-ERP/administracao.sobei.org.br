@@ -38,4 +38,4 @@ export const STATUS_CONFIG = {
 /**
  * Estado inicial dos filtros de listagem de denúncias.
  */
-export const FILTROS_INICIAIS = { tipo: '', unidade: '', ordem: 'antigos', prioridade: '' };
+export const FILTROS_INICIAIS = { tipo: '', unidade: '', ordem: 'antigos' };

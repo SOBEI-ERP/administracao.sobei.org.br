@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-export default function CustomSelect({ value, onChange, options, defaultOption, style, className }) {
+export default function CustomSelect({ value, onChange, options, defaultOption, style, className, allowEmpty = true }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
@@ -34,18 +34,21 @@ export default function CustomSelect({ value, onChange, options, defaultOption, 
       
       {isOpen && (
         <div className="custom-select-dropdown">
-          <div 
-            className={`custom-select-option ${!value ? 'custom-select-option--selected' : ''}`}
-            onClick={() => {
-              onChange('');
-              setIsOpen(false);
-            }}
-          >
-            {defaultOption}
-          </div>
+          {allowEmpty && (
+            <div 
+              className={`custom-select-option ${!value ? 'custom-select-option--selected' : ''}`}
+              onClick={() => {
+                onChange('');
+                setIsOpen(false);
+              }}
+            >
+              {defaultOption}
+            </div>
+          )}
           {options.map((opt) => (
             <div 
               key={opt.value}
+              data-value={opt.value}
               className={`custom-select-option ${value === opt.value ? 'custom-select-option--selected' : ''}`}
               onClick={() => {
                 onChange(opt.value);

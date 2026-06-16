@@ -516,10 +516,38 @@ export default function EstatisticasPage() {
       })
     : [];
 
+  const prioridadesData = stats?.distribuicao?.prioridades
+    ? stats.distribuicao.prioridades.map((item) => {
+        const priorityLabels = {
+          NEUTRA: 'Neutra',
+          BAIXA: 'Baixa',
+          MEDIA: 'Média',
+          ALTA: 'Alta',
+        };
+        const priorityColors = {
+          NEUTRA: '#9E9E9E',
+          BAIXA: '#43A047',
+          MEDIA: '#FF9800',
+          ALTA: '#E53935',
+        };
+        return {
+          name: priorityLabels[item.name] || item.name,
+          value: item.value,
+          cor: priorityColors[item.name] || '#9E9E9E',
+        };
+      })
+    : [];
+
   // Custom label for pie chart
   const renderCustomLabel = ({ unidade, percentual, x, y }) => (
     <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={12} fill="#333">
       {`${percentual}%`}
+    </text>
+  );
+
+  const renderPriorityLabel = ({ name, percent, x, y }) => (
+    <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={11} fill="#333">
+      {`${(percent * 100).toFixed(1)}%`}
     </text>
   );
 
@@ -798,35 +826,86 @@ export default function EstatisticasPage() {
         <p style={{ color: 'var(--color-gray-500)' }}>Carregando gráficos...</p>
       )}
 
-      {/* Gráfico de Linha - Evolução no Tempo */}
+      {/* Segunda Linha de Gráficos (Bento Grid) */}
       {!isLoading && (
-        <div className="statistics-page__chart-container" style={{ marginTop: 'var(--spacing-xl)' }}>
-          <h2 className="statistics-page__chart-title">Evolução de Denúncias no Tempo:</h2>
-          <div className="statistics-chart__wrapper" style={{ height: '350px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={evolucaoData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#eee" vertical={false} />
-                <XAxis dataKey="data" tick={{ fontSize: 12, fill: '#333' }} tickLine={false} axisLine={false} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 13, fill: '#333' }} tickLine={false} axisLine={false} width={40} />
-                <Tooltip
-                  cursor={{ stroke: 'rgba(27, 20, 100, 0.1)', strokeWidth: 2 }}
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="total" 
-                  stroke="#7C6BC4" 
-                  strokeWidth={3} 
-                  dot={{ r: 4, fill: '#7C6BC4', strokeWidth: 2, stroke: '#fff' }} 
-                  activeDot={{ r: 6, fill: '#FF7043', stroke: '#fff', strokeWidth: 2 }} 
-                />
-              </LineChart>
-            </ResponsiveContainer>
+        <div className="statistics-bento" style={{ marginTop: 'var(--spacing-xl)' }}>
+          {/* Coluna 1: Evolução no Tempo (Line Chart) */}
+          <div className="statistics-page__chart-container" style={{ margin: 0 }}>
+            <h2 className="statistics-page__chart-title">Evolução de Denúncias no Tempo:</h2>
+            <div className="statistics-chart__wrapper" style={{ height: '300px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={evolucaoData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#eee" vertical={false} />
+                  <XAxis dataKey="data" tick={{ fontSize: 12, fill: '#333' }} tickLine={false} axisLine={false} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 13, fill: '#333' }} tickLine={false} axisLine={false} width={40} />
+                  <Tooltip
+                    cursor={{ stroke: 'rgba(27, 20, 100, 0.1)', strokeWidth: 2 }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="total" 
+                    stroke="#7C6BC4" 
+                    strokeWidth={3} 
+                    dot={{ r: 4, fill: '#7C6BC4', strokeWidth: 2, stroke: '#fff' }} 
+                    activeDot={{ r: 6, fill: '#FF7043', stroke: '#fff', strokeWidth: 2 }} 
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="chart-explanation-card">
+              <p className="chart-explanation-card__text">
+                <strong>O que este gráfico mostra:</strong> A tendência e o volume de denúncias ao longo do tempo. Este gráfico responde aos filtros globais de período e unidade definidos no topo.
+              </p>
+            </div>
           </div>
-          <div className="chart-explanation-card">
-            <p className="chart-explanation-card__text">
-              <strong>O que este gráfico mostra:</strong> A tendência e o volume de denúncias ao longo do tempo. Este gráfico responde automaticamente aos filtros globais de período e unidade definidos no topo da página.
-            </p>
+
+          {/* Coluna 2: Distribuição por Prioridade (Doughnut Chart) */}
+          <div className="statistics-page__chart-container" style={{ margin: 0 }}>
+            <h2 className="statistics-page__chart-title">Distribuição por Prioridade:</h2>
+            <div className="statistics-chart__wrapper" style={{ minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {prioridadesData.length > 0 && prioridadesData.some(d => d.value > 0) ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={prioridadesData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={65}
+                      outerRadius={85}
+                      paddingAngle={4}
+                      label={renderPriorityLabel}
+                    >
+                      {prioridadesData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.cor} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: '8px',
+                        border: 'none',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                      }}
+                    />
+                    <Legend 
+                      verticalAlign="bottom" 
+                      height={36} 
+                      iconType="circle"
+                      formatter={(value) => <span style={{ fontSize: '12px', color: '#666', fontWeight: 'bold' }}>{value}</span>}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <p style={{ color: 'var(--color-gray-500)', textAlign: 'center', padding: '40px 0' }}>Sem dados de prioridade no período</p>
+              )}
+            </div>
+            <div className="chart-explanation-card">
+              <p className="chart-explanation-card__text">
+                <strong>O que este gráfico mostra:</strong> A proporção de denúncias classificadas por prioridade. Auxilia a entender a carga de trabalho crítica (Alta/Média) vs rotineira (Baixa/Neutra).
+              </p>
+            </div>
           </div>
         </div>
       )}
