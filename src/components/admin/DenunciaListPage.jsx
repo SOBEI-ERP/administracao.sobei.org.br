@@ -11,12 +11,14 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDenuncias, useAtualizarDenuncia } from '@/hooks/useDenuncias';
 import { STATUS_CONFIG, FILTROS_INICIAIS } from '@/lib/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import FilterBar from '@/components/admin/FilterBar';
 import DenunciaCard from '@/components/admin/DenunciaCard';
 import DenunciaDetailModal from '@/components/admin/DenunciaDetailModal';
 
 export default function DenunciaListPage({ status }) {
   const router = useRouter();
+  const { logout } = useAuth();
   const config = STATUS_CONFIG[status];
   const [filtros, setFiltros] = useState({ ...FILTROS_INICIAIS });
   const [filtrosAtivos, setFiltrosAtivos] = useState({ ...FILTROS_INICIAIS });
@@ -29,11 +31,11 @@ export default function DenunciaListPage({ status }) {
     if (isError && error) {
       const msg = error.message || '';
       if (msg.includes('Não autorizado') || msg.includes('autorizado')) {
-        sessionStorage.removeItem('sobei_token');
+        logout();
         router.push('/admin/login');
       }
     }
-  }, [isError, error, router]);
+  }, [isError, error, router, logout]);
 
   function handleAplicar() {
     setFiltrosAtivos({ ...filtros });

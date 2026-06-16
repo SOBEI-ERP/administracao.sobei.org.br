@@ -164,15 +164,6 @@ function normalizeDenunciasList(raw) {
 }
 
 function getAuthHeaders() {
-  if (typeof window !== 'undefined') {
-    const token = sessionStorage.getItem('sobei_token');
-    if (token) {
-      return {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      };
-    }
-  }
   return {
     'Content-Type': 'application/json'
   };
@@ -272,6 +263,7 @@ export async function loginAdmin(credentials) {
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       // Backend espera 'usuario' e não 'login' no Request
       body: JSON.stringify({ usuario: credentials.login, senha: credentials.senha }),
     });
@@ -281,12 +273,6 @@ export async function loginAdmin(credentials) {
     }
 
     const data = await response.json();
-    
-    // Armazena token para usar nas próximas rotas
-    if (data.token && typeof window !== 'undefined') {
-      sessionStorage.setItem('sobei_token', data.token);
-    }
-    
     return data;
   } catch (error) {
     return { success: false, message: 'Erro de conexão' };
@@ -304,7 +290,7 @@ export async function fetchDenunciasPorStatus(status, filtros = {}) {
     if (filtros.unidade) url.searchParams.append('unidade', filtros.unidade);
     if (filtros.ordem) url.searchParams.append('ordem', filtros.ordem);
 
-    const response = await fetch(url, { headers: getAuthHeaders() });
+    const response = await fetch(url, { headers: getAuthHeaders(), credentials: 'include' });
     
     if (!response.ok) {
       if(response.status === 401 || response.status === 403) {
@@ -325,6 +311,7 @@ export async function fetchDenunciaDetalhes(protocolo) {
   try {
     const response = await fetch(`${API_BASE_URL}/admin/denuncias/${protocolo}`, {
       headers: getAuthHeaders(),
+      credentials: 'include',
     });
 
     if (!response.ok) return null;
@@ -349,6 +336,7 @@ export async function atualizarDenuncia(protocolo, payload) {
     const response = await fetch(`${API_BASE_URL}/admin/denuncias/${protocolo}`, {
       method: 'PATCH',
       headers: getAuthHeaders(),
+      credentials: 'include',
       body: JSON.stringify(requestData),
     });
 
@@ -374,6 +362,7 @@ export async function fetchEstatisticas(filtros = {}) {
 
     const response = await fetch(url, {
       headers: getAuthHeaders(),
+      credentials: 'include',
     });
 
     if (!response.ok) return null;
@@ -387,6 +376,7 @@ export async function fetchUsuarios() {
   try {
     const response = await fetch(`${API_BASE_URL}/admin/usuarios`, {
       headers: getAuthHeaders(),
+      credentials: 'include',
     });
 
     if (!response.ok) return [];
@@ -401,6 +391,7 @@ export async function criarUsuario(payload) {
     const response = await fetch(`${API_BASE_URL}/admin/usuarios`, {
       method: 'POST',
       headers: getAuthHeaders(),
+      credentials: 'include',
       body: JSON.stringify(payload),
     });
 
@@ -421,6 +412,7 @@ export async function alterarSenhaUsuario(id, senha) {
     const response = await fetch(`${API_BASE_URL}/admin/usuarios/${id}/senha`, {
       method: 'PATCH',
       headers: getAuthHeaders(),
+      credentials: 'include',
       body: JSON.stringify({ senha }),
     });
 
@@ -440,6 +432,7 @@ export async function deletarUsuario(id) {
     const response = await fetch(`${API_BASE_URL}/admin/usuarios/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -453,3 +446,26 @@ export async function deletarUsuario(id) {
   }
 }
 
+export async function logoutAdmin() {
+  try {
+    await fetch(`${API_BASE_URL}/admin/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro ao encerrar sessão' };
+  }
+}
+
+export async function fetchMe() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/auth/me`, {
+      credentials: 'include',
+    });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    return null;
+  }
+}

@@ -1,11 +1,11 @@
 'use client';
 
 // ============================================
-// SOBEI Portal — Auth Context (Mock)
+// SOBEI Portal — Auth Context
 // ============================================
 
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { loginAdmin as loginApi } from '@/lib/api';
+import { loginAdmin as loginApi, logoutAdmin as logoutApi, fetchMe } from '@/lib/api';
 
 const AuthContext = createContext(null);
 
@@ -14,20 +14,48 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Restaura a sessão ao montar o componente
+  // Restaura a sessão ao montar o componente (valida cookie via /me)
   useEffect(() => {
-    const token = sessionStorage.getItem('sobei_token');
-    const storedUser = sessionStorage.getItem('sobei_user');
-    if (token && storedUser) {
+    let cancelled = false;
+    async function restore() {
       try {
-        setUser(JSON.parse(storedUser));
-        setIsAuthenticated(true);
+        const me = await fetchMe();
+        if (!cancelled) {
+          if (me) {
+            setUser(me);
+            setIsAuthenticated(true);
+          } else {
+            sessionStorage.removeItem('sobei_user');
+          }
+        }
       } catch {
-        sessionStorage.removeItem('sobei_token');
-        sessionStorage.removeItem('sobei_user');
+        if (!cancelled) {
+          sessionStorage.removeItem('sobei_user');
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
-    setLoading(false);
+    restore();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Limpa resíduos de sessão ao fechar a aba
+  useEffect(() => {
+    const tabId = Date.now().toString(36) + Math.random().toString(36).slice(2);
+    sessionStorage.setItem('sobei_tab_id', tabId);
+
+    function handleBeforeUnload() {
+      sessionStorage.removeItem('sobei_user');
+      sessionStorage.removeItem('sobei_tab_id');
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   const login = useCallback(async (credentials) => {
@@ -48,9 +76,10 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const logout = useCallback(() => {
-    sessionStorage.removeItem('sobei_token');
+  const logout = useCallback(async () => {
+    await logoutApi();
     sessionStorage.removeItem('sobei_user');
+    sessionStorage.removeItem('sobei_tab_id');
     setUser(null);
     setIsAuthenticated(false);
   }, []);
@@ -69,4 +98,3 @@ export function useAuth() {
   }
   return context;
 }
-
