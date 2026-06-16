@@ -40,7 +40,6 @@ export default function Sidebar() {
       </Link>
 
       <nav className="sidebar__nav">
-        <div className="sidebar__divider" />
 
         {/* Denúncias section */}
         <div className="sidebar__section">

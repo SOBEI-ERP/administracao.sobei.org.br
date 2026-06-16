@@ -27,6 +27,24 @@
   animation: modalSlideIn 0.35s ease;
 }
 
+.modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal::-webkit-scrollbar-track {
+  background: transparent;
+  margin: var(--radius-xl) 0;
+}
+
+.modal::-webkit-scrollbar-thumb {
+  background-color: var(--color-gray-300);
+  border-radius: var(--radius-full);
+}
+
+.modal::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-gray-400);
+}
+
 .modal__close {
   position: absolute;
   top: var(--spacing-base);

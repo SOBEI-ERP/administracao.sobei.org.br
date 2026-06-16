@@ -136,18 +136,23 @@
 }
 
 .priority-badge--baixa {
-  background-color: var(--color-gray-200);
-  color: var(--color-gray-700);
+  background-color: rgba(67, 160, 71, 0.15) !important;
+  color: var(--color-green) !important;
+}
+
+.priority-badge--neutra {
+  background-color: var(--color-gray-200) !important;
+  color: var(--color-gray-700) !important;
 }
 
 .priority-badge--media {
-  background-color: rgba(255, 152, 0, 0.15);
-  color: var(--color-orange);
+  background-color: rgba(255, 152, 0, 0.15) !important;
+  color: var(--color-orange) !important;
 }
 
 .priority-badge--alta {
-  background-color: rgba(229, 57, 53, 0.15);
-  color: var(--color-red);
+  background-color: rgba(229, 57, 53, 0.15) !important;
+  color: var(--color-red) !important;
 }
 
 
@@ -473,6 +478,34 @@
   color: var(--color-primary);
   font-weight: var(--font-weight-bold);
 }
+
+/* Priority Select Specific Styles */
+.priority-select {
+  border-radius: var(--radius-full);
+}
+
+.priority-select .custom-select-trigger {
+  background-color: transparent;
+  border-color: transparent;
+  min-height: 32px;
+  padding: 4px 12px;
+  font-weight: var(--font-weight-bold);
+  color: inherit;
+}
+
+.priority-select .custom-select-dropdown {
+  background-color: var(--color-white);
+}
+
+.priority-select .custom-select-option {
+  font-weight: var(--font-weight-bold);
+}
+
+.priority-select .custom-select-option:nth-child(2) { color: var(--color-gray-700); } /* Neutra */
+.priority-select .custom-select-option:nth-child(3) { color: var(--color-green); } /* Baixa */
+.priority-select .custom-select-option:nth-child(4) { color: var(--color-orange); } /* Media */
+.priority-select .custom-select-option:nth-child(5) { color: var(--color-red); } /* Alta */
+
 
 /* ---- Custom Date Picker ---- */
 .custom-datepicker-container {

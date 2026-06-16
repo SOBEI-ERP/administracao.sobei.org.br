@@ -151,7 +151,7 @@ function normalizeDenuncia(raw) {
       conclusao.tipoConclusao ??
       conclusao.tipo_conclusao ??
       null,
-    prioridade: denuncia.prioridade ?? 'BAIXA',
+    prioridade: denuncia.prioridade ?? 'NEUTRA',
   };
 }
 
@@ -344,6 +344,7 @@ export async function atualizarDenuncia(protocolo, payload) {
     if (payload.medidas) requestData.medidas = payload.medidas;
     if (payload.relatorio) requestData.relatorio = payload.relatorio;
     if (payload.tipoConclusao) requestData.tipoConclusao = payload.tipoConclusao.toUpperCase();
+    if (payload.prioridade) requestData.prioridade = payload.prioridade.toLowerCase();
 
     const response = await fetch(`${API_BASE_URL}/admin/denuncias/${protocolo}`, {
       method: 'PATCH',
