@@ -69,32 +69,37 @@ export default function FilterBar({ filtros, setFiltros, onAplicar, onLimpar, st
             />
             Mais antigos primeiro
           </label>
-          {status === 'em_andamento' && (
-            <>
-              <label className="radio-option">
-                <input
-                  type="radio"
-                  name="filtro-ordem"
-                  value="maior_prioridade"
-                  checked={filtros.ordem === 'maior_prioridade'}
-                  onChange={(e) => setFiltros({ ...filtros, ordem: e.target.value })}
-                />
-                Maior prioridade primeiro
-              </label>
-              <label className="radio-option">
-                <input
-                  type="radio"
-                  name="filtro-ordem"
-                  value="menor_prioridade"
-                  checked={filtros.ordem === 'menor_prioridade'}
-                  onChange={(e) => setFiltros({ ...filtros, ordem: e.target.value })}
-                />
-                Menor prioridade primeiro
-              </label>
-            </>
-          )}
         </div>
       </div>
+
+      {/* Prioridade */}
+      {status === 'em_andamento' && (
+        <div className="filter-bar__group">
+          <span className="filter-bar__label">Prioridade:</span>
+          <div className="radio-group" style={{ flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+            <label className="radio-option">
+              <input
+                type="radio"
+                name="filtro-ordem"
+                value="maior_prioridade"
+                checked={filtros.ordem === 'maior_prioridade'}
+                onChange={(e) => setFiltros({ ...filtros, ordem: e.target.value })}
+              />
+              Maior prioridade primeiro
+            </label>
+            <label className="radio-option">
+              <input
+                type="radio"
+                name="filtro-ordem"
+                value="menor_prioridade"
+                checked={filtros.ordem === 'menor_prioridade'}
+                onChange={(e) => setFiltros({ ...filtros, ordem: e.target.value })}
+              />
+              Menor prioridade primeiro
+            </label>
+          </div>
+        </div>
+      )}
 
       {/* Ações */}
       <div className="filter-bar__actions">
