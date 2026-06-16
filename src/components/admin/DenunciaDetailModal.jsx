@@ -282,9 +282,9 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
                 <p><strong>Protocolo:</strong> {displayDenuncia.protocolo}</p>
                 <p><strong>Unidade:</strong> {displayDenuncia.unidade}</p>
                 <p><strong>Tipo de denuncia:</strong> Denúncia {tipoDenunciaFormatado}</p>
-                <p style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 0' }}>
-                  <strong>Prioridade:</strong>
-                  {(status === 'na_fila' || status === 'em_andamento') ? (
+                {status === 'em_andamento' && (
+                  <p style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 0' }}>
+                    <strong>Prioridade:</strong>
                     <div style={{ width: '140px' }}>
                       <CustomSelect
                         value={prioridadeLocal}
@@ -299,12 +299,8 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
                         ]}
                       />
                     </div>
-                  ) : (
-                    <span className={`priority-badge priority-badge--${(displayDenuncia.prioridade || 'neutra').toLowerCase()}`}>
-                      {displayDenuncia.prioridade === 'ALTA' ? 'Alta' : displayDenuncia.prioridade === 'MEDIA' ? 'Média' : displayDenuncia.prioridade === 'BAIXA' ? 'Baixa' : 'Neutra'}
-                    </span>
-                  )}
-                </p>
+                  </p>
+                )}
                 <p><strong>Data de envio:</strong> {formatarData(displayDenuncia.dataEnvio)}</p>
                 {status === 'fechada' && displayDenuncia.dataFechamento && (
                   <p><strong>Data de fechamento:</strong> {formatarData(displayDenuncia.dataFechamento)}</p>
