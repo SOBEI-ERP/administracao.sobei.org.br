@@ -55,29 +55,59 @@ const buildEvolucaoReal = (denuncias = [], dataFim = null) => {
     }
   }
 
-  const start = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
-  const end = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
+  if (maxDate < minDate) {
+    maxDate = new Date(minDate.getTime());
+  }
+
+  const diffYears = maxDate.getFullYear() - minDate.getFullYear();
+  const diffMonths = (diffYears * 12) + (maxDate.getMonth() - minDate.getMonth()) + 1;
 
   const monthsToPrint = [];
   const counts = {};
-  
-  let current = new Date(start.getTime());
-  while (current <= end) {
-    const key = `${mesesNomes[current.getMonth()]}/${current.getFullYear().toString().substr(-2)}`;
-    monthsToPrint.push(key);
-    counts[key] = 0;
-    current.setMonth(current.getMonth() + 1);
-  }
 
-  denuncias.forEach(den => {
-    const date = parseDate(den.dataEnvio);
-    if (date) {
-      const key = `${mesesNomes[date.getMonth()]}/${date.getFullYear().toString().substr(-2)}`;
-      if (counts[key] !== undefined) {
-        counts[key]++;
-      }
+  if (diffMonths < 6) {
+    const start = new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate());
+    const end = new Date(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate());
+    
+    let current = new Date(start.getTime());
+    while (current <= end) {
+      const key = `${current.getDate().toString().padStart(2, '0')}/${mesesNomes[current.getMonth()]}`;
+      monthsToPrint.push(key);
+      counts[key] = 0;
+      current.setDate(current.getDate() + 1);
     }
-  });
+
+    denuncias.forEach(den => {
+      const date = parseDate(den.dataEnvio);
+      if (date) {
+        const key = `${date.getDate().toString().padStart(2, '0')}/${mesesNomes[date.getMonth()]}`;
+        if (counts[key] !== undefined) {
+          counts[key]++;
+        }
+      }
+    });
+  } else {
+    const start = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+    const end = new Date(maxDate.getFullYear(), maxDate.getMonth(), 1);
+
+    let current = new Date(start.getTime());
+    while (current <= end) {
+      const key = `${mesesNomes[current.getMonth()]}/${current.getFullYear().toString().substr(-2)}`;
+      monthsToPrint.push(key);
+      counts[key] = 0;
+      current.setMonth(current.getMonth() + 1);
+    }
+
+    denuncias.forEach(den => {
+      const date = parseDate(den.dataEnvio);
+      if (date) {
+        const key = `${mesesNomes[date.getMonth()]}/${date.getFullYear().toString().substr(-2)}`;
+        if (counts[key] !== undefined) {
+          counts[key]++;
+        }
+      }
+    });
+  }
 
   return monthsToPrint.map(key => ({ data: key, total: counts[key] }));
 };
