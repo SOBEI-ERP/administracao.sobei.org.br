@@ -80,20 +80,30 @@ export default function FilterBar({ filtros, setFiltros, onAplicar, onLimpar, st
             <label className="radio-option">
               <input
                 type="radio"
-                name="filtro-ordem"
+                name="filtro-prioridade-ordem"
+                value=""
+                checked={filtros.prioridadeOrdem === ''}
+                onChange={(e) => setFiltros({ ...filtros, prioridadeOrdem: e.target.value })}
+              />
+              Sem prioridade
+            </label>
+            <label className="radio-option">
+              <input
+                type="radio"
+                name="filtro-prioridade-ordem"
                 value="maior_prioridade"
-                checked={filtros.ordem === 'maior_prioridade'}
-                onChange={(e) => setFiltros({ ...filtros, ordem: e.target.value })}
+                checked={filtros.prioridadeOrdem === 'maior_prioridade'}
+                onChange={(e) => setFiltros({ ...filtros, prioridadeOrdem: e.target.value })}
               />
               Maior prioridade primeiro
             </label>
             <label className="radio-option">
               <input
                 type="radio"
-                name="filtro-ordem"
+                name="filtro-prioridade-ordem"
                 value="menor_prioridade"
-                checked={filtros.ordem === 'menor_prioridade'}
-                onChange={(e) => setFiltros({ ...filtros, ordem: e.target.value })}
+                checked={filtros.prioridadeOrdem === 'menor_prioridade'}
+                onChange={(e) => setFiltros({ ...filtros, prioridadeOrdem: e.target.value })}
               />
               Menor prioridade primeiro
             </label>

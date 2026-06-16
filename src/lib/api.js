@@ -289,6 +289,7 @@ export async function fetchDenunciasPorStatus(status, filtros = {}) {
     if (filtros.tipo) url.searchParams.append('tipo', filtros.tipo.toUpperCase());
     if (filtros.unidade) url.searchParams.append('unidade', filtros.unidade);
     if (filtros.ordem) url.searchParams.append('ordem', filtros.ordem);
+    if (filtros.prioridadeOrdem) url.searchParams.append('prioridadeOrdem', filtros.prioridadeOrdem);
 
     const response = await fetch(url, { headers: getAuthHeaders(), credentials: 'include' });
     
