@@ -25,11 +25,13 @@ export function AuthProvider({ children }) {
             setUser(me);
             setIsAuthenticated(true);
           } else {
+            sessionStorage.removeItem('sobei_token');
             sessionStorage.removeItem('sobei_user');
           }
         }
       } catch {
         if (!cancelled) {
+          sessionStorage.removeItem('sobei_token');
           sessionStorage.removeItem('sobei_user');
         }
       } finally {
@@ -48,6 +50,7 @@ export function AuthProvider({ children }) {
     sessionStorage.setItem('sobei_tab_id', tabId);
 
     function handleBeforeUnload() {
+      sessionStorage.removeItem('sobei_token');
       sessionStorage.removeItem('sobei_user');
       sessionStorage.removeItem('sobei_tab_id');
     }
@@ -63,6 +66,9 @@ export function AuthProvider({ children }) {
     try {
       const result = await loginApi(credentials);
       if (result.success) {
+        if (result.token) {
+          sessionStorage.setItem('sobei_token', result.token);
+        }
         sessionStorage.setItem('sobei_user', JSON.stringify(result.user));
         setUser(result.user);
         setIsAuthenticated(true);
@@ -78,6 +84,7 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     await logoutApi();
+    sessionStorage.removeItem('sobei_token');
     sessionStorage.removeItem('sobei_user');
     sessionStorage.removeItem('sobei_tab_id');
     setUser(null);

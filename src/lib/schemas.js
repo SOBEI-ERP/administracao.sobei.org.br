@@ -4,23 +4,18 @@
 
 import { z } from 'zod';
 
-const xssRegex = /^(?!.*<[a-zA-Z/!]).*$/;
-
 // Schema para denúncia anônima
 export const denunciaAnonimaSchema = z.object({
   tipo: z.literal('anonima'),
   unidade: z.string().min(1, 'Selecione a unidade'),
   descricao: z.string()
     .min(10, 'Descreva os fatos com pelo menos 10 caracteres')
-    .max(5000, 'A descrição não pode ter mais de 5000 caracteres')
-    .refine((val) => !val || xssRegex.test(val), 'A descrição não pode conter tags HTML ou scripts'),
+    .max(5000, 'A descrição não pode ter mais de 5000 caracteres'),
   envolvidos: z.string()
     .max(1000, 'O campo envolvidos não pode ter mais de 1000 caracteres')
-    .refine((val) => !val || xssRegex.test(val), 'O campo envolvidos não pode conter tags HTML ou scripts')
     .optional(),
   testemunhas: z.string()
     .max(1000, 'O campo testemunhas não pode ter mais de 1000 caracteres')
-    .refine((val) => !val || xssRegex.test(val), 'O campo testemunhas não pode conter tags HTML ou scripts')
     .optional(),
 });
 
@@ -29,8 +24,7 @@ export const denunciaIdentificadaSchema = z.object({
   tipo: z.literal('identificada'),
   nomeCompleto: z.string()
     .min(2, 'Informe seu nome completo')
-    .max(150, 'O nome completo não pode ter mais de 150 caracteres')
-    .refine((val) => !val || xssRegex.test(val), 'O nome não pode conter tags HTML ou scripts'),
+    .max(150, 'O nome completo não pode ter mais de 150 caracteres'),
   email: z.string()
     .min(1, 'Informe seu email')
     .max(150, 'O email não pode ter mais de 150 caracteres')
@@ -43,15 +37,12 @@ export const denunciaIdentificadaSchema = z.object({
   unidade: z.string().min(1, 'Selecione a unidade'),
   descricao: z.string()
     .min(10, 'Descreva os fatos com pelo menos 10 caracteres')
-    .max(5000, 'A descrição não pode ter mais de 5000 caracteres')
-    .refine((val) => !val || xssRegex.test(val), 'A descrição não pode conter tags HTML ou scripts'),
+    .max(5000, 'A descrição não pode ter mais de 5000 caracteres'),
   envolvidos: z.string()
     .max(1000, 'O campo envolvidos não pode ter mais de 1000 caracteres')
-    .refine((val) => !val || xssRegex.test(val), 'O campo envolvidos não pode conter tags HTML ou scripts')
     .optional(),
   testemunhas: z.string()
     .max(1000, 'O campo testemunhas não pode ter mais de 1000 caracteres')
-    .refine((val) => !val || xssRegex.test(val), 'O campo testemunhas não pode conter tags HTML ou scripts')
     .optional(),
 });
 

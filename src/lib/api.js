@@ -164,9 +164,18 @@ function normalizeDenunciasList(raw) {
 }
 
 function getAuthHeaders() {
-  return {
+  const headers = {
     'Content-Type': 'application/json'
   };
+
+  if (typeof window !== 'undefined') {
+    const token = sessionStorage.getItem('sobei_token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
+  return headers;
 }
 
 // ---- API Pública ----
@@ -451,6 +460,7 @@ export async function logoutAdmin() {
   try {
     await fetch(`${API_BASE_URL}/admin/auth/logout`, {
       method: 'POST',
+      headers: getAuthHeaders(),
       credentials: 'include',
     });
     return { success: true };
@@ -462,6 +472,7 @@ export async function logoutAdmin() {
 export async function fetchMe() {
   try {
     const response = await fetch(`${API_BASE_URL}/admin/auth/me`, {
+      headers: getAuthHeaders(),
       credentials: 'include',
     });
     if (!response.ok) return null;
