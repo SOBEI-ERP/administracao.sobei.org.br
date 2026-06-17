@@ -180,8 +180,33 @@ function getAuthHeaders() {
 
 // ---- API Pública ----
 
-export async function enviarDenuncia(data) {
+export async function enviarDenuncia(rawData) {
   try {
+    const data = { ...rawData };
+
+    if (data.tipo === 'anonima') {
+      delete data.nomeCompleto;
+      delete data.email;
+      delete data.telefone;
+    } else {
+      if (!data.nomeCompleto || typeof data.nomeCompleto !== 'string' || !data.nomeCompleto.trim()) {
+        data.nomeCompleto = null;
+      }
+      if (!data.email || typeof data.email !== 'string' || !data.email.trim()) {
+        data.email = null;
+      }
+      if (!data.telefone || typeof data.telefone !== 'string' || !data.telefone.trim()) {
+        data.telefone = null;
+      }
+    }
+
+    if (!data.envolvidos || typeof data.envolvidos !== 'string' || !data.envolvidos.trim()) {
+      data.envolvidos = null;
+    }
+    if (!data.testemunhas || typeof data.testemunhas !== 'string' || !data.testemunhas.trim()) {
+      data.testemunhas = null;
+    }
+
     const response = await fetch(`${API_BASE_URL}/public/denuncias`, {
       method: 'POST',
       headers: {
