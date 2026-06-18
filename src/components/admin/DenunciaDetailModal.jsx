@@ -149,7 +149,7 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
         status: targetStatus,
         medidas: finalMedidas,
         relatorio: relatorioFinal,
-        tipoConclusao: tipoConclusaoLocal
+        tipoConclusao: tipoConclusaoLocal,
       },
     });
     setNovaMedida('');
@@ -448,11 +448,14 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
                       onChange={(e) => setNovaMedida(e.target.value)}
                     />
                   </div>
+
                 </div>
               </>
             )}
 
-            {/* Fechadas: medidas + relatório final (somente leitura) */}
+
+
+            {/* Fechadas: medidas + retorno ao denunciante + relatório final (somente leitura) */}
             {status === 'fechada' && (
               <>
                 <div className="modal__divider" />
@@ -483,7 +486,7 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
               </>
             )}
 
-            {/* Arquivadas: medidas + relatório de arquivamento (somente leitura) */}
+            {/* Arquivadas: medidas + retorno ao denunciante + relatório de arquivamento (somente leitura) */}
             {status === 'arquivada' && (
               <>
                 <div className="modal__divider" />

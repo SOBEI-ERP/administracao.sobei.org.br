@@ -252,7 +252,6 @@ export async function consultarProtocolo(protocolo) {
       descricao: result.descricao ?? result.relato ?? '',
       envolvidos: result.envolvidos ?? result.pessoasEnvolvidas ?? '',
       testemunhas: result.testemunhas ?? '',
-      medidasAdotadas: normalizeMedidas(result.historicoMedidas ?? result.medidasAdotadas ?? result.medidas, true),
       relatorioConclusao: result.relatorioConclusao ?? result.relatorioFinal ?? result.relatorioArquivamento,
       tipoConclusao: result.tipoConclusao ?? result.conclusao?.tipoConclusao,
     };
@@ -324,6 +323,9 @@ export async function fetchDenunciasPorStatus(status, filtros = {}) {
     if (filtros.unidade) url.searchParams.append('unidade', filtros.unidade);
     if (filtros.ordem) url.searchParams.append('ordem', filtros.ordem);
     if (filtros.prioridadeOrdem) url.searchParams.append('prioridadeOrdem', filtros.prioridadeOrdem);
+    if (filtros.protocolo) url.searchParams.append('protocolo', filtros.protocolo.trim());
+    if (filtros.dataInicio) url.searchParams.append('dataInicio', filtros.dataInicio);
+    if (filtros.dataFim) url.searchParams.append('dataFim', filtros.dataFim);
 
     const response = await fetch(url, { headers: getAuthHeaders(), credentials: 'include' });
     
@@ -363,7 +365,16 @@ export async function atualizarDenuncia(protocolo, payload) {
       status: payload.status.toUpperCase(),
     };
     if (payload.descricaoAcao) requestData.descricaoAcao = payload.descricaoAcao;
-    if (payload.medidas) requestData.medidas = payload.medidas;
+    if (payload.medidas) {
+      requestData.medidas = payload.medidas.map(m => {
+        const idVal = m.id;
+        const isNumeric = typeof idVal === 'number' || (typeof idVal === 'string' && !isNaN(Number(idVal)) && !idVal.startsWith('medida-'));
+        return {
+          id: isNumeric ? Number(idVal) : null,
+          descricao: m.descricao
+        };
+      });
+    }
     if (payload.relatorio) requestData.relatorio = payload.relatorio;
     if (payload.tipoConclusao) requestData.tipoConclusao = payload.tipoConclusao.toUpperCase();
     if (payload.prioridade) requestData.prioridade = payload.prioridade.toLowerCase();
