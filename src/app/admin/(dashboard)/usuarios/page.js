@@ -131,7 +131,7 @@ export default function UsuariosPage() {
             Gerencie as credenciais e níveis de acesso dos administradores e analistas de suporte do portal.
           </p>
         </div>
-        <button className="btn btn--primary" onClick={() => setIsModalOpen(true)}>
+        <button className="btn btn--secondary" onClick={() => setIsModalOpen(true)}>
           Novo Usuário
         </button>
       </div>
