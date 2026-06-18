@@ -417,9 +417,16 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
                         ) : (
                           medida.descricao && (
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
-                              <p style={{ margin: 0, fontSize: '14px', whiteSpace: 'pre-wrap', color: 'var(--color-gray-800)' }}>
-                                {medida.descricao}
-                              </p>
+                              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                <p style={{ margin: 0, fontSize: '14px', whiteSpace: 'pre-wrap', color: 'var(--color-gray-800)' }}>
+                                  {medida.descricao}
+                                </p>
+                                {medida.autor && (
+                                  <span style={{ fontSize: '11px', color: 'var(--color-gray-500)', marginTop: '4px', fontStyle: 'italic' }}>
+                                    autor: {medida.autor}
+                                  </span>
+                                )}
+                              </div>
                               <button
                                 type="button"
                                 className="btn btn--outline btn--sm"
@@ -466,9 +473,16 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
                   <div className="modal__blockquote">
                     {medidasList && medidasList.filter(m => m.descricao).length > 0 ? (
                       medidasList.filter(m => m.descricao).map((m, idx) => (
-                        <p key={idx} style={{ whiteSpace: 'pre-wrap', borderLeft: '3px solid #7C6BC4', paddingLeft: '8px', marginBottom: '8px' }}>
-                          {m.descricao}
-                        </p>
+                        <div key={idx} style={{ borderLeft: '3px solid #7C6BC4', paddingLeft: '8px', marginBottom: '12px' }}>
+                          <p style={{ whiteSpace: 'pre-wrap', margin: 0, fontSize: '14px', color: 'var(--color-gray-800)' }}>
+                            {m.descricao}
+                          </p>
+                          {m.autor && (
+                            <span style={{ fontSize: '11px', color: 'var(--color-gray-500)', display: 'block', marginTop: '2px', fontStyle: 'italic' }}>
+                              autor: {m.autor}
+                            </span>
+                          )}
+                        </div>
                       ))
                     ) : (
                       <p>Nenhuma medida registrada.</p>
@@ -497,9 +511,16 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
                   <div className="modal__blockquote">
                     {medidasList && medidasList.filter(m => m.descricao).length > 0 ? (
                       medidasList.filter(m => m.descricao).map((m, idx) => (
-                        <p key={idx} style={{ whiteSpace: 'pre-wrap', borderLeft: '3px solid #7C6BC4', paddingLeft: '8px', marginBottom: '8px' }}>
-                          {m.descricao}
-                        </p>
+                        <div key={idx} style={{ borderLeft: '3px solid #7C6BC4', paddingLeft: '8px', marginBottom: '12px' }}>
+                          <p style={{ whiteSpace: 'pre-wrap', margin: 0, fontSize: '14px', color: 'var(--color-gray-800)' }}>
+                            {m.descricao}
+                          </p>
+                          {m.autor && (
+                            <span style={{ fontSize: '11px', color: 'var(--color-gray-500)', display: 'block', marginTop: '2px', fontStyle: 'italic' }}>
+                              autor: {m.autor}
+                            </span>
+                          )}
+                        </div>
                       ))
                     ) : (
                       <p>Nenhuma medida registrada.</p>

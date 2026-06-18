@@ -32,6 +32,7 @@ function normalizeMedidas(value, asText = false) {
           medida.texto ??
           '',
         dataRegistro: medida.dataRegistro ?? medida.criadoEm ?? medida.createdAt ?? null,
+        autor: medida.autor ?? null,
       };
     })
     .filter(Boolean);
