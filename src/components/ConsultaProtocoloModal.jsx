@@ -97,36 +97,24 @@ export default function ConsultaProtocoloModal({ resultado, onClose }) {
           </div>
         </div>
 
-        {/* ---- Esclarecimento do Admin ---- */}
+
+        {/* ---- Relatório de Conclusão ---- */}
         <div className="consulta-modal__divider" />
         <h3 className="consulta-modal__section-title">
-          Esclarecimento da equipe de apuração
+          Relatório de Conclusão / Desfecho
         </h3>
 
-        {resultado.medidasAdotadas ? (
-          <div className="consulta-modal__esclarecimento">
-            <p style={{ whiteSpace: 'pre-wrap' }}>{resultado.medidasAdotadas}</p>
+        {resultado.relatorioConclusao ? (
+          <div className="consulta-modal__esclarecimento" style={{ borderColor: 'var(--color-success, #22c55e)' }}>
+            <p style={{ whiteSpace: 'pre-wrap', fontWeight: '500', marginBottom: '8px' }}>
+              <strong>Tipo de encerramento:</strong> {resultado.tipoConclusao === 'FINAL' ? 'Conclusão Definitiva' : 'Arquivamento'}
+            </p>
+            <p style={{ whiteSpace: 'pre-wrap' }}>{resultado.relatorioConclusao}</p>
           </div>
         ) : (
           <div className="consulta-modal__esclarecimento consulta-modal__esclarecimento--empty">
-            <p>Nenhum esclarecimento registrado até o momento. A equipe de apuração atualizará este campo conforme o andamento da investigação.</p>
+            <p>A denúncia está em fase de apuração. O relatório com o desfecho e o retorno final serão disponibilizados aqui assim que a investigação for concluída.</p>
           </div>
-        )}
-
-        {/* ---- Relatório de Conclusão ---- */}
-        {resultado.relatorioConclusao && (
-          <>
-            <div className="consulta-modal__divider" />
-            <h3 className="consulta-modal__section-title">
-              Relatório de Conclusão / Desfecho
-            </h3>
-            <div className="consulta-modal__esclarecimento" style={{ borderColor: 'var(--color-success, #22c55e)' }}>
-              <p style={{ whiteSpace: 'pre-wrap', fontWeight: '500', marginBottom: '8px' }}>
-                <strong>Tipo de encerramento:</strong> {resultado.tipoConclusao === 'FINAL' ? 'Conclusão Definitiva' : 'Arquivamento'}
-              </p>
-              <p style={{ whiteSpace: 'pre-wrap' }}>{resultado.relatorioConclusao}</p>
-            </div>
-          </>
         )}
 
         {/* ---- Botão Fechar ---- */}
