@@ -32,7 +32,7 @@ export default function DenunciaListPage({ status }) {
       const msg = error.message || '';
       if (msg.includes('Não autorizado') || msg.includes('autorizado')) {
         logout();
-        router.push('/admin/login');
+        router.push('/');
       }
     }
   }, [isError, error, router, logout]);

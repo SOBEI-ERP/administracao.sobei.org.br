@@ -15,7 +15,7 @@ export default function AdminLoginPage() {
 
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      router.push('/');
+      router.push('/dashboard');
     }
   }, [isAuthenticated, loading, router]);
 
@@ -32,7 +32,7 @@ export default function AdminLoginPage() {
     setErro('');
     const result = await login(data);
     if (result.success) {
-      router.push('/');
+      router.push('/dashboard');
     } else {
       setErro(result.message || 'Credenciais inválidas');
     }

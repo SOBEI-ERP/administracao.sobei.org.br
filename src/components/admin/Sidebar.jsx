@@ -15,12 +15,12 @@ export default function Sidebar() {
 
   const handleLogout = () => {
     logout();
-    router.push('/login');
+    router.push('/');
   };
 
   return (
     <aside className="sidebar">
-      <Link href="/" className="sidebar__logo">
+      <Link href="/dashboard" className="sidebar__logo">
         <Image
           src="/images/LOGO BRANCO.png"
           alt="SOBEI"

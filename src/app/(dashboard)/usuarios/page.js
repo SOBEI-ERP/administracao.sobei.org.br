@@ -33,9 +33,9 @@ export default function UsuariosPage() {
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      router.push('/admin/login');
+      router.push('/');
     } else if (!authLoading && user?.nivel?.toUpperCase() !== 'SUPORTE') {
-      router.push('/admin');
+      router.push('/dashboard');
     }
   }, [authLoading, isAuthenticated, user, router]);
 

@@ -33,7 +33,7 @@ export default function MobileHeader() {
   return (
     <>
       <header className="mobile-header">
-        <Link href="/" className="mobile-header__logo">
+        <Link href="/dashboard" className="mobile-header__logo">
           <Image
             src="/images/LOGO TRIANGULO TRANSPARENTE.png"
             alt="SOBEI"
@@ -64,7 +64,7 @@ export default function MobileHeader() {
       {/* Drawer */}
       <nav className={`mobile-drawer ${menuOpen ? 'mobile-drawer--open' : ''}`}>
         <div className="mobile-drawer__header">
-          <Link href="/" className="mobile-drawer__logo" onClick={() => setMenuOpen(false)}>
+          <Link href="/dashboard" className="mobile-drawer__logo" onClick={() => setMenuOpen(false)}>
             <Image
               src="/images/LOGO BRANCO.png"
               alt="SOBEI"
