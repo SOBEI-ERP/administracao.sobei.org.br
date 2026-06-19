@@ -15,12 +15,12 @@ export default function Sidebar() {
 
   const handleLogout = () => {
     logout();
-    router.push('/admin/login');
+    router.push('/login');
   };
 
   return (
     <aside className="sidebar">
-      <Link href="/admin" className="sidebar__logo">
+      <Link href="/" className="sidebar__logo">
         <Image
           src="/images/LOGO BRANCO.png"
           alt="SOBEI"
@@ -84,9 +84,9 @@ export default function Sidebar() {
 
         {/* Estatísticas */}
         <Link
-          href="/admin/estatisticas"
+          href="/estatisticas"
           className={`sidebar__link ${
-            pathname === '/admin/estatisticas' ? 'sidebar__link--active' : ''
+            pathname === '/estatisticas' ? 'sidebar__link--active' : ''
           }`}
         >
           <Image 
@@ -104,9 +104,9 @@ export default function Sidebar() {
             <div className="sidebar__divider" />
             {/* Usuários */}
             <Link
-              href="/admin/usuarios"
+              href="/usuarios"
               className={`sidebar__link ${
-                pathname === '/admin/usuarios' ? 'sidebar__link--active' : ''
+                pathname === '/usuarios' ? 'sidebar__link--active' : ''
               }`}
             >
               <Image 

@@ -7,10 +7,10 @@
  * Fonte única de verdade — edite aqui para refletir em toda a navegação.
  */
 export const DENUNCIA_LINKS = [
-  { href: '/admin/fila', label: 'Na fila' },
-  { href: '/admin/andamento', label: 'Em andamento' },
-  { href: '/admin/fechadas', label: 'Fechadas' },
-  { href: '/admin/arquivadas', label: 'Arquivadas' },
+  { href: '/fila', label: 'Na fila' },
+  { href: '/andamento', label: 'Em andamento' },
+  { href: '/fechadas', label: 'Fechadas' },
+  { href: '/arquivadas', label: 'Arquivadas' },
 ];
 
 /**

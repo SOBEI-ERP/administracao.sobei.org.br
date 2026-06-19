@@ -33,7 +33,7 @@ export default function MobileHeader() {
   return (
     <>
       <header className="mobile-header">
-        <Link href="/admin" className="mobile-header__logo">
+        <Link href="/" className="mobile-header__logo">
           <Image
             src="/images/LOGO TRIANGULO TRANSPARENTE.png"
             alt="SOBEI"
@@ -64,7 +64,7 @@ export default function MobileHeader() {
       {/* Drawer */}
       <nav className={`mobile-drawer ${menuOpen ? 'mobile-drawer--open' : ''}`}>
         <div className="mobile-drawer__header">
-          <Link href="/admin" className="mobile-drawer__logo" onClick={() => setMenuOpen(false)}>
+          <Link href="/" className="mobile-drawer__logo" onClick={() => setMenuOpen(false)}>
             <Image
               src="/images/LOGO BRANCO.png"
               alt="SOBEI"
@@ -121,9 +121,9 @@ export default function MobileHeader() {
 
         {/* Estatísticas */}
         <Link
-          href="/admin/estatisticas"
+          href="/estatisticas"
           className={`mobile-drawer__link ${
-            pathname === '/admin/estatisticas' ? 'mobile-drawer__link--active' : ''
+            pathname === '/estatisticas' ? 'mobile-drawer__link--active' : ''
           }`}
           onClick={() => setMenuOpen(false)}
         >
