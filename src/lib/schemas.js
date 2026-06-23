@@ -54,7 +54,7 @@ export const denunciaSchema = z.discriminatedUnion('tipo', [
 
 // Schema para login
 export const loginSchema = z.object({
-  login: z.string().min(1, 'Informe seu login'),
+  email: z.string().min(1, 'Informe seu e-mail').email('Informe um e-mail válido'),
   senha: z.string().min(1, 'Informe sua senha'),
 });
 

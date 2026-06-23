@@ -298,8 +298,7 @@ export async function loginAdmin(credentials) {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
-      // Backend espera 'usuario' e não 'login' no Request
-      body: JSON.stringify({ usuario: credentials.login, senha: credentials.senha }),
+      body: JSON.stringify({ email: credentials.email, senha: credentials.senha }),
     });
 
     if (!response.ok) {

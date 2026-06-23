@@ -14,7 +14,7 @@ export default function UsuariosPage() {
 
   // Modal states for creating user
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [novoUsuario, setNovoUsuario] = useState({ usuario: '', senha: '', nivel: 'admin' });
+  const [novoUsuario, setNovoUsuario] = useState({ usuario: '', email: '', senha: '', nivel: 'admin' });
   const [formError, setFormError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
 
@@ -63,7 +63,7 @@ export default function UsuariosPage() {
     if (res.success) {
       setUsuarios([...usuarios, res.usuario]);
       setIsModalOpen(false);
-      setNovoUsuario({ usuario: '', senha: '', nivel: 'admin' });
+      setNovoUsuario({ usuario: '', email: '', senha: '', nivel: 'admin' });
     } else {
       setFormError(res.message);
     }
@@ -161,6 +161,9 @@ export default function UsuariosPage() {
                     {u.usuario}
                   </span>
                   <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-gray-500)' }}>
+                    {u.email}
+                  </span>
+                  <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-gray-500)' }}>
                     ID: #{u.id}
                   </span>
                 </div>
@@ -219,7 +222,7 @@ export default function UsuariosPage() {
               )}
               
               <div className="form-group" style={{ marginBottom: 'var(--spacing-lg)' }}>
-                <label className="form-label">Login</label>
+                <label className="form-label">Nome de Usuário</label>
                 <input
                   type="text"
                   required
@@ -227,6 +230,18 @@ export default function UsuariosPage() {
                   placeholder="Ex: joao.silva"
                   value={novoUsuario.usuario}
                   onChange={(e) => setNovoUsuario({ ...novoUsuario, usuario: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 'var(--spacing-lg)' }}>
+                <label className="form-label">E-mail</label>
+                <input
+                  type="email"
+                  required
+                  className="form-input"
+                  placeholder="Ex: joao.silva@sobei.org.br"
+                  value={novoUsuario.email}
+                  onChange={(e) => setNovoUsuario({ ...novoUsuario, email: e.target.value })}
                 />
               </div>
 

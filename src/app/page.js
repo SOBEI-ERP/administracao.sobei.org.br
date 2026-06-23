@@ -25,7 +25,7 @@ export default function AdminLoginPage() {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(loginSchema),
-    defaultValues: { login: '', senha: '' },
+    defaultValues: { email: '', senha: '' },
   });
 
   async function onSubmit(data) {
@@ -54,17 +54,17 @@ export default function AdminLoginPage() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="login-card__fields">
             <div className="form-group">
-              <label className="form-label" htmlFor="login">
-                Login
+              <label className="form-label" htmlFor="email">
+                E-mail
               </label>
               <input
-                type="text"
-                id="login"
-                className={`form-input ${errors.login ? 'form-input--error' : ''}`}
-                placeholder="Digite seu login"
-                {...register('login')}
+                type="email"
+                id="email"
+                className={`form-input ${errors.email ? 'form-input--error' : ''}`}
+                placeholder="Digite seu e-mail"
+                {...register('email')}
               />
-              {errors.login && <span className="form-error">{errors.login.message}</span>}
+              {errors.email && <span className="form-error">{errors.email.message}</span>}
             </div>
 
             <div className="form-group">
