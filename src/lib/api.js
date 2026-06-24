@@ -517,3 +517,126 @@ export async function fetchMe() {
     return null;
   }
 }
+
+// ---- API Admin — Vagas ----
+
+export async function fetchVagas(status = '') {
+  try {
+    let url = new URL(`${API_BASE_URL}/admin/vagas`);
+    if (status) url.searchParams.append('status', status);
+
+    const response = await fetch(url, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        throw new Error('Não autorizado.');
+      }
+      return [];
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function fetchVagaDetalhes(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/vagas/${id}`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    return null;
+  }
+}
+
+export async function criarVaga(data) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/vagas`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      return { success: false, message: err.message || 'Erro ao criar vaga' };
+    }
+
+    const vaga = await response.json();
+    return { success: true, vaga };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function atualizarVaga(id, data) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/vagas/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      return { success: false, message: err.message || 'Erro ao atualizar vaga' };
+    }
+
+    const vaga = await response.json();
+    return { success: true, vaga };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function fetchCandidaturas(vagaId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/vagas/${vagaId}/candidaturas`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) return [];
+    return await response.json();
+  } catch (error) {
+    return [];
+  }
+}
+
+export async function downloadCurriculo(candidaturaId, nomeArquivo) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/vagas/candidaturas/${candidaturaId}/curriculo`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return { success: false, message: 'Erro ao baixar currículo' };
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = nomeArquivo || 'curriculo.pdf';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}

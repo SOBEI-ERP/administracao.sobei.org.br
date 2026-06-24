@@ -120,6 +120,28 @@ export default function Sidebar() {
             </Link>
           </>
         )}
+
+        {user?.nivel?.toUpperCase() === 'DIRETORA' && (
+          <>
+            <div className="sidebar__divider" />
+            {/* Vagas */}
+            <Link
+              href="/vagas"
+              className={`sidebar__link ${
+                pathname === '/vagas' ? 'sidebar__link--active' : ''
+              }`}
+            >
+              <Image 
+                src="/images/briefcase.svg" 
+                alt="" 
+                width={20} 
+                height={20} 
+                className="sidebar__icon" 
+              />
+              <span className="sidebar__text">Vagas</span>
+            </Link>
+          </>
+        )}
       </nav>
 
       <div className="sidebar__logout" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', padding: 'var(--spacing-md) 0' }}>

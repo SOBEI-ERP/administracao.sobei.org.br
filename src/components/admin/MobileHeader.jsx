@@ -5,9 +5,11 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { DENUNCIA_LINKS } from '@/lib/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function MobileHeader() {
   const pathname = usePathname();
+  const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [denunciasOpen, setDenunciasOpen] = useState(true);
   const [prevPathname, setPrevPathname] = useState(pathname);
@@ -136,6 +138,28 @@ export default function MobileHeader() {
           />
           <span>Estatísticas</span>
         </Link>
+
+        {user?.nivel?.toUpperCase() === 'DIRETORA' && (
+          <>
+            <div className="mobile-drawer__divider" />
+            <Link
+              href="/vagas"
+              className={`mobile-drawer__link ${
+                pathname === '/vagas' ? 'mobile-drawer__link--active' : ''
+              }`}
+              onClick={() => setMenuOpen(false)}
+            >
+              <Image
+                src="/images/briefcase.svg"
+                alt=""
+                width={20}
+                height={20}
+                className="mobile-drawer__icon"
+              />
+              <span>Vagas</span>
+            </Link>
+          </>
+        )}
       </nav>
     </>
   );
