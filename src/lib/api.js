@@ -640,3 +640,27 @@ export async function downloadCurriculo(candidaturaId, nomeArquivo) {
     return { success: false, message: 'Erro de conexão' };
   }
 }
+
+export async function visualizarCurriculo(candidaturaId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/vagas/candidaturas/${candidaturaId}/curriculo`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return { success: false, message: 'Erro ao carregar currículo' };
+    }
+
+    const contentType = response.headers.get('content-type') || 'application/pdf';
+    const blob = await response.blob();
+    const file = new Blob([blob], { type: contentType });
+    const url = window.URL.createObjectURL(file);
+    window.open(url, '_blank');
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+

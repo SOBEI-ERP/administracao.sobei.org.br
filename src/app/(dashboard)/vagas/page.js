@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { fetchVagas, criarVaga, atualizarVaga, fetchCandidaturas, downloadCurriculo } from '@/lib/api';
+import { fetchVagas, criarVaga, atualizarVaga, fetchCandidaturas, downloadCurriculo, visualizarCurriculo } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 
 const STATUS_LABELS = {
@@ -148,6 +148,10 @@ export default function VagasPage() {
 
   const handleDownloadCurriculo = async (candidaturaId, nomeArquivo) => {
     await downloadCurriculo(candidaturaId, nomeArquivo);
+  };
+
+  const handleVisualizarCurriculo = async (candidaturaId) => {
+    await visualizarCurriculo(candidaturaId);
   };
 
   const formatDate = (dateStr) => {
@@ -468,12 +472,22 @@ export default function VagasPage() {
                             </div>
                           )}
                         </div>
-                        <button
-                          className="candidatura-card__download"
-                          onClick={() => handleDownloadCurriculo(cand.id, cand.curriculoNome)}
-                        >
-                          📄 Baixar Currículo
-                        </button>
+                        <div className="candidatura-card__actions">
+                          <button
+                            className="candidatura-card__download candidatura-card__download--primary"
+                            onClick={() => handleVisualizarCurriculo(cand.id)}
+                            type="button"
+                          >
+                            👁️ Visualizar
+                          </button>
+                          <button
+                            className="candidatura-card__download"
+                            onClick={() => handleDownloadCurriculo(cand.id, cand.curriculoNome)}
+                            type="button"
+                          >
+                            📥 Baixar
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
