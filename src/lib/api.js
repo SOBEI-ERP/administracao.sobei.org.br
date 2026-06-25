@@ -520,10 +520,11 @@ export async function fetchMe() {
 
 // ---- API Admin — Vagas ----
 
-export async function fetchVagas(status = '') {
+export async function fetchVagas(status = '', unidade = '') {
   try {
     let url = new URL(`${API_BASE_URL}/admin/vagas`);
     if (status) url.searchParams.append('status', status);
+    if (unidade) url.searchParams.append('unidade', unidade);
 
     const response = await fetch(url, {
       headers: getAuthHeaders(),

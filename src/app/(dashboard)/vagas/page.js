@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchVagas, criarVaga, atualizarVaga, fetchCandidaturas, downloadCurriculo, visualizarCurriculo } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { UNIDADES } from '@/lib/mockData';
 
 const STATUS_LABELS = {
   aberta: 'Aberta',
@@ -44,6 +45,7 @@ export default function VagasPage() {
   const [vagas, setVagas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
+  const [unidadeFilter, setUnidadeFilter] = useState('');
 
   // Modal states
   const [showFormModal, setShowFormModal] = useState(false);
@@ -61,10 +63,10 @@ export default function VagasPage() {
 
   const loadVagas = useCallback(async () => {
     setLoading(true);
-    const data = await fetchVagas(statusFilter);
+    const data = await fetchVagas(statusFilter, unidadeFilter);
     setVagas(data);
     setLoading(false);
-  }, [statusFilter]);
+  }, [statusFilter, unidadeFilter]);
 
   useEffect(() => {
     loadVagas();
@@ -170,31 +172,64 @@ export default function VagasPage() {
         <div>
           <h1 className="vagas-admin__title">Vagas</h1>
           <p className="vagas-admin__subtitle">
-            Gerencie as vagas da unidade <strong>{user?.unidade || '—'}</strong>
+            {user?.nivel === 'suporte' ? (
+              <span>Visualizando as vagas de <strong>todas as unidades</strong></span>
+            ) : (
+              <span>Gerencie as vagas da unidade <strong>{user?.unidade || '—'}</strong></span>
+            )}
           </p>
         </div>
-        <button className="vagas-admin__btn-create" onClick={handleOpenCreate}>
-          + Nova Vaga
-        </button>
+        {user?.nivel === 'diretora' && (
+          <button className="vagas-admin__btn-create" onClick={handleOpenCreate}>
+            + Nova Vaga
+          </button>
+        )}
       </div>
 
       {/* Filtros */}
-      <div className="vagas-admin__filters">
-        <button
-          className={`vagas-admin__filter-btn ${statusFilter === '' ? 'vagas-admin__filter-btn--active' : ''}`}
-          onClick={() => setStatusFilter('')}
-        >
-          Todas
-        </button>
-        {Object.entries(STATUS_LABELS).map(([key, label]) => (
+      <div className="vagas-admin__filters" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
           <button
-            key={key}
-            className={`vagas-admin__filter-btn ${statusFilter === key ? 'vagas-admin__filter-btn--active' : ''}`}
-            onClick={() => setStatusFilter(key)}
+            className={`vagas-admin__filter-btn ${statusFilter === '' ? 'vagas-admin__filter-btn--active' : ''}`}
+            onClick={() => setStatusFilter('')}
           >
-            {label}
+            Todas
           </button>
-        ))}
+          {Object.entries(STATUS_LABELS).map(([key, label]) => (
+            <button
+              key={key}
+              className={`vagas-admin__filter-btn ${statusFilter === key ? 'vagas-admin__filter-btn--active' : ''}`}
+              onClick={() => setStatusFilter(key)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {user?.nivel === 'suporte' && (
+          <div className="vagas-admin__unit-filter" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--color-text-secondary)' }}>Filtrar por Unidade:</span>
+            <select
+              value={unidadeFilter}
+              onChange={(e) => setUnidadeFilter(e.target.value)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '6px',
+                border: '1px solid var(--color-border)',
+                backgroundColor: 'var(--color-background-elevated, #fff)',
+                color: 'var(--color-text-primary)',
+                fontSize: '14px',
+                outline: 'none',
+                minWidth: '180px'
+              }}
+            >
+              <option value="">Todas as Unidades</option>
+              {UNIDADES.map((u) => (
+                <option key={u} value={u}>{u}</option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       {/* Lista */}
@@ -203,9 +238,11 @@ export default function VagasPage() {
       ) : vagas.length === 0 ? (
         <div className="vagas-admin__empty">
           <p>Nenhuma vaga encontrada.</p>
-          <button className="vagas-admin__btn-create" onClick={handleOpenCreate}>
-            Criar primeira vaga
-          </button>
+          {user?.nivel === 'diretora' && (
+            <button className="vagas-admin__btn-create" onClick={handleOpenCreate}>
+              Criar primeira vaga
+            </button>
+          )}
         </div>
       ) : (
         <div className="vagas-admin__grid">
@@ -225,7 +262,9 @@ export default function VagasPage() {
                 <span className="vaga-card__date">{formatDate(vaga.dataCriacao)}</span>
               </div>
               <h3 className="vaga-card__title">{vaga.titulo}</h3>
-              <p className="vaga-card__dept">{vaga.departamento}</p>
+              <p className="vaga-card__dept">
+                {vaga.departamento} {user?.nivel === 'suporte' && `• ${vaga.unidade}`}
+              </p>
               <div className="vaga-card__footer">
                 <span className="vaga-card__tag">
                   {MODALIDADE_LABELS[vaga.modalidade]} • {CONTRATO_LABELS[vaga.tipoContrato]}
@@ -379,6 +418,7 @@ export default function VagasPage() {
                     {STATUS_LABELS[selectedVaga.status]}
                   </span>
                   <span>{MODALIDADE_LABELS[selectedVaga.modalidade]} • {CONTRATO_LABELS[selectedVaga.tipoContrato]}</span>
+                  <span>Unidade: <strong>{selectedVaga.unidade}</strong></span>
                   <span>Criada em {formatDate(selectedVaga.dataCriacao)}</span>
                 </div>
 
@@ -404,46 +444,48 @@ export default function VagasPage() {
                   </div>
                 )}
 
-                <div className="vagas-detail__actions">
-                  <button className="vagas-form__btn-submit" onClick={() => handleOpenEdit(selectedVaga)}>
-                    Editar Vaga
-                  </button>
-
-                  {selectedVaga.status === 'aberta' && (
-                    <button
-                      className="vagas-form__btn-cancel"
-                      onClick={() => handleChangeStatus(selectedVaga, 'pausada')}
-                    >
-                      Pausar Vaga
+                {user?.nivel === 'diretora' && (
+                  <div className="vagas-detail__actions">
+                    <button className="vagas-form__btn-submit" onClick={() => handleOpenEdit(selectedVaga)}>
+                      Editar Vaga
                     </button>
-                  )}
 
-                  {selectedVaga.status === 'pausada' && (
-                    <>
+                    {selectedVaga.status === 'aberta' && (
                       <button
-                        className="vagas-form__btn-submit"
-                        onClick={() => handleChangeStatus(selectedVaga, 'aberta')}
+                        className="vagas-form__btn-cancel"
+                        onClick={() => handleChangeStatus(selectedVaga, 'pausada')}
                       >
-                        Reabrir Vaga
+                        Pausar Vaga
                       </button>
+                    )}
+
+                    {selectedVaga.status === 'pausada' && (
+                      <>
+                        <button
+                          className="vagas-form__btn-submit"
+                          onClick={() => handleChangeStatus(selectedVaga, 'aberta')}
+                        >
+                          Reabrir Vaga
+                        </button>
+                        <button
+                          className="vagas-detail__btn-close"
+                          onClick={() => handleChangeStatus(selectedVaga, 'fechada')}
+                        >
+                          Fechar Vaga
+                        </button>
+                      </>
+                    )}
+
+                    {selectedVaga.status === 'aberta' && (
                       <button
                         className="vagas-detail__btn-close"
                         onClick={() => handleChangeStatus(selectedVaga, 'fechada')}
                       >
                         Fechar Vaga
                       </button>
-                    </>
-                  )}
-
-                  {selectedVaga.status === 'aberta' && (
-                    <button
-                      className="vagas-detail__btn-close"
-                      onClick={() => handleChangeStatus(selectedVaga, 'fechada')}
-                    >
-                      Fechar Vaga
-                    </button>
-                  )}
-                </div>
+                    )}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="vagas-modal__content">
