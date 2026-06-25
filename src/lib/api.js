@@ -642,6 +642,12 @@ export async function downloadCurriculo(candidaturaId, nomeArquivo) {
 }
 
 export async function visualizarCurriculo(candidaturaId) {
+  // Abre a nova aba imediatamente (sincronamente) para evitar o bloqueador de pop-ups do navegador
+  const newTab = window.open('about:blank', '_blank');
+  if (newTab) {
+    newTab.document.write('<p style="font-family: sans-serif; text-align: center; margin-top: 100px; color: #666;">Carregando currículo...</p>');
+  }
+
   try {
     const response = await fetch(`${API_BASE_URL}/admin/vagas/candidaturas/${candidaturaId}/curriculo`, {
       headers: getAuthHeaders(),
@@ -649,6 +655,7 @@ export async function visualizarCurriculo(candidaturaId) {
     });
 
     if (!response.ok) {
+      if (newTab) newTab.close();
       return { success: false, message: 'Erro ao carregar currículo' };
     }
 
@@ -656,10 +663,16 @@ export async function visualizarCurriculo(candidaturaId) {
     const blob = await response.blob();
     const file = new Blob([blob], { type: contentType });
     const url = window.URL.createObjectURL(file);
-    window.open(url, '_blank');
+    
+    if (newTab) {
+      newTab.location.href = url;
+    } else {
+      window.open(url, '_blank');
+    }
 
     return { success: true };
   } catch (error) {
+    if (newTab) newTab.close();
     return { success: false, message: 'Erro de conexão' };
   }
 }
