@@ -5,6 +5,34 @@ import { useAuth } from '@/contexts/AuthContext';
 import { fetchUsuarios, criarUsuario, alterarSenhaUsuario, deletarUsuario } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 
+const UNIDADES_SOBEI = [
+  'Araucárias',
+  'Cedro',
+  'Oliveiras',
+  'Macaúbas',
+  'Montanaro',
+  'Leblon',
+  'Imbuias',
+  'Acácias',
+  'Ipês',
+  'Bela Vista',
+  'Orquídeas',
+  'Cerejeiras / Jacomo Tatto',
+  'Sabiás',
+];
+
+const NIVEL_LABELS = {
+  suporte: 'Suporte',
+  admin: 'Administrador',
+  diretora: 'Diretora',
+};
+
+const NIVEL_BADGE_STATUS = {
+  suporte: 'em_andamento',
+  admin: 'fechada',
+  diretora: 'aberta',
+};
+
 export default function UsuariosPage() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -14,7 +42,7 @@ export default function UsuariosPage() {
 
   // Modal states for creating user
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [novoUsuario, setNovoUsuario] = useState({ usuario: '', email: '', senha: '', nivel: 'admin' });
+  const [novoUsuario, setNovoUsuario] = useState({ usuario: '', email: '', senha: '', nivel: 'admin', unidade: '' });
   const [formError, setFormError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
 
@@ -55,15 +83,24 @@ export default function UsuariosPage() {
     setFormLoading(true);
     setFormError('');
 
-    const res = await criarUsuario({
-      ...novoUsuario,
+    const payload = {
+      usuario: novoUsuario.usuario,
+      email: novoUsuario.email,
+      senha: novoUsuario.senha,
       nivel: novoUsuario.nivel.toLowerCase(),
-    });
+    };
+
+    // Inclui unidade somente para diretora
+    if (novoUsuario.nivel.toLowerCase() === 'diretora') {
+      payload.unidade = novoUsuario.unidade;
+    }
+
+    const res = await criarUsuario(payload);
 
     if (res.success) {
       setUsuarios([...usuarios, res.usuario]);
       setIsModalOpen(false);
-      setNovoUsuario({ usuario: '', email: '', senha: '', nivel: 'admin' });
+      setNovoUsuario({ usuario: '', email: '', senha: '', nivel: 'admin', unidade: '' });
     } else {
       setFormError(res.message);
     }
@@ -173,11 +210,16 @@ export default function UsuariosPage() {
             <div className="denuncia-card__right" style={{ flexDirection: 'row', alignItems: 'center', gap: 'var(--spacing-lg)' }}>
               <span 
                 className="consulta-modal__status-badge" 
-                data-status={u.nivel?.toLowerCase() === 'suporte' ? 'em_andamento' : 'fechada'}
+                data-status={NIVEL_BADGE_STATUS[u.nivel?.toLowerCase()] || 'fechada'}
                 style={{ margin: 0, textTransform: 'uppercase' }}
               >
-                {u.nivel?.toLowerCase() === 'suporte' ? 'Suporte' : 'Admin'}
+                {NIVEL_LABELS[u.nivel?.toLowerCase()] || u.nivel}
               </span>
+              {u.unidade && (
+                <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-gray-500)', marginLeft: 'var(--spacing-sm)' }}>
+                  📍 {u.unidade}
+                </span>
+              )}
               <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
                 <button
                   className="btn btn--outline btn--sm"
@@ -257,17 +299,35 @@ export default function UsuariosPage() {
                 />
               </div>
 
-              <div className="form-group" style={{ marginBottom: 'var(--spacing-xl)' }}>
+              <div className="form-group" style={{ marginBottom: 'var(--spacing-lg)' }}>
                 <label className="form-label">Nível de Acesso</label>
                 <select
                   className="form-select"
                   value={novoUsuario.nivel}
-                  onChange={(e) => setNovoUsuario({ ...novoUsuario, nivel: e.target.value })}
+                  onChange={(e) => setNovoUsuario({ ...novoUsuario, nivel: e.target.value, unidade: '' })}
                 >
                   <option value="admin">Administrador</option>
                   <option value="suporte">Suporte</option>
+                  <option value="diretora">Diretora</option>
                 </select>
               </div>
+
+              {novoUsuario.nivel === 'diretora' && (
+                <div className="form-group" style={{ marginBottom: 'var(--spacing-xl)' }}>
+                  <label className="form-label">Unidade Vinculada *</label>
+                  <select
+                    className="form-select"
+                    value={novoUsuario.unidade}
+                    onChange={(e) => setNovoUsuario({ ...novoUsuario, unidade: e.target.value })}
+                    required
+                  >
+                    <option value="">Selecione a unidade</option>
+                    {UNIDADES_SOBEI.map((u) => (
+                      <option key={u} value={u}>{u}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="modal__actions">
                 <button type="button" className="btn btn--outline" onClick={() => setIsModalOpen(false)}>
