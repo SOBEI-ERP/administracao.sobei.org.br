@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { fetchVagas, criarVaga, atualizarVaga, fetchCandidaturas, downloadCurriculo, visualizarCurriculo } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { UNIDADES } from '@/lib/mockData';
+import CustomSelect from '@/components/admin/CustomSelect';
 
 const STATUS_LABELS = {
   aberta: 'Aberta',
@@ -209,25 +210,13 @@ export default function VagasPage() {
         {user?.nivel === 'suporte' && (
           <div className="vagas-admin__unit-filter" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--color-text-secondary)' }}>Filtrar por Unidade:</span>
-            <select
+            <CustomSelect
               value={unidadeFilter}
-              onChange={(e) => setUnidadeFilter(e.target.value)}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '6px',
-                border: '1px solid var(--color-border)',
-                backgroundColor: 'var(--color-background-elevated, #fff)',
-                color: 'var(--color-text-primary)',
-                fontSize: '14px',
-                outline: 'none',
-                minWidth: '180px'
-              }}
-            >
-              <option value="">Todas as Unidades</option>
-              {UNIDADES.map((u) => (
-                <option key={u} value={u}>{u}</option>
-              ))}
-            </select>
+              onChange={setUnidadeFilter}
+              options={UNIDADES.map((u) => ({ value: u, label: u }))}
+              defaultOption="Todas as Unidades"
+              style={{ minWidth: '220px' }}
+            />
           </div>
         )}
       </div>
