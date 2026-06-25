@@ -1,20 +1,25 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Sidebar from '@/components/admin/Sidebar';
 import MobileHeader from '@/components/admin/MobileHeader';
 
 export default function DashboardLayout({ children }) {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       router.push('/');
+    } else if (!loading && isAuthenticated && user) {
+      if (user.nivel?.toUpperCase() === 'DIRETORA' && pathname !== '/vagas') {
+        router.push('/vagas');
+      }
     }
-  }, [isAuthenticated, loading, router]);
+  }, [isAuthenticated, loading, router, user, pathname]);
 
   if (loading) {
     return (

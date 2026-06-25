@@ -150,8 +150,8 @@ export default function VagasPage() {
     await downloadCurriculo(candidaturaId, nomeArquivo);
   };
 
-  const handleVisualizarCurriculo = async (candidaturaId) => {
-    await visualizarCurriculo(candidaturaId);
+  const handleVisualizarCurriculo = async (candidaturaId, nomeArquivo) => {
+    await visualizarCurriculo(candidaturaId, nomeArquivo);
   };
 
   const formatDate = (dateStr) => {
@@ -475,7 +475,7 @@ export default function VagasPage() {
                         <div className="candidatura-card__actions">
                           <button
                             className="candidatura-card__download candidatura-card__download--primary"
-                            onClick={() => handleVisualizarCurriculo(cand.id)}
+                            onClick={() => handleVisualizarCurriculo(cand.id, cand.curriculoNome)}
                             type="button"
                           >
                             👁️ Visualizar

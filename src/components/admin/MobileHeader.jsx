@@ -79,67 +79,71 @@ export default function MobileHeader() {
 
         <div className="mobile-drawer__divider" />
 
-        {/* Denúncias */}
-        <div className="mobile-drawer__section">
-          <button
-            className="mobile-drawer__section-header"
-            onClick={() => setDenunciasOpen(!denunciasOpen)}
-            type="button"
-          >
-            <div className="mobile-drawer__section-title">
+        {user?.nivel?.toUpperCase() !== 'DIRETORA' && (
+          <>
+            {/* Denúncias */}
+            <div className="mobile-drawer__section">
+              <button
+                className="mobile-drawer__section-header"
+                onClick={() => setDenunciasOpen(!denunciasOpen)}
+                type="button"
+              >
+                <div className="mobile-drawer__section-title">
+                  <Image
+                    src="/images/attention-stop.svg"
+                    alt=""
+                    width={20}
+                    height={20}
+                    className="mobile-drawer__icon"
+                  />
+                  <span>Denúncias</span>
+                </div>
+                <span className={`mobile-drawer__chevron ${denunciasOpen ? 'mobile-drawer__chevron--open' : ''}`}>
+                  ▼
+                </span>
+              </button>
+
+              {denunciasOpen && (
+                <div className="mobile-drawer__subitems">
+                  {DENUNCIA_LINKS.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`mobile-drawer__subitem ${
+                        pathname === link.href ? 'mobile-drawer__subitem--active' : ''
+                      }`}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="mobile-drawer__divider" />
+
+            {/* Estatísticas */}
+            <Link
+              href="/estatisticas"
+              className={`mobile-drawer__link ${
+                pathname === '/estatisticas' ? 'mobile-drawer__link--active' : ''
+              }`}
+              onClick={() => setMenuOpen(false)}
+            >
               <Image
-                src="/images/attention-stop.svg"
+                src="/images/statistic-1.svg"
                 alt=""
                 width={20}
                 height={20}
                 className="mobile-drawer__icon"
               />
-              <span>Denúncias</span>
-            </div>
-            <span className={`mobile-drawer__chevron ${denunciasOpen ? 'mobile-drawer__chevron--open' : ''}`}>
-              ▼
-            </span>
-          </button>
+              <span>Estatísticas</span>
+            </Link>
+          </>
+        )}
 
-          {denunciasOpen && (
-            <div className="mobile-drawer__subitems">
-              {DENUNCIA_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`mobile-drawer__subitem ${
-                    pathname === link.href ? 'mobile-drawer__subitem--active' : ''
-                  }`}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="mobile-drawer__divider" />
-
-        {/* Estatísticas */}
-        <Link
-          href="/estatisticas"
-          className={`mobile-drawer__link ${
-            pathname === '/estatisticas' ? 'mobile-drawer__link--active' : ''
-          }`}
-          onClick={() => setMenuOpen(false)}
-        >
-          <Image
-            src="/images/statistic-1.svg"
-            alt=""
-            width={20}
-            height={20}
-            className="mobile-drawer__icon"
-          />
-          <span>Estatísticas</span>
-        </Link>
-
-        {user?.nivel?.toUpperCase() === 'DIRETORA' && (
+        {(user?.nivel?.toUpperCase() === 'DIRETORA' || user?.nivel?.toUpperCase() === 'SUPORTE') && (
           <>
             <div className="mobile-drawer__divider" />
             <Link

@@ -10,14 +10,18 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const { login, isAuthenticated, loading } = useAuth();
+  const { login, isAuthenticated, loading, user } = useAuth();
   const [erro, setErro] = useState('');
 
   useEffect(() => {
-    if (!loading && isAuthenticated) {
-      router.push('/dashboard');
+    if (!loading && isAuthenticated && user) {
+      if (user.nivel?.toUpperCase() === 'DIRETORA') {
+        router.push('/vagas');
+      } else {
+        router.push('/dashboard');
+      }
     }
-  }, [isAuthenticated, loading, router]);
+  }, [isAuthenticated, loading, router, user]);
 
   const {
     register,
@@ -32,7 +36,12 @@ export default function AdminLoginPage() {
     setErro('');
     const result = await login(data);
     if (result.success) {
-      router.push('/dashboard');
+      const storedUser = JSON.parse(sessionStorage.getItem('sobei_user') || '{}');
+      if (storedUser.nivel?.toUpperCase() === 'DIRETORA') {
+        router.push('/vagas');
+      } else {
+        router.push('/dashboard');
+      }
     } else {
       setErro(result.message || 'Credenciais inválidas');
     }

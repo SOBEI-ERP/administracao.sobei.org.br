@@ -641,7 +641,7 @@ export async function downloadCurriculo(candidaturaId, nomeArquivo) {
   }
 }
 
-export async function visualizarCurriculo(candidaturaId) {
+export async function visualizarCurriculo(candidaturaId, nomeArquivo) {
   // Abre a nova aba imediatamente (sincronamente) para evitar o bloqueador de pop-ups do navegador
   const newTab = window.open('about:blank', '_blank');
   if (newTab) {
@@ -665,7 +665,12 @@ export async function visualizarCurriculo(candidaturaId) {
     const url = window.URL.createObjectURL(file);
     
     if (newTab) {
-      newTab.location.href = url;
+      newTab.document.title = nomeArquivo || 'Visualizar Currículo';
+      newTab.document.body.innerHTML = `
+        <iframe src="${url}" style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;">
+          Seu navegador não suporta a visualização de PDFs.
+        </iframe>
+      `;
     } else {
       window.open(url, '_blank');
     }

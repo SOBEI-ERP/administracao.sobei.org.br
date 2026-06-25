@@ -40,64 +40,67 @@ export default function Sidebar() {
       </Link>
 
       <nav className="sidebar__nav">
+        {user?.nivel?.toUpperCase() !== 'DIRETORA' && (
+          <>
+            {/* Denúncias section */}
+            <div className="sidebar__section">
+              <button
+                className="sidebar__section-header"
+                onClick={() => setDenunciasOpen(!denunciasOpen)}
+                type="button"
+              >
+                <div className="sidebar__section-title">
+                  <Image 
+                    src="/images/attention-stop.svg" 
+                    alt="" 
+                    width={20} 
+                    height={20} 
+                    className="sidebar__icon" 
+                  />
+                  <span className="sidebar__text">Denúncias</span>
+                </div>
+                <span className={`sidebar__chevron ${denunciasOpen ? 'sidebar__chevron--open' : ''}`}>
+                  ▼
+                </span>
+              </button>
 
-        {/* Denúncias section */}
-        <div className="sidebar__section">
-          <button
-            className="sidebar__section-header"
-            onClick={() => setDenunciasOpen(!denunciasOpen)}
-            type="button"
-          >
-            <div className="sidebar__section-title">
+              {denunciasOpen && (
+                <div className="sidebar__subitems">
+                  {DENUNCIA_LINKS.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`sidebar__subitem ${
+                        pathname === link.href ? 'sidebar__subitem--active' : ''
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="sidebar__divider" />
+
+            {/* Estatísticas */}
+            <Link
+              href="/estatisticas"
+              className={`sidebar__link ${
+                pathname === '/estatisticas' ? 'sidebar__link--active' : ''
+              }`}
+            >
               <Image 
-                src="/images/attention-stop.svg" 
+                src="/images/statistic-1.svg" 
                 alt="" 
                 width={20} 
                 height={20} 
                 className="sidebar__icon" 
               />
-              <span className="sidebar__text">Denúncias</span>
-            </div>
-            <span className={`sidebar__chevron ${denunciasOpen ? 'sidebar__chevron--open' : ''}`}>
-              ▼
-            </span>
-          </button>
-
-          {denunciasOpen && (
-            <div className="sidebar__subitems">
-              {DENUNCIA_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`sidebar__subitem ${
-                    pathname === link.href ? 'sidebar__subitem--active' : ''
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="sidebar__divider" />
-
-        {/* Estatísticas */}
-        <Link
-          href="/estatisticas"
-          className={`sidebar__link ${
-            pathname === '/estatisticas' ? 'sidebar__link--active' : ''
-          }`}
-        >
-          <Image 
-            src="/images/statistic-1.svg" 
-            alt="" 
-            width={20} 
-            height={20} 
-            className="sidebar__icon" 
-          />
-          <span className="sidebar__text">Estatísticas</span>
-        </Link>
+              <span className="sidebar__text">Estatísticas</span>
+            </Link>
+          </>
+        )}
 
         {user?.nivel?.toUpperCase() === 'SUPORTE' && (
           <>
@@ -121,7 +124,7 @@ export default function Sidebar() {
           </>
         )}
 
-        {user?.nivel?.toUpperCase() === 'DIRETORA' && (
+        {(user?.nivel?.toUpperCase() === 'DIRETORA' || user?.nivel?.toUpperCase() === 'SUPORTE') && (
           <>
             <div className="sidebar__divider" />
             {/* Vagas */}
