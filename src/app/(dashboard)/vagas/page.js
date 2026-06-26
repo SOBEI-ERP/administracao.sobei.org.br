@@ -85,6 +85,7 @@ const INITIAL_FORM = {
   beneficios: '',
   modalidade: 'presencial',
   tipoContrato: 'clt',
+  unidade: '',
 };
 
 export default function VagasPage() {
@@ -121,7 +122,10 @@ export default function VagasPage() {
 
   const handleOpenCreate = () => {
     setEditingVaga(null);
-    setFormData(INITIAL_FORM);
+    setFormData({
+      ...INITIAL_FORM,
+      unidade: user?.nivel === 'diretora' ? (user?.unidade || '') : '',
+    });
     setFormError('');
     setShowFormModal(true);
   };
@@ -136,6 +140,7 @@ export default function VagasPage() {
       beneficios: vaga.beneficios || '',
       modalidade: vaga.modalidade,
       tipoContrato: vaga.tipoContrato,
+      unidade: vaga.unidade || '',
     });
     setFormError('');
     setShowDetailModal(false);
@@ -187,6 +192,7 @@ export default function VagasPage() {
       modalidade: vaga.modalidade,
       tipoContrato: vaga.tipoContrato,
       status: newStatus,
+      unidade: vaga.unidade,
     });
 
     if (result.success) {
@@ -226,7 +232,7 @@ export default function VagasPage() {
             )}
           </p>
         </div>
-        {user?.nivel === 'diretora' && (
+        {(user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
           <button className="vagas-admin__btn-create" onClick={handleOpenCreate}>
             + Nova Vaga
           </button>
@@ -273,7 +279,7 @@ export default function VagasPage() {
       ) : vagas.length === 0 ? (
         <div className="vagas-admin__empty">
           <p>Nenhuma vaga encontrada.</p>
-          {user?.nivel === 'diretora' && (
+          {(user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
             <button className="vagas-admin__btn-create" onClick={handleOpenCreate}>
               Criar primeira vaga
             </button>
@@ -325,6 +331,22 @@ export default function VagasPage() {
             <div className="vagas-modal__split-container">
               {/* Left Column: Form Fields */}
               <form onSubmit={handleSubmitForm} className="vagas-modal__form-col">
+                {user?.nivel === 'suporte' && (
+                  <div className="vagas-form__group">
+                    <label>Unidade *</label>
+                    <select
+                      value={formData.unidade}
+                      onChange={(e) => setFormData({ ...formData, unidade: e.target.value, titulo: '' })}
+                      required
+                    >
+                      <option value="" disabled>Selecione a unidade...</option>
+                      {UNIDADES.map((u) => (
+                        <option key={u} value={u}>{u}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
                 <div className="vagas-form__group">
                   <label>Título da Vaga *</label>
                   <select
@@ -333,7 +355,7 @@ export default function VagasPage() {
                     required
                   >
                     <option value="" disabled>Selecione a vaga...</option>
-                    {getAvailableTitles(user?.unidade, editingVaga?.titulo).map((title) => (
+                    {getAvailableTitles(formData.unidade, editingVaga?.titulo).map((title) => (
                       <option key={title} value={title}>
                         {title}
                       </option>
@@ -444,7 +466,7 @@ export default function VagasPage() {
                       {formData.titulo || 'Título da Vaga'}
                     </h2>
                     <div style={{ display: 'flex', gap: '12px', fontSize: '11px', color: 'rgba(255,255,255,0.9)' }}>
-                      <span>📍 {user?.unidade || 'Unidade'}</span>
+                      <span>📍 {formData.unidade || user?.unidade || 'Unidade'}</span>
                       <span>💼 {MODALIDADE_LABELS[formData.modalidade]} ({CONTRATO_LABELS[formData.tipoContrato]})</span>
                     </div>
                   </div>
