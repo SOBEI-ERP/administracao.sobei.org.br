@@ -31,6 +31,52 @@ const CONTRATO_LABELS = {
   temporario: 'Temporário',
 };
 
+const getAvailableTitles = (unidade, currentTitle) => {
+  if (!unidade) return [];
+  const u = unidade.toLowerCase();
+  
+  let titles = [];
+  if (u.includes('nci')) {
+    titles = [
+      'Psicólogo',
+      'Assistente Social',
+      'Técnico Socioeducativo',
+      'Coordenador',
+      'Gerente',
+      'Auxiliar de Cozinha e Limpeza',
+      'Cozinheira'
+    ];
+  } else if (['ccinter', 'cedesp', 'telecentro', 'matriz'].includes(u)) {
+    titles = [
+      'Técnico Socioeducativo',
+      'Coordenador',
+      'Gerente',
+      'Auxiliar de Cozinha e Limpeza',
+      'Cozinheira'
+    ];
+  } else {
+    // CEI (qualquer outra unidade como Acácias, Araucárias, Imbuias, etc.)
+    titles = [
+      'Diretora',
+      'Coordenadora',
+      'Técnico de Enfermagem',
+      'Auxiliar de Desenvolvimento Infantil',
+      'Professora',
+      'Auxiliar de Limpeza',
+      'Auxiliar de Cozinha',
+      'Auxiliar de Manutenção',
+      'Jovem Aprendiz',
+      'Cozinheira'
+    ];
+  }
+
+  if (currentTitle && !titles.includes(currentTitle)) {
+    titles.push(currentTitle);
+  }
+
+  return titles;
+};
+
 const INITIAL_FORM = {
   titulo: '',
   departamento: '',
@@ -281,13 +327,18 @@ export default function VagasPage() {
               <form onSubmit={handleSubmitForm} className="vagas-modal__form-col">
                 <div className="vagas-form__group">
                   <label>Título da Vaga *</label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.titulo}
                     onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
-                    placeholder="Ex: Educador Social"
                     required
-                  />
+                  >
+                    <option value="" disabled>Selecione a vaga...</option>
+                    {getAvailableTitles(user?.unidade, editingVaga?.titulo).map((title) => (
+                      <option key={title} value={title}>
+                        {title}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="vagas-form__group">
