@@ -161,6 +161,16 @@ export default function VagasPage() {
   const handleSubmitForm = async (e) => {
     e.preventDefault();
     setFormError('');
+
+    if (user?.nivel === 'suporte' && !formData.unidade) {
+      setFormError('A unidade é obrigatória');
+      return;
+    }
+    if (!formData.titulo) {
+      setFormError('O título da vaga é obrigatório');
+      return;
+    }
+
     setSubmitting(true);
 
     let result;
@@ -233,7 +243,7 @@ export default function VagasPage() {
           </p>
         </div>
         {(user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
-          <button className="vagas-admin__btn-create" onClick={handleOpenCreate}>
+          <button className="btn btn--secondary" onClick={handleOpenCreate}>
             + Nova Vaga
           </button>
         )}
@@ -280,7 +290,7 @@ export default function VagasPage() {
         <div className="vagas-admin__empty">
           <p>Nenhuma vaga encontrada.</p>
           {(user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
-            <button className="vagas-admin__btn-create" onClick={handleOpenCreate}>
+            <button className="btn btn--secondary" onClick={handleOpenCreate}>
               Criar primeira vaga
             </button>
           )}
@@ -334,33 +344,25 @@ export default function VagasPage() {
                 {user?.nivel === 'suporte' && (
                   <div className="vagas-form__group">
                     <label>Unidade *</label>
-                    <select
+                    <CustomSelect
                       value={formData.unidade}
-                      onChange={(e) => setFormData({ ...formData, unidade: e.target.value, titulo: '' })}
-                      required
-                    >
-                      <option value="" disabled>Selecione a unidade...</option>
-                      {UNIDADES.map((u) => (
-                        <option key={u} value={u}>{u}</option>
-                      ))}
-                    </select>
+                      onChange={(val) => setFormData({ ...formData, unidade: val, titulo: '' })}
+                      options={UNIDADES.map((u) => ({ value: u, label: u }))}
+                      defaultOption="Selecione a unidade..."
+                      allowEmpty={false}
+                    />
                   </div>
                 )}
 
                 <div className="vagas-form__group">
                   <label>Título da Vaga *</label>
-                  <select
+                  <CustomSelect
                     value={formData.titulo}
-                    onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
-                    required
-                  >
-                    <option value="" disabled>Selecione a vaga...</option>
-                    {getAvailableTitles(formData.unidade, editingVaga?.titulo).map((title) => (
-                      <option key={title} value={title}>
-                        {title}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setFormData({ ...formData, titulo: val })}
+                    options={getAvailableTitles(formData.unidade, editingVaga?.titulo).map((t) => ({ value: t, label: t }))}
+                    defaultOption="Selecione a vaga..."
+                    allowEmpty={false}
+                  />
                 </div>
 
                 <div className="vagas-form__group">
@@ -377,26 +379,22 @@ export default function VagasPage() {
                 <div className="vagas-form__row">
                   <div className="vagas-form__group">
                     <label>Modalidade *</label>
-                    <select
+                    <CustomSelect
                       value={formData.modalidade}
-                      onChange={(e) => setFormData({ ...formData, modalidade: e.target.value })}
-                    >
-                      {Object.entries(MODALIDADE_LABELS).map(([key, label]) => (
-                        <option key={key} value={key}>{label}</option>
-                      ))}
-                    </select>
+                      onChange={(val) => setFormData({ ...formData, modalidade: val })}
+                      options={Object.entries(MODALIDADE_LABELS).map(([key, label]) => ({ value: key, label }))}
+                      allowEmpty={false}
+                    />
                   </div>
 
                   <div className="vagas-form__group">
                     <label>Tipo de Contrato *</label>
-                    <select
+                    <CustomSelect
                       value={formData.tipoContrato}
-                      onChange={(e) => setFormData({ ...formData, tipoContrato: e.target.value })}
-                    >
-                      {Object.entries(CONTRATO_LABELS).map(([key, label]) => (
-                        <option key={key} value={key}>{label}</option>
-                      ))}
-                    </select>
+                      onChange={(val) => setFormData({ ...formData, tipoContrato: val })}
+                      options={Object.entries(CONTRATO_LABELS).map(([key, label]) => ({ value: key, label }))}
+                      allowEmpty={false}
+                    />
                   </div>
                 </div>
 
