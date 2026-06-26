@@ -54,8 +54,8 @@ const getAvailableTitles = (unidade, currentTitle) => {
   } else {
     // CEI (qualquer outra unidade como Acácias, Araucárias, Imbuias, etc.)
     titles = [
-      'Diretora',
-      'Coordenadora',
+      'Diretora Pedagógica',
+      'Coordenadora Pedagógica',
       'Técnico de Enfermagem',
       'Auxiliar de Desenvolvimento Infantil',
       'Professora',
@@ -76,7 +76,7 @@ const getAvailableTitles = (unidade, currentTitle) => {
 
 const INITIAL_FORM = {
   titulo: '',
-  departamento: '',
+  departamento: 'Geral',
   descricao: '',
   requisitos: '',
   beneficios: '',
@@ -311,7 +311,7 @@ export default function VagasPage() {
               </div>
               <h3 className="vaga-card__title">{vaga.titulo}</h3>
               <p className="vaga-card__dept">
-                {vaga.departamento} {user?.nivel === 'suporte' && `• ${vaga.unidade}`}
+                📍 {vaga.unidade}
               </p>
               <div className="vaga-card__footer">
                 <span className="vaga-card__tag">
@@ -362,16 +362,7 @@ export default function VagasPage() {
                   />
                 </div>
 
-                <div className="vagas-form__group">
-                  <label>Departamento / Área *</label>
-                  <input
-                    type="text"
-                    value={formData.departamento}
-                    onChange={(e) => setFormData({ ...formData, departamento: e.target.value })}
-                    placeholder="Ex: Pedagógico"
-                    required
-                  />
-                </div>
+
 
                 <div className="vagas-form__row">
                   <div className="vagas-form__group">
@@ -454,9 +445,6 @@ export default function VagasPage() {
                     color: '#fff',
                     marginBottom: '16px'
                   }}>
-                    <span style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'rgba(255,255,255,0.7)' }}>
-                      {formData.departamento || 'Departamento'}
-                    </span>
                     <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: '4px 0 8px', color: '#fff' }}>
                       {formData.titulo || 'Título da Vaga'}
                     </h2>
@@ -561,10 +549,7 @@ export default function VagasPage() {
                   <span>Criada em {formatDate(selectedVaga.dataCriacao)}</span>
                 </div>
 
-                <div className="vagas-detail__section">
-                  <h3>Departamento</h3>
-                  <p>{selectedVaga.departamento}</p>
-                </div>
+
 
                 <div className="vagas-detail__section">
                   <h3>Descrição</h3>
