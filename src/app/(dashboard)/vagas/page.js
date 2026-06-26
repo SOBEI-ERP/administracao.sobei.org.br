@@ -7,15 +7,15 @@ import { UNIDADES } from '@/lib/mockData';
 import CustomSelect from '@/components/admin/CustomSelect';
 
 const STATUS_LABELS = {
-  aberta: 'Aberta',
-  pausada: 'Pausada',
-  fechada: 'Fechada',
+  ativo: 'Ativo',
+  em_selecao: 'Em Seleção',
+  fechado: 'Fechado',
 };
 
 const STATUS_COLORS = {
-  aberta: 'var(--color-success, #22c55e)',
-  pausada: 'var(--color-warning, #f59e0b)',
-  fechada: 'var(--color-danger, #ef4444)',
+  ativo: 'var(--color-success, #22c55e)',
+  em_selecao: 'var(--color-warning, #f59e0b)',
+  fechado: 'var(--color-danger, #ef4444)',
 };
 
 const MODALIDADE_LABELS = {
@@ -270,104 +270,186 @@ export default function VagasPage() {
       {/* Modal Criar/Editar */}
       {showFormModal && (
         <div className="vagas-modal__overlay" onClick={() => setShowFormModal(false)}>
-          <div className="vagas-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="vagas-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '1100px', width: '95%' }}>
             <div className="vagas-modal__header">
               <h2>{editingVaga ? 'Editar Vaga' : 'Nova Vaga'}</h2>
               <button className="vagas-modal__close" onClick={() => setShowFormModal(false)}>✕</button>
             </div>
 
-            <form onSubmit={handleSubmitForm} className="vagas-modal__form">
-              <div className="vagas-form__group">
-                <label>Título da Vaga *</label>
-                <input
-                  type="text"
-                  value={formData.titulo}
-                  onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
-                  placeholder="Ex: Educador Social"
-                  required
-                />
-              </div>
-
-              <div className="vagas-form__group">
-                <label>Departamento / Área *</label>
-                <input
-                  type="text"
-                  value={formData.departamento}
-                  onChange={(e) => setFormData({ ...formData, departamento: e.target.value })}
-                  placeholder="Ex: Pedagógico"
-                  required
-                />
-              </div>
-
-              <div className="vagas-form__row">
+            <div className="vagas-modal__split-container">
+              {/* Left Column: Form Fields */}
+              <form onSubmit={handleSubmitForm} className="vagas-modal__form-col">
                 <div className="vagas-form__group">
-                  <label>Modalidade *</label>
-                  <select
-                    value={formData.modalidade}
-                    onChange={(e) => setFormData({ ...formData, modalidade: e.target.value })}
-                  >
-                    {Object.entries(MODALIDADE_LABELS).map(([key, label]) => (
-                      <option key={key} value={key}>{label}</option>
-                    ))}
-                  </select>
+                  <label>Título da Vaga *</label>
+                  <input
+                    type="text"
+                    value={formData.titulo}
+                    onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+                    placeholder="Ex: Educador Social"
+                    required
+                  />
                 </div>
 
                 <div className="vagas-form__group">
-                  <label>Tipo de Contrato *</label>
-                  <select
-                    value={formData.tipoContrato}
-                    onChange={(e) => setFormData({ ...formData, tipoContrato: e.target.value })}
-                  >
-                    {Object.entries(CONTRATO_LABELS).map(([key, label]) => (
-                      <option key={key} value={key}>{label}</option>
-                    ))}
-                  </select>
+                  <label>Departamento / Área *</label>
+                  <input
+                    type="text"
+                    value={formData.departamento}
+                    onChange={(e) => setFormData({ ...formData, departamento: e.target.value })}
+                    placeholder="Ex: Pedagógico"
+                    required
+                  />
+                </div>
+
+                <div className="vagas-form__row">
+                  <div className="vagas-form__group">
+                    <label>Modalidade *</label>
+                    <select
+                      value={formData.modalidade}
+                      onChange={(e) => setFormData({ ...formData, modalidade: e.target.value })}
+                    >
+                      {Object.entries(MODALIDADE_LABELS).map(([key, label]) => (
+                        <option key={key} value={key}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="vagas-form__group">
+                    <label>Tipo de Contrato *</label>
+                    <select
+                      value={formData.tipoContrato}
+                      onChange={(e) => setFormData({ ...formData, tipoContrato: e.target.value })}
+                    >
+                      {Object.entries(CONTRATO_LABELS).map(([key, label]) => (
+                        <option key={key} value={key}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="vagas-form__group">
+                  <label>Descrição da Vaga *</label>
+                  <textarea
+                    value={formData.descricao}
+                    onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                    placeholder="Descreva as responsabilidades e o dia a dia da vaga..."
+                    rows={4}
+                    required
+                  />
+                </div>
+
+                <div className="vagas-form__group">
+                  <label>Requisitos *</label>
+                  <textarea
+                    value={formData.requisitos}
+                    onChange={(e) => setFormData({ ...formData, requisitos: e.target.value })}
+                    placeholder="Liste os requisitos separados por linha..."
+                    rows={4}
+                    required
+                  />
+                </div>
+
+                <div className="vagas-form__group">
+                  <label>Benefícios</label>
+                  <textarea
+                    value={formData.beneficios}
+                    onChange={(e) => setFormData({ ...formData, beneficios: e.target.value })}
+                    placeholder="Ex: Vale Transporte, Vale Refeição..."
+                    rows={2}
+                  />
+                </div>
+
+                {formError && <p className="vagas-form__error">{formError}</p>}
+
+                <div className="vagas-form__actions">
+                  <button type="button" className="vagas-form__btn-cancel" onClick={() => setShowFormModal(false)}>
+                    Cancelar
+                  </button>
+                  <button type="submit" className="vagas-form__btn-submit" disabled={submitting}>
+                    {submitting ? 'Salvando...' : (editingVaga ? 'Salvar Alterações' : 'Criar Vaga')}
+                  </button>
+                </div>
+              </form>
+
+              {/* Right Column: Live Preview */}
+              <div className="vagas-modal__preview-col">
+                <h3 style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--color-gray-500)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Prévia da Exibição Pública
+                </h3>
+
+                <div style={{ background: '#fdfdfd', border: '1px solid var(--color-gray-200)', borderRadius: '12px', padding: '16px', pointerEvents: 'none', userSelect: 'none' }}>
+                  {/* Simulated Hero */}
+                  <div style={{ 
+                    background: 'linear-gradient(135deg, #1b1464 0%, #2e3192 100%)', 
+                    padding: '16px', 
+                    borderRadius: '8px', 
+                    color: '#fff',
+                    marginBottom: '16px'
+                  }}>
+                    <span style={{ fontSize: '10px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'rgba(255,255,255,0.7)' }}>
+                      {formData.departamento || 'Departamento'}
+                    </span>
+                    <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: '4px 0 8px', color: '#fff' }}>
+                      {formData.titulo || 'Título da Vaga'}
+                    </h2>
+                    <div style={{ display: 'flex', gap: '12px', fontSize: '11px', color: 'rgba(255,255,255,0.9)' }}>
+                      <span>📍 {user?.unidade || 'Unidade'}</span>
+                      <span>💼 {MODALIDADE_LABELS[formData.modalidade]} ({CONTRATO_LABELS[formData.tipoContrato]})</span>
+                    </div>
+                  </div>
+
+                  {/* Simulated Details Grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.4fr', gap: '16px' }}>
+                    <div style={{ background: '#fff', border: '1px solid var(--color-gray-100)', borderRadius: '6px', padding: '12px' }}>
+                      <h4 style={{ fontSize: '12px', fontWeight: 'bold', borderBottom: '1.5px solid #1b1464', paddingBottom: '4px', marginBottom: '8px', color: '#1b1464' }}>
+                        Descrição da Vaga
+                      </h4>
+                      <p style={{ fontSize: '11px', lineHeight: '1.5', whiteSpace: 'pre-wrap', color: 'var(--color-gray-700)', marginBottom: '12px' }}>
+                        {formData.descricao || 'Descrição da vaga...'}
+                      </p>
+
+                      <h4 style={{ fontSize: '12px', fontWeight: 'bold', borderBottom: '1.5px solid #1b1464', paddingBottom: '4px', marginBottom: '8px', color: '#1b1464' }}>
+                        Requisitos e Qualificações
+                      </h4>
+                      <ul style={{ paddingLeft: '14px', margin: 0, fontSize: '11px', color: 'var(--color-gray-700)', lineHeight: '1.5' }}>
+                        {(formData.requisitos || '').split('\n').filter(r => r.trim()).length > 0 ? (
+                          (formData.requisitos || '').split('\n').filter(r => r.trim()).map((req, i) => (
+                            <li key={i}>{req}</li>
+                          ))
+                        ) : (
+                          <li style={{ listStyleType: 'none', color: '#999' }}>Requisitos...</li>
+                        )}
+                      </ul>
+
+                      {formData.beneficios && (
+                        <>
+                          <h4 style={{ fontSize: '12px', fontWeight: 'bold', borderBottom: '1.5px solid #1b1464', paddingBottom: '4px', marginBottom: '8px', color: '#1b1464', marginTop: '12px' }}>
+                            Benefícios
+                          </h4>
+                          <p style={{ fontSize: '11px', lineHeight: '1.5', color: 'var(--color-gray-700)' }}>
+                            {formData.beneficios}
+                          </p>
+                        </>
+                      )}
+                    </div>
+
+                    <div style={{ background: '#f8f9fa', border: '1px solid var(--color-gray-100)', borderRadius: '6px', padding: '12px', height: 'fit-content' }}>
+                      <h4 style={{ fontSize: '11px', fontWeight: 'bold', marginBottom: '4px', color: '#1b1464' }}>
+                        Candidatar-se
+                      </h4>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '8px' }}>
+                        <div style={{ height: '20px', background: '#fff', border: '1px solid #ddd', borderRadius: '3px', padding: '0 6px', fontSize: '9px', color: '#aaa', display: 'flex', alignItems: 'center' }}>Nome</div>
+                        <div style={{ height: '20px', background: '#fff', border: '1px solid #ddd', borderRadius: '3px', padding: '0 6px', fontSize: '9px', color: '#aaa', display: 'flex', alignItems: 'center' }}>E-mail</div>
+                        <div style={{ height: '20px', background: '#fff', border: '1px solid #ddd', borderRadius: '3px', padding: '0 6px', fontSize: '9px', color: '#aaa', display: 'flex', alignItems: 'center' }}>Telefone</div>
+                        <div style={{ height: '30px', background: '#fff', border: '1px dashed #bbb', borderRadius: '3px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontSize: '8px', color: '#666' }}>
+                          <span>Anexar currículo</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              <div className="vagas-form__group">
-                <label>Descrição da Vaga *</label>
-                <textarea
-                  value={formData.descricao}
-                  onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
-                  placeholder="Descreva as responsabilidades e o dia a dia da vaga..."
-                  rows={4}
-                  required
-                />
-              </div>
-
-              <div className="vagas-form__group">
-                <label>Requisitos *</label>
-                <textarea
-                  value={formData.requisitos}
-                  onChange={(e) => setFormData({ ...formData, requisitos: e.target.value })}
-                  placeholder="Liste os requisitos separados por linha..."
-                  rows={4}
-                  required
-                />
-              </div>
-
-              <div className="vagas-form__group">
-                <label>Benefícios</label>
-                <textarea
-                  value={formData.beneficios}
-                  onChange={(e) => setFormData({ ...formData, beneficios: e.target.value })}
-                  placeholder="Ex: Vale Transporte, Vale Refeição..."
-                  rows={2}
-                />
-              </div>
-
-              {formError && <p className="vagas-form__error">{formError}</p>}
-
-              <div className="vagas-form__actions">
-                <button type="button" className="vagas-form__btn-cancel" onClick={() => setShowFormModal(false)}>
-                  Cancelar
-                </button>
-                <button type="submit" className="vagas-form__btn-submit" disabled={submitting}>
-                  {submitting ? 'Salvando...' : (editingVaga ? 'Salvar Alterações' : 'Criar Vaga')}
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
@@ -439,39 +521,59 @@ export default function VagasPage() {
                       Editar Vaga
                     </button>
 
-                    {selectedVaga.status === 'aberta' && (
-                      <button
-                        className="vagas-form__btn-cancel"
-                        onClick={() => handleChangeStatus(selectedVaga, 'pausada')}
-                      >
-                        Pausar Vaga
-                      </button>
-                    )}
-
-                    {selectedVaga.status === 'pausada' && (
+                    {selectedVaga.status === 'ativo' && (
                       <>
                         <button
-                          className="vagas-form__btn-submit"
-                          onClick={() => handleChangeStatus(selectedVaga, 'aberta')}
+                          className="vagas-form__btn-cancel"
+                          onClick={() => handleChangeStatus(selectedVaga, 'em_selecao')}
+                          style={{ borderColor: 'var(--color-warning, #f59e0b)', color: 'var(--color-warning, #f59e0b)' }}
                         >
-                          Reabrir Vaga
+                          Iniciar Seleção
                         </button>
                         <button
                           className="vagas-detail__btn-close"
-                          onClick={() => handleChangeStatus(selectedVaga, 'fechada')}
+                          onClick={() => handleChangeStatus(selectedVaga, 'fechado')}
                         >
                           Fechar Vaga
                         </button>
                       </>
                     )}
 
-                    {selectedVaga.status === 'aberta' && (
-                      <button
-                        className="vagas-detail__btn-close"
-                        onClick={() => handleChangeStatus(selectedVaga, 'fechada')}
-                      >
-                        Fechar Vaga
-                      </button>
+                    {selectedVaga.status === 'em_selecao' && (
+                      <>
+                        <button
+                          className="vagas-form__btn-submit"
+                          onClick={() => handleChangeStatus(selectedVaga, 'ativo')}
+                          style={{ backgroundColor: 'var(--color-success, #22c55e)' }}
+                        >
+                          Reabrir Vaga
+                        </button>
+                        <button
+                          className="vagas-detail__btn-close"
+                          onClick={() => handleChangeStatus(selectedVaga, 'fechado')}
+                        >
+                          Fechar Vaga
+                        </button>
+                      </>
+                    )}
+
+                    {selectedVaga.status === 'fechado' && (
+                      <>
+                        <button
+                          className="vagas-form__btn-submit"
+                          onClick={() => handleChangeStatus(selectedVaga, 'ativo')}
+                          style={{ backgroundColor: 'var(--color-success, #22c55e)' }}
+                        >
+                          Reabrir Vaga
+                        </button>
+                        <button
+                          className="vagas-form__btn-cancel"
+                          onClick={() => handleChangeStatus(selectedVaga, 'em_selecao')}
+                          style={{ borderColor: 'var(--color-warning, #f59e0b)', color: 'var(--color-warning, #f59e0b)' }}
+                        >
+                          Mover para Em Seleção
+                        </button>
+                      </>
                     )}
                   </div>
                 )}

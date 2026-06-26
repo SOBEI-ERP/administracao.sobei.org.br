@@ -619,4 +619,39 @@
   .vagas-form__actions {
     flex-direction: column-reverse;
   }
+
+  .vagas-modal__split-container {
+    grid-template-columns: 1fr !important;
+    max-height: 85vh;
+  }
+
+  .vagas-modal__preview-col {
+    border-left: none !important;
+    border-top: 1px solid var(--color-gray-200);
+    padding-left: 0 !important;
+    padding-top: var(--spacing-lg);
+  }
+}
+
+/* ---- Formulário com Prévia Split-Screen ---- */
+.vagas-modal__split-container {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  max-height: 75vh;
+}
+
+.vagas-modal__form-col {
+  overflow-y: auto;
+  padding-right: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-base);
+}
+
+.vagas-modal__preview-col {
+  overflow-y: auto;
+  border-left: 1px solid var(--color-gray-200);
+  padding-left: var(--spacing-lg);
 }
