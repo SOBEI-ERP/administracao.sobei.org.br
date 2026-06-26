@@ -20,15 +20,12 @@ const STATUS_COLORS = {
 
 const MODALIDADE_LABELS = {
   presencial: 'Presencial',
-  hibrido: 'Híbrido',
-  remoto: 'Remoto',
 };
 
 const CONTRATO_LABELS = {
   clt: 'CLT',
-  estagio: 'Estágio',
   pj: 'PJ',
-  temporario: 'Temporário',
+  jovem_aprendiz: 'Jovem Aprendiz',
 };
 
 const getAvailableTitles = (unidade, currentTitle) => {
