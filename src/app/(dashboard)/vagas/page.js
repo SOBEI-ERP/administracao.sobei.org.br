@@ -83,6 +83,7 @@ const INITIAL_FORM = {
   modalidade: 'presencial',
   tipoContrato: 'clt',
   unidade: '',
+  status: 'ativo',
 };
 
 export default function VagasPage() {
@@ -138,6 +139,7 @@ export default function VagasPage() {
       modalidade: vaga.modalidade,
       tipoContrato: vaga.tipoContrato,
       unidade: vaga.unidade || '',
+      status: vaga.status,
     });
     setFormError('');
     setShowDetailModal(false);
@@ -174,7 +176,7 @@ export default function VagasPage() {
     if (editingVaga) {
       result = await atualizarVaga(editingVaga.id, {
         ...formData,
-        status: editingVaga.status,
+        status: formData.status || editingVaga.status,
       });
     } else {
       result = await criarVaga(formData);
@@ -386,6 +388,18 @@ export default function VagasPage() {
                   </div>
                 </div>
 
+                {editingVaga && (
+                  <div className="vagas-form__group">
+                    <label>Status *</label>
+                    <CustomSelect
+                      value={formData.status}
+                      onChange={(val) => setFormData({ ...formData, status: val })}
+                      options={Object.entries(STATUS_LABELS).map(([key, label]) => ({ value: key, label }))}
+                      allowEmpty={false}
+                    />
+                  </div>
+                )}
+
                 <div className="vagas-form__group">
                   <label>Descrição da Vaga *</label>
                   <textarea
@@ -537,13 +551,38 @@ export default function VagasPage() {
 
             {activeTab === 'info' ? (
               <div className="vagas-modal__content">
-                <div className="vagas-detail__meta">
-                  <span
-                    className="vaga-card__status"
-                    style={{ backgroundColor: STATUS_COLORS[selectedVaga.status] }}
-                  >
-                    {STATUS_LABELS[selectedVaga.status]}
-                  </span>
+                <div className="vagas-detail__meta" style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
+                  <div className="vagas-detail__status-select" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--color-gray-600)' }}>Status:</span>
+                    <select
+                      value={selectedVaga.status}
+                      onChange={(e) => handleChangeStatus(selectedVaga, e.target.value)}
+                      style={{
+                        padding: '6px 24px 6px 12px',
+                        borderRadius: '20px',
+                        border: '1px solid var(--color-gray-300)',
+                        backgroundColor: STATUS_COLORS[selectedVaga.status] || 'var(--color-gray-400)',
+                        color: '#fff',
+                        fontWeight: 'bold',
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        outline: 'none',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        appearance: 'none',
+                        backgroundImage: 'url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 16 16\'%3E%3Cpath fill=\'none\' stroke=\'%23ffffff\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'2\' d=\'m2 5 6 6 6-6\'/%3E%3C/svg%3E")',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'right 8px center',
+                        backgroundSize: '10px'
+                      }}
+                    >
+                      {Object.entries(STATUS_LABELS).map(([key, label]) => (
+                        <option key={key} value={key} style={{ backgroundColor: '#fff', color: 'var(--color-gray-800)' }}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   <span>{MODALIDADE_LABELS[selectedVaga.modalidade]} • {CONTRATO_LABELS[selectedVaga.tipoContrato]}</span>
                   <span>Unidade: <strong>{selectedVaga.unidade}</strong></span>
                   <span>Criada em {formatDate(selectedVaga.dataCriacao)}</span>
@@ -568,7 +607,7 @@ export default function VagasPage() {
                   </div>
                 )}
 
-                {user?.nivel === 'diretora' && (
+                {(user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
                   <div className="vagas-detail__actions">
                     <button className="vagas-form__btn-submit" onClick={() => handleOpenEdit(selectedVaga)}>
                       Editar Vaga
