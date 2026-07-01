@@ -115,7 +115,15 @@ export default function VagasPage() {
   }, [statusFilter, unidadeFilter]);
 
   useEffect(() => {
-    loadVagas();
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) {
+        loadVagas();
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, [loadVagas]);
 
   const handleOpenCreate = () => {
