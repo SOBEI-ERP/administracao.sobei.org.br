@@ -1,7 +1,4 @@
-/* ============================================
-   SOBEI Portal - Global Styles
-   ============================================ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+/* Google Fonts loaded via next/font/google in layout.js */
 @import '../styles/variables.css';
 @import '../styles/components.css';
 @import '../styles/forms.css';

@@ -12,9 +12,13 @@ import { useRouter } from 'next/navigation';
 import { useDenuncias, useAtualizarDenuncia } from '@/hooks/useDenuncias';
 import { STATUS_CONFIG, FILTROS_INICIAIS } from '@/lib/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import dynamic from 'next/dynamic';
 import FilterBar from '@/components/admin/FilterBar';
 import DenunciaCard from '@/components/admin/DenunciaCard';
-import DenunciaDetailModal from '@/components/admin/DenunciaDetailModal';
+
+const DenunciaDetailModal = dynamic(() => import('@/components/admin/DenunciaDetailModal'), {
+  ssr: false
+});
 
 export default function DenunciaListPage({ status }) {
   const router = useRouter();
