@@ -683,3 +683,107 @@ export async function visualizarCurriculo(candidaturaId, nomeArquivo) {
   }
 }
 
+export async function fetchBancoTalentos(unidade = '') {
+  try {
+    let url = new URL(`${API_BASE_URL}/admin/banco-talentos`);
+    if (unidade) url.searchParams.append('unidade', unidade);
+
+    const response = await fetch(url, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return [];
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function fetchTalentosPorVaga(vagaId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/banco-talentos/${vagaId}`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) return [];
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function downloadCurriculoTalento(talentoId, nomeArquivo) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/banco-talentos/talentos/${talentoId}/curriculo`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return { success: false, message: 'Erro ao baixar currículo' };
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = nomeArquivo || 'curriculo.pdf';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function visualizarCurriculoTalento(talentoId, nomeArquivo) {
+  const newTab = window.open('about:blank', '_blank');
+  if (newTab) {
+    newTab.document.write('<p style="font-family: sans-serif; text-align: center; margin-top: 100px; color: #666;">Carregando currículo...</p>');
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/banco-talentos/talentos/${talentoId}/curriculo`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      if (newTab) newTab.close();
+      return { success: false, message: 'Erro ao carregar currículo' };
+    }
+
+    const contentType = response.headers.get('content-type') || 'application/pdf';
+    const blob = await response.blob();
+    const file = new Blob([blob], { type: contentType });
+    const url = window.URL.createObjectURL(file);
+    
+    if (newTab) {
+      newTab.document.title = nomeArquivo || 'Visualizar Currículo';
+      newTab.document.body.innerHTML = `
+        <iframe src="${url}" style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;">
+          Seu navegador não suporta a visualização de PDFs.
+        </iframe>
+      `;
+    } else {
+      window.open(url, '_blank');
+    }
+
+    return { success: true };
+  } catch (error) {
+    if (newTab) newTab.close();
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+
