@@ -143,22 +143,6 @@ export default function Sidebar() {
               />
               <span className="sidebar__text">Vagas</span>
             </Link>
-
-            <Link
-              href="/banco-talentos"
-              className={`sidebar__link ${
-                pathname === '/banco-talentos' ? 'sidebar__link--active' : ''
-              }`}
-            >
-              <Image 
-                src="/images/user_icon.svg" 
-                alt="" 
-                width={20} 
-                height={20} 
-                className="sidebar__icon" 
-              />
-              <span className="sidebar__text">Banco de Talentos</span>
-            </Link>
           </>
         )}
       </nav>

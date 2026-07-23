@@ -601,6 +601,25 @@ export async function atualizarVaga(id, data) {
   }
 }
 
+export async function deletarVaga(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/vagas/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao excluir vaga' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
 export async function fetchCandidaturas(vagaId) {
   try {
     const response = await fetch(`${API_BASE_URL}/admin/vagas/${vagaId}/candidaturas`, {

@@ -162,23 +162,6 @@ export default function MobileHeader() {
               />
               <span>Vagas</span>
             </Link>
-
-            <Link
-              href="/banco-talentos"
-              className={`mobile-drawer__link ${
-                pathname === '/banco-talentos' ? 'mobile-drawer__link--active' : ''
-              }`}
-              onClick={() => setMenuOpen(false)}
-            >
-              <Image
-                src="/images/user_icon.svg"
-                alt=""
-                width={20}
-                height={20}
-                className="mobile-drawer__icon"
-              />
-              <span>Banco de Talentos</span>
-            </Link>
           </>
         )}
       </nav>

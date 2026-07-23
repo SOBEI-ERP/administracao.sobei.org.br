@@ -1,7 +1,20 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { fetchVagas, criarVaga, atualizarVaga, fetchCandidaturas, downloadCurriculo, visualizarCurriculo } from '@/lib/api';
+import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { 
+  fetchVagas, 
+  criarVaga, 
+  atualizarVaga, 
+  deletarVaga, 
+  fetchCandidaturas, 
+  downloadCurriculo, 
+  visualizarCurriculo,
+  fetchBancoTalentos,
+  fetchTalentosPorVaga,
+  downloadCurriculoTalento,
+  visualizarCurriculoTalento
+} from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { UNIDADES } from '@/lib/mockData';
 import CustomSelect from '@/components/admin/CustomSelect';
@@ -52,7 +65,7 @@ const getAvailableTitles = (unidade, currentTitle) => {
       'Cozinheira'
     ];
   } else {
-    // CEI (qualquer outra unidade como Acácias, Araucárias, Imbuias, etc.)
+    // CEI (qualquer outra unidade)
     titles = [
       'Diretora Pedagógica',
       'Coordenadora Pedagógica',
@@ -86,46 +99,89 @@ const INITIAL_FORM = {
   status: 'ativo',
 };
 
-export default function VagasPage() {
+function VagasContent() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+
+  // Tab State: 'vagas' | 'banco-talentos'
+  const initialTab = searchParams.get('tab') === 'banco-talentos' ? 'banco-talentos' : 'vagas';
+  const [mainTab, setMainTab] = useState(initialTab);
+
+  // Vagas States
   const [vagas, setVagas] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingVagas, setLoadingVagas] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [unidadeFilter, setUnidadeFilter] = useState('');
 
-  // Modal states
+  // Vaga Form Modal
   const [showFormModal, setShowFormModal] = useState(false);
-  const [showDetailModal, setShowDetailModal] = useState(false);
   const [editingVaga, setEditingVaga] = useState(null);
-  const [selectedVaga, setSelectedVaga] = useState(null);
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Candidaturas
+  // Vaga Detail Modal
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedVaga, setSelectedVaga] = useState(null);
   const [candidaturas, setCandidaturas] = useState([]);
   const [loadingCandidaturas, setLoadingCandidaturas] = useState(false);
   const [activeTab, setActiveTab] = useState('info');
 
+  // Delete Vaga Confirm Modal
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingVaga, setDeletingVaga] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  // Banco de Talentos States
+  const [bancos, setBancos] = useState([]);
+  const [loadingBancos, setLoadingBancos] = useState(false);
+  const [unidadeFilterBanco, setUnidadeFilterBanco] = useState('');
+  const [showBancoDetailModal, setShowBancoDetailModal] = useState(false);
+  const [selectedBanco, setSelectedBanco] = useState(null);
+  const [talentos, setTalentos] = useState([]);
+  const [loadingTalentos, setLoadingTalentos] = useState(false);
+
+  // Sync query param tab if changed
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'banco-talentos') {
+      setMainTab('banco-talentos');
+    }
+  }, [searchParams]);
+
+  // Load Vagas
   const loadVagas = useCallback(async () => {
-    setLoading(true);
+    setLoadingVagas(true);
     const data = await fetchVagas(statusFilter, unidadeFilter);
     setVagas(data);
-    setLoading(false);
+    setLoadingVagas(false);
   }, [statusFilter, unidadeFilter]);
+
+  // Load Banco de Talentos
+  const loadBancos = useCallback(async () => {
+    setLoadingBancos(true);
+    const data = await fetchBancoTalentos(unidadeFilterBanco);
+    setBancos(data);
+    setLoadingBancos(false);
+  }, [unidadeFilterBanco]);
 
   useEffect(() => {
     let active = true;
     Promise.resolve().then(() => {
       if (active) {
-        loadVagas();
+        if (mainTab === 'vagas') {
+          loadVagas();
+        } else {
+          loadBancos();
+        }
       }
     });
     return () => {
       active = false;
     };
-  }, [loadVagas]);
+  }, [mainTab, loadVagas, loadBancos]);
 
+  // Handlers Vagas
   const handleOpenCreate = () => {
     setEditingVaga(null);
     setFormData({
@@ -158,7 +214,6 @@ export default function VagasPage() {
     setSelectedVaga(vaga);
     setActiveTab('info');
     setShowDetailModal(true);
-    // Pre-load candidaturas
     setLoadingCandidaturas(true);
     const cands = await fetchCandidaturas(vaga.id);
     setCandidaturas(cands);
@@ -179,7 +234,6 @@ export default function VagasPage() {
     }
 
     setSubmitting(true);
-
     let result;
     if (editingVaga) {
       result = await atualizarVaga(editingVaga.id, {
@@ -218,12 +272,47 @@ export default function VagasPage() {
     }
   };
 
+  const handleConfirmDelete = async () => {
+    if (!selectedVaga) return;
+    setDeletingVaga(true);
+    setDeleteError('');
+
+    const res = await deletarVaga(selectedVaga.id);
+    if (res.success) {
+      setShowDeleteConfirm(false);
+      setShowDetailModal(false);
+      setSelectedVaga(null);
+      loadVagas();
+    } else {
+      setDeleteError(res.message || 'Erro ao excluir vaga.');
+    }
+    setDeletingVaga(false);
+  };
+
   const handleDownloadCurriculo = async (candidaturaId, nomeArquivo) => {
     await downloadCurriculo(candidaturaId, nomeArquivo);
   };
 
   const handleVisualizarCurriculo = async (candidaturaId, nomeArquivo) => {
     await visualizarCurriculo(candidaturaId, nomeArquivo);
+  };
+
+  // Handlers Banco de Talentos
+  const handleOpenBancoDetail = async (banco) => {
+    setSelectedBanco(banco);
+    setShowBancoDetailModal(true);
+    setLoadingTalentos(true);
+    const data = await fetchTalentosPorVaga(banco.vagaId);
+    setTalentos(data);
+    setLoadingTalentos(false);
+  };
+
+  const handleDownloadCurriculoTalento = async (talentoId, nomeArquivo) => {
+    await downloadCurriculoTalento(talentoId, nomeArquivo);
+  };
+
+  const handleVisualizarCurriculoTalento = async (talentoId, nomeArquivo) => {
+    await visualizarCurriculoTalento(talentoId, nomeArquivo);
   };
 
   const formatDate = (dateStr) => {
@@ -237,106 +326,238 @@ export default function VagasPage() {
 
   return (
     <div className="vagas-admin">
-      {/* Header */}
-      <div className="vagas-admin__header">
+      {/* Header com Seletor de Abas Principais */}
+      <div className="vagas-admin__header" style={{ flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
         <div>
-          <h1 className="vagas-admin__title">Vagas</h1>
+          <h1 className="vagas-admin__title">
+            {mainTab === 'vagas' ? 'Gestão de Vagas' : 'Banco de Talentos'}
+          </h1>
           <p className="vagas-admin__subtitle">
-            {user?.nivel === 'suporte' ? (
-              <span>Visualizando as vagas de <strong>todas as unidades</strong></span>
+            {mainTab === 'vagas' ? (
+              user?.nivel === 'suporte' ? (
+                <span>Visualizando as vagas de <strong>todas as unidades</strong></span>
+              ) : (
+                <span>Gerencie as vagas da unidade <strong>{user?.unidade || '—'}</strong></span>
+              )
             ) : (
-              <span>Gerencie as vagas da unidade <strong>{user?.unidade || '—'}</strong></span>
+              user?.nivel === 'suporte' ? (
+                <span>Candidatos arquivados ao fechar vagas de <strong>todas as unidades</strong></span>
+              ) : (
+                <span>Histórico de candidatos arquivados da unidade <strong>{user?.unidade || '—'}</strong></span>
+              )
             )}
           </p>
         </div>
-        {(user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
-          <button className="btn btn--secondary" onClick={handleOpenCreate}>
-            + Nova Vaga
-          </button>
-        )}
-      </div>
 
-      {/* Filtros */}
-      <div className="vagas-admin__filters" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            className={`vagas-admin__filter-btn ${statusFilter === '' ? 'vagas-admin__filter-btn--active' : ''}`}
-            onClick={() => setStatusFilter('')}
-          >
-            Todas
-          </button>
-          {Object.entries(STATUS_LABELS).map(([key, label]) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
+          {/* Main Tab Toggle Buttons */}
+          <div style={{ 
+            display: 'inline-flex', 
+            background: 'var(--color-gray-100, #f1f5f9)', 
+            padding: '4px', 
+            borderRadius: '10px',
+            border: '1px solid var(--color-gray-200, #e2e8f0)' 
+          }}>
             <button
-              key={key}
-              className={`vagas-admin__filter-btn ${statusFilter === key ? 'vagas-admin__filter-btn--active' : ''}`}
-              onClick={() => setStatusFilter(key)}
+              type="button"
+              onClick={() => setMainTab('vagas')}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: mainTab === 'vagas' ? '#fff' : 'transparent',
+                color: mainTab === 'vagas' ? 'var(--color-primary, #1b1464)' : 'var(--color-gray-600, #64748b)',
+                fontWeight: mainTab === 'vagas' ? 'bold' : '500',
+                fontSize: '14px',
+                boxShadow: mainTab === 'vagas' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
             >
-              {label}
+              💼 Vagas
             </button>
-          ))}
-        </div>
-
-        {user?.nivel === 'suporte' && (
-          <div className="vagas-admin__unit-filter" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--color-text-secondary)' }}>Filtrar por Unidade:</span>
-            <CustomSelect
-              value={unidadeFilter}
-              onChange={setUnidadeFilter}
-              options={UNIDADES.map((u) => ({ value: u, label: u }))}
-              defaultOption="Todas as Unidades"
-              style={{ minWidth: '220px' }}
-            />
+            <button
+              type="button"
+              onClick={() => setMainTab('banco-talentos')}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: mainTab === 'banco-talentos' ? '#fff' : 'transparent',
+                color: mainTab === 'banco-talentos' ? 'var(--color-primary, #1b1464)' : 'var(--color-gray-600, #64748b)',
+                fontWeight: mainTab === 'banco-talentos' ? 'bold' : '500',
+                fontSize: '14px',
+                boxShadow: mainTab === 'banco-talentos' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              📁 Banco de Talentos
+            </button>
           </div>
-        )}
-      </div>
 
-      {/* Lista */}
-      {loading ? (
-        <div className="vagas-admin__loading">Carregando vagas...</div>
-      ) : vagas.length === 0 ? (
-        <div className="vagas-admin__empty">
-          <p>Nenhuma vaga encontrada.</p>
-          {(user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
+          {mainTab === 'vagas' && (user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
             <button className="btn btn--secondary" onClick={handleOpenCreate}>
-              Criar primeira vaga
+              + Nova Vaga
             </button>
           )}
         </div>
-      ) : (
-        <div className="vagas-admin__grid">
-          {vagas.map((vaga) => (
-            <div
-              key={vaga.id}
-              className="vaga-card"
-              onClick={() => handleOpenDetail(vaga)}
-            >
-              <div className="vaga-card__header">
-                <span
-                  className="vaga-card__status"
-                  style={{ backgroundColor: STATUS_COLORS[vaga.status] }}
+      </div>
+
+      {/* CONTEÚDO DA ABA 1: VAGAS */}
+      {mainTab === 'vagas' && (
+        <>
+          {/* Filtros de Vagas */}
+          <div className="vagas-admin__filters" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                className={`vagas-admin__filter-btn ${statusFilter === '' ? 'vagas-admin__filter-btn--active' : ''}`}
+                onClick={() => setStatusFilter('')}
+              >
+                Todas
+              </button>
+              {Object.entries(STATUS_LABELS).map(([key, label]) => (
+                <button
+                  key={key}
+                  className={`vagas-admin__filter-btn ${statusFilter === key ? 'vagas-admin__filter-btn--active' : ''}`}
+                  onClick={() => setStatusFilter(key)}
                 >
-                  {STATUS_LABELS[vaga.status]}
-                </span>
-                <span className="vaga-card__date">{formatDate(vaga.dataCriacao)}</span>
-              </div>
-              <h3 className="vaga-card__title">{vaga.titulo}</h3>
-              <p className="vaga-card__dept">
-                📍 {vaga.unidade}
-              </p>
-              <div className="vaga-card__footer">
-                <span className="vaga-card__tag">
-                  {MODALIDADE_LABELS[vaga.modalidade]} • {CONTRATO_LABELS[vaga.tipoContrato]}
-                </span>
-                <span className="vaga-card__candidaturas">
-                  {vaga.totalCandidaturas || 0} candidatura{(vaga.totalCandidaturas || 0) !== 1 ? 's' : ''}
-                </span>
-              </div>
+                  {label}
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
+
+            {user?.nivel === 'suporte' && (
+              <div className="vagas-admin__unit-filter" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--color-text-secondary)' }}>Filtrar por Unidade:</span>
+                <CustomSelect
+                  value={unidadeFilter}
+                  onChange={setUnidadeFilter}
+                  options={UNIDADES.map((u) => ({ value: u, label: u }))}
+                  defaultOption="Todas as Unidades"
+                  style={{ minWidth: '220px' }}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Lista de Vagas */}
+          {loadingVagas ? (
+            <div className="vagas-admin__loading">Carregando vagas...</div>
+          ) : vagas.length === 0 ? (
+            <div className="vagas-admin__empty">
+              <p>Nenhuma vaga encontrada.</p>
+              {(user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
+                <button className="btn btn--secondary" onClick={handleOpenCreate}>
+                  Criar primeira vaga
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="vagas-admin__grid">
+              {vagas.map((vaga) => (
+                <div
+                  key={vaga.id}
+                  className="vaga-card"
+                  onClick={() => handleOpenDetail(vaga)}
+                >
+                  <div className="vaga-card__header">
+                    <span
+                      className="vaga-card__status"
+                      style={{ backgroundColor: STATUS_COLORS[vaga.status] }}
+                    >
+                      {STATUS_LABELS[vaga.status]}
+                    </span>
+                    <span className="vaga-card__date">{formatDate(vaga.dataCriacao)}</span>
+                  </div>
+                  <h3 className="vaga-card__title">{vaga.titulo}</h3>
+                  <p className="vaga-card__dept">
+                    📍 {vaga.unidade}
+                  </p>
+                  <div className="vaga-card__footer">
+                    <span className="vaga-card__tag">
+                      {MODALIDADE_LABELS[vaga.modalidade]} • {CONTRATO_LABELS[vaga.tipoContrato]}
+                    </span>
+                    <span className="vaga-card__candidaturas">
+                      {vaga.totalCandidaturas || 0} candidatura{(vaga.totalCandidaturas || 0) !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
-      {/* Modal Criar/Editar */}
+      {/* CONTEÚDO DA ABA 2: BANCO DE TALENTOS */}
+      {mainTab === 'banco-talentos' && (
+        <>
+          {/* Filtro de Unidade para Suporte no Banco de Talentos */}
+          {user?.nivel === 'suporte' && (
+            <div className="vagas-admin__filters" style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
+              <div className="vagas-admin__unit-filter" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--color-text-secondary)' }}>Filtrar por Unidade:</span>
+                <CustomSelect
+                  value={unidadeFilterBanco}
+                  onChange={setUnidadeFilterBanco}
+                  options={UNIDADES.map((u) => ({ value: u, label: u }))}
+                  defaultOption="Todas as Unidades"
+                  style={{ minWidth: '220px' }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Lista de Bancos por Vaga */}
+          {loadingBancos ? (
+            <div className="vagas-admin__loading">Carregando banco de talentos...</div>
+          ) : bancos.length === 0 ? (
+            <div className="vagas-admin__empty">
+              <p>Nenhum banco de talentos encontrado.</p>
+            </div>
+          ) : (
+            <div className="vagas-admin__grid">
+              {bancos.map((banco) => (
+                <div
+                  key={banco.vagaId}
+                  className="vaga-card"
+                  onClick={() => handleOpenBancoDetail(banco)}
+                  style={{ borderLeft: '4px solid var(--color-primary, #1b1464)' }}
+                >
+                  <div className="vaga-card__header">
+                    <span
+                      className="vaga-card__status"
+                      style={{ backgroundColor: 'var(--color-primary, #1b1464)' }}
+                    >
+                      Banco de Talentos
+                    </span>
+                    <span className="vaga-card__date" title="Última movimentação">
+                      Ativo em: {formatDate(banco.ultimaMovimentacao)}
+                    </span>
+                  </div>
+                  <h3 className="vaga-card__title">{banco.vagaTitulo}</h3>
+                  <p className="vaga-card__dept">
+                    📍 {banco.vagaUnidade}
+                  </p>
+                  <div className="vaga-card__footer" style={{ marginTop: 'auto' }}>
+                    <span className="vaga-card__candidaturas">
+                      {banco.totalTalentos || 0} candidato{(banco.totalTalentos || 0) !== 1 ? 's' : ''} arquivado(s)
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Modal Criar/Editar Vaga */}
       {showFormModal && (
         <div className="vagas-modal__overlay" onClick={() => setShowFormModal(false)}>
           <div className="vagas-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '1100px', width: '95%' }}>
@@ -346,7 +567,7 @@ export default function VagasPage() {
             </div>
 
             <div className="vagas-modal__split-container">
-              {/* Left Column: Form Fields */}
+              {/* Form Col */}
               <form onSubmit={handleSubmitForm} className="vagas-modal__form-col">
                 {user?.nivel === 'suporte' && (
                   <div className="vagas-form__group">
@@ -371,8 +592,6 @@ export default function VagasPage() {
                     allowEmpty={false}
                   />
                 </div>
-
-
 
                 <div className="vagas-form__row">
                   <div className="vagas-form__group">
@@ -452,14 +671,13 @@ export default function VagasPage() {
                 </div>
               </form>
 
-              {/* Right Column: Live Preview */}
+              {/* Preview Col */}
               <div className="vagas-modal__preview-col">
                 <h3 style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--color-gray-500)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Prévia da Exibição Pública
                 </h3>
 
                 <div style={{ background: '#fdfdfd', border: '1px solid var(--color-gray-200)', borderRadius: '12px', padding: '16px', pointerEvents: 'none', userSelect: 'none' }}>
-                  {/* Simulated Hero */}
                   <div style={{ 
                     background: 'linear-gradient(135deg, #1b1464 0%, #2e3192 100%)', 
                     padding: '16px', 
@@ -476,7 +694,6 @@ export default function VagasPage() {
                     </div>
                   </div>
 
-                  {/* Simulated Details Grid */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1.4fr', gap: '16px' }}>
                     <div style={{ background: '#fff', border: '1px solid var(--color-gray-100)', borderRadius: '6px', padding: '12px' }}>
                       <h4 style={{ fontSize: '12px', fontWeight: 'bold', borderBottom: '1.5px solid #1b1464', paddingBottom: '4px', marginBottom: '8px', color: '#1b1464' }}>
@@ -532,7 +749,7 @@ export default function VagasPage() {
         </div>
       )}
 
-      {/* Modal Detalhes */}
+      {/* Modal Detalhes da Vaga */}
       {showDetailModal && selectedVaga && (
         <div className="vagas-modal__overlay" onClick={() => setShowDetailModal(false)}>
           <div className="vagas-modal vagas-modal--detail" onClick={(e) => e.stopPropagation()}>
@@ -541,7 +758,7 @@ export default function VagasPage() {
               <button className="vagas-modal__close" onClick={() => setShowDetailModal(false)}>✕</button>
             </div>
 
-            {/* Tabs */}
+            {/* Tabs do Modal */}
             <div className="vagas-modal__tabs">
               <button
                 className={`vagas-modal__tab ${activeTab === 'info' ? 'vagas-modal__tab--active' : ''}`}
@@ -596,8 +813,6 @@ export default function VagasPage() {
                   <span>Criada em {formatDate(selectedVaga.dataCriacao)}</span>
                 </div>
 
-
-
                 <div className="vagas-detail__section">
                   <h3>Descrição</h3>
                   <p style={{ whiteSpace: 'pre-wrap' }}>{selectedVaga.descricao}</p>
@@ -616,7 +831,7 @@ export default function VagasPage() {
                 )}
 
                 {(user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
-                  <div className="vagas-detail__actions">
+                  <div className="vagas-detail__actions" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                     <button className="vagas-form__btn-submit" onClick={() => handleOpenEdit(selectedVaga)}>
                       Editar Vaga
                     </button>
@@ -675,6 +890,31 @@ export default function VagasPage() {
                         </button>
                       </>
                     )}
+
+                    {/* Botão de Excluir Vaga */}
+                    <button
+                      type="button"
+                      onClick={() => setShowDeleteConfirm(true)}
+                      style={{
+                        marginLeft: 'auto',
+                        backgroundColor: '#ef4444',
+                        color: '#fff',
+                        border: 'none',
+                        padding: '10px 16px',
+                        borderRadius: '6px',
+                        fontWeight: 'bold',
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        transition: 'background-color 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
+                    >
+                      🗑️ Excluir Vaga
+                    </button>
                   </div>
                 )}
               </div>
@@ -730,6 +970,140 @@ export default function VagasPage() {
           </div>
         </div>
       )}
+
+      {/* Modal de Confirmação de Exclusão de Vaga */}
+      {showDeleteConfirm && selectedVaga && (
+        <div className="vagas-modal__overlay" style={{ zIndex: 1100 }} onClick={() => setShowDeleteConfirm(false)}>
+          <div className="vagas-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px', width: '90%', padding: '24px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+              <span style={{ fontSize: '42px' }}>⚠️</span>
+              <h2 style={{ fontSize: '20px', color: '#111827', marginTop: '8px', marginBottom: '4px' }}>Excluir Vaga?</h2>
+              <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
+                Tem certeza que deseja excluir a vaga <strong>"{selectedVaga.titulo}"</strong>?
+              </p>
+            </div>
+
+            <div style={{ 
+              backgroundColor: '#fef2f2', 
+              border: '1px solid #fecaca', 
+              borderRadius: '8px', 
+              padding: '12px', 
+              marginBottom: '20px',
+              fontSize: '13px',
+              color: '#991b1b'
+            }}>
+              <strong>Atenção:</strong> Esta ação é irreversível. Todas as candidaturas ativas e o histórico do banco de talentos vinculado a esta vaga serão excluídos permanentemente (incluindo os currículos anexados).
+            </div>
+
+            {deleteError && (
+              <p className="vagas-form__error" style={{ marginBottom: '16px' }}>{deleteError}</p>
+            )}
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                className="vagas-form__btn-cancel"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deletingVaga}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={deletingVaga}
+                style={{
+                  backgroundColor: '#dc2626',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '10px 18px',
+                  borderRadius: '6px',
+                  fontWeight: 'bold',
+                  fontSize: '14px',
+                  cursor: deletingVaga ? 'not-allowed' : 'pointer',
+                  opacity: deletingVaga ? 0.7 : 1
+                }}
+              >
+                {deletingVaga ? 'Excluindo...' : 'Sim, Excluir Vaga'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Detalhes do Banco de Talentos */}
+      {showBancoDetailModal && selectedBanco && (
+        <div className="vagas-modal__overlay" onClick={() => setShowBancoDetailModal(false)}>
+          <div className="vagas-modal vagas-modal--detail" onClick={(e) => e.stopPropagation()}>
+            <div className="vagas-modal__header">
+              <h2>Banco de Talentos — {selectedBanco.vagaTitulo}</h2>
+              <button className="vagas-modal__close" onClick={() => setShowBancoDetailModal(false)}>✕</button>
+            </div>
+
+            <div className="vagas-modal__tabs">
+              <button className="vagas-modal__tab vagas-modal__tab--active">
+                Candidatos Arquivados ({selectedBanco.totalTalentos || 0})
+              </button>
+            </div>
+
+            <div className="vagas-modal__content">
+              {loadingTalentos ? (
+                <div className="vagas-admin__loading">Carregando candidatos...</div>
+              ) : talentos.length === 0 ? (
+                <div className="vagas-admin__empty">
+                  <p>Nenhuma candidatura arquivada encontrada.</p>
+                </div>
+              ) : (
+                <div className="candidaturas-list">
+                  {talentos.map((talento) => (
+                    <div key={talento.id} className="candidatura-card">
+                      <div className="candidatura-card__info">
+                        <h4 className="candidatura-card__name">{talento.nomeCompleto}</h4>
+                        <p className="candidatura-card__detail">
+                          📧 {talento.email} &nbsp;|&nbsp; 📱 {talento.telefone}
+                        </p>
+                        <p className="candidatura-card__date">
+                          Enviado originalmente em {formatDate(talento.dataEnvioOriginal)} &nbsp;|&nbsp; Arquivado em {formatDate(talento.dataMovimentacao)}
+                        </p>
+                        {talento.cartaApresentacao && (
+                          <div className="candidatura-card__carta">
+                            <strong>Carta de apresentação:</strong>
+                            <p>{talento.cartaApresentacao}</p>
+                          </div>
+                        )}
+                      </div>
+                      <div className="candidatura-card__actions">
+                        <button
+                          className="candidatura-card__download candidatura-card__download--primary"
+                          onClick={() => handleVisualizarCurriculoTalento(talento.id, talento.curriculoNome)}
+                          type="button"
+                        >
+                          👁️ Visualizar
+                        </button>
+                        <button
+                          className="candidatura-card__download"
+                          onClick={() => handleDownloadCurriculoTalento(talento.id, talento.curriculoNome)}
+                          type="button"
+                        >
+                          📥 Baixar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+export default function VagasPage() {
+  return (
+    <Suspense fallback={<div className="vagas-admin__loading">Carregando...</div>}>
+      <VagasContent />
+    </Suspense>
   );
 }
