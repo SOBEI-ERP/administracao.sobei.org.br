@@ -15,7 +15,7 @@ export default function DashboardLayout({ children }) {
     if (!loading && !isAuthenticated) {
       router.push('/');
     } else if (!loading && isAuthenticated && user) {
-      if (user.nivel?.toUpperCase() === 'DIRETORA' && pathname !== '/vagas' && pathname !== '/banco-talentos') {
+      if (user.nivel?.toUpperCase() === 'DIRETORA' && !['/vagas', '/banco-talentos', '/mensagens'].includes(pathname)) {
         router.push('/vagas');
       }
     }

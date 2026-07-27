@@ -143,6 +143,22 @@ export default function Sidebar() {
               />
               <span className="sidebar__text">Vagas</span>
             </Link>
+
+            <Link
+              href="/mensagens"
+              className={`sidebar__link ${
+                pathname === '/mensagens' ? 'sidebar__link--active' : ''
+              }`}
+            >
+              <Image 
+                src="/images/attention-stop.svg" 
+                alt="" 
+                width={20} 
+                height={20} 
+                className="sidebar__icon" 
+              />
+              <span className="sidebar__text">Mensagens</span>
+            </Link>
           </>
         )}
       </nav>

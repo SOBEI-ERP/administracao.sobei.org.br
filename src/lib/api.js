@@ -805,4 +805,71 @@ export async function visualizarCurriculoTalento(talentoId, nomeArquivo) {
   }
 }
 
+// ---- API Admin — Mensagens de Unidade ----
+
+export async function fetchMensagensUnidade(unidade = '', apenasNaoLidas = false) {
+  try {
+    let url = new URL(`${API_BASE_URL}/admin/mensagens-unidade`);
+    if (unidade) url.searchParams.append('unidade', unidade);
+    if (apenasNaoLidas) url.searchParams.append('apenasNaoLidas', 'true');
+
+    const response = await fetch(url, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        throw new Error('Não autorizado.');
+      }
+      return [];
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function marcarMensagemComoLida(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/mensagens-unidade/${id}/lida`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao marcar mensagem como lida' };
+    }
+
+    const mensagem = await response.json();
+    return { success: true, mensagem };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function deletarMensagemUnidade(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/mensagens-unidade/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao excluir mensagem' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+
 

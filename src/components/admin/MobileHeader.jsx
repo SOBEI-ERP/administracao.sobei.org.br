@@ -162,6 +162,23 @@ export default function MobileHeader() {
               />
               <span>Vagas</span>
             </Link>
+
+            <Link
+              href="/mensagens"
+              className={`mobile-drawer__link ${
+                pathname === '/mensagens' ? 'mobile-drawer__link--active' : ''
+              }`}
+              onClick={() => setMenuOpen(false)}
+            >
+              <Image
+                src="/images/attention-stop.svg"
+                alt=""
+                width={20}
+                height={20}
+                className="mobile-drawer__icon"
+              />
+              <span>Mensagens</span>
+            </Link>
           </>
         )}
       </nav>
