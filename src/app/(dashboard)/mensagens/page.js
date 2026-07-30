@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { fetchMensagensUnidade, marcarMensagemComoLida, deletarMensagemUnidade } from '@/lib/api';
 import { UNIDADES } from '@/lib/mockData';
 import CustomSelect from '@/components/admin/CustomSelect';
+import { IconMapPin, IconClock, IconMail, IconPhone, IconChat, IconCheck, IconTrash, IconClose, IconWarning } from '@/components/Icons';
 
 export default function MensagensPage() {
   const { user } = useAuth();
@@ -218,12 +219,12 @@ export default function MensagensPage() {
                     </span>
                   )}
                   <span style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--color-gray-800, #1e293b)' }}>
-                    📍 {msg.unidade}
+                    <IconMapPin size={14} /> {msg.unidade}
                   </span>
                 </div>
 
                 <span style={{ fontSize: '12px', color: 'var(--color-gray-500, #64748b)' }}>
-                  🕒 {formatDate(msg.dataEnvio)}
+                  <IconClock size={12} /> {formatDate(msg.dataEnvio)}
                 </span>
               </div>
 
@@ -234,8 +235,8 @@ export default function MensagensPage() {
                     {msg.nomeCompleto}
                   </h3>
                   <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', fontSize: '13px', color: 'var(--color-gray-600, #475569)' }}>
-                    <span>📧 {msg.email}</span>
-                    <span>📱 {msg.telefone}</span>
+                    <span><IconMail size={13} /> {msg.email}</span>
+                    <span><IconPhone size={13} /> {msg.telefone}</span>
                   </div>
                 </div>
 
@@ -259,7 +260,7 @@ export default function MensagensPage() {
                         gap: '6px'
                       }}
                     >
-                      💬 WhatsApp
+                      <IconChat size={14} /> WhatsApp
                     </a>
                   )}
 
@@ -278,7 +279,7 @@ export default function MensagensPage() {
                         cursor: 'pointer'
                       }}
                     >
-                      ✓ Marcar Lida
+                      <IconCheck size={14} /> Marcar Lida
                     </button>
                   )}
 
@@ -296,7 +297,7 @@ export default function MensagensPage() {
                       cursor: 'pointer'
                     }}
                   >
-                    🗑️
+                    <IconTrash size={14} />
                   </button>
                 </div>
               </div>
@@ -326,7 +327,7 @@ export default function MensagensPage() {
           <div className="vagas-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '650px', width: '90%' }}>
             <div className="vagas-modal__header">
               <h2>Mensagem — {selectedMensagem.unidade}</h2>
-              <button className="vagas-modal__close" onClick={() => setShowDetailModal(false)}>✕</button>
+              <button className="vagas-modal__close" onClick={() => setShowDetailModal(false)}><IconClose size={18} /></button>
             </div>
 
             <div style={{ padding: '24px' }}>
@@ -336,10 +337,10 @@ export default function MensagensPage() {
                     {selectedMensagem.nomeCompleto}
                   </h3>
                   <p style={{ fontSize: '14px', color: 'var(--color-gray-600, #475569)', margin: '0 0 4px 0' }}>
-                    📧 <strong>E-mail:</strong> {selectedMensagem.email}
+                    <IconMail size={14} /> <strong>E-mail:</strong> {selectedMensagem.email}
                   </p>
                   <p style={{ fontSize: '14px', color: 'var(--color-gray-600, #475569)', margin: 0 }}>
-                    📱 <strong>Telefone/WhatsApp:</strong> {selectedMensagem.telefone}
+                    <IconPhone size={14} /> <strong>Telefone/WhatsApp:</strong> {selectedMensagem.telefone}
                   </p>
                 </div>
 
@@ -365,7 +366,7 @@ export default function MensagensPage() {
                         gap: '6px'
                       }}
                     >
-                      💬 Abrir WhatsApp
+                      <IconChat size={14} /> Abrir WhatsApp
                     </a>
                   )}
                 </div>
@@ -395,7 +396,7 @@ export default function MensagensPage() {
                     cursor: 'pointer'
                   }}
                 >
-                  🗑️ Excluir Mensagem
+                  <IconTrash size={14} /> Excluir Mensagem
                 </button>
 
                 <button
@@ -416,7 +417,7 @@ export default function MensagensPage() {
         <div className="vagas-modal__overlay" style={{ zIndex: 1100 }} onClick={() => setShowDeleteModal(false)}>
           <div className="vagas-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '440px', width: '90%', padding: '24px' }}>
             <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-              <span style={{ fontSize: '42px' }}>⚠️</span>
+              <IconWarning size={42} style={{ color: '#f59e0b' }} />
               <h2 style={{ fontSize: '20px', color: '#111827', marginTop: '8px', marginBottom: '4px' }}>Excluir Mensagem?</h2>
               <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
                 Tem certeza que deseja excluir permanentemente esta mensagem?

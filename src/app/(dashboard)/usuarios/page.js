@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchUsuarios, criarUsuario, alterarSenhaUsuario, deletarUsuario } from '@/lib/api';
+import { IconMapPin, IconClose } from '@/components/Icons';
 import { useRouter } from 'next/navigation';
 
 const UNIDADES_SOBEI = [
@@ -217,7 +218,7 @@ export default function UsuariosPage() {
               </span>
               {u.unidade && (
                 <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-gray-500)', marginLeft: 'var(--spacing-sm)' }}>
-                  📍 {u.unidade}
+                  <IconMapPin size={12} /> {u.unidade}
                 </span>
               )}
               <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
@@ -253,7 +254,7 @@ export default function UsuariosPage() {
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <button className="modal__close" onClick={() => setIsModalOpen(false)} type="button">
-              ✕
+              <IconClose size={16} />
             </button>
             <h2 className="modal__title">Novo Usuário</h2>
             <form onSubmit={handleCreate}>
@@ -347,7 +348,7 @@ export default function UsuariosPage() {
         <div className="modal-overlay" onClick={() => setIsPasswordModalOpen(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <button className="modal__close" onClick={() => setIsPasswordModalOpen(false)} type="button">
-              ✕
+              <IconClose size={16} />
             </button>
             <h2 className="modal__title">Alterar Senha</h2>
             <p className="admin-page__description" style={{ textAlign: 'center', marginBottom: 'var(--spacing-lg)' }}>
@@ -390,7 +391,7 @@ export default function UsuariosPage() {
         <div className="modal-overlay" onClick={() => setIsDeleteModalOpen(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
             <button className="modal__close" onClick={() => setIsDeleteModalOpen(false)} type="button">
-              ✕
+              <IconClose size={16} />
             </button>
             <h2 className="modal__title">Excluir Usuário</h2>
             <p className="admin-page__description" style={{ textAlign: 'center', marginBottom: 'var(--spacing-xl)' }}>

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { DENUNCIA_LINKS } from '@/lib/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { IconChevronDown } from '@/components/Icons';
 
 export default function MobileHeader() {
   const pathname = usePathname();
@@ -99,7 +100,7 @@ export default function MobileHeader() {
                   <span>Denúncias</span>
                 </div>
                 <span className={`mobile-drawer__chevron ${denunciasOpen ? 'mobile-drawer__chevron--open' : ''}`}>
-                  ▼
+                  <IconChevronDown size={12} />
                 </span>
               </button>
 

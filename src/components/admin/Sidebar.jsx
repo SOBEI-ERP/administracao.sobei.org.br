@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { DENUNCIA_LINKS } from '@/lib/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { IconChevronDown } from '@/components/Icons';
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -59,8 +60,8 @@ export default function Sidebar() {
                   />
                   <span className="sidebar__text">Denúncias</span>
                 </div>
-                <span className={`sidebar__chevron ${denunciasOpen ? 'sidebar__chevron--open' : ''}`}>
-                  ▼
+                  <span className={`sidebar__chevron ${denunciasOpen ? 'sidebar__chevron--open' : ''}`}>
+                  <IconChevronDown size={12} />
                 </span>
               </button>
 

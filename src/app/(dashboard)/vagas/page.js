@@ -18,6 +18,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { UNIDADES } from '@/lib/mockData';
 import CustomSelect from '@/components/admin/CustomSelect';
+import { IconMapPin, IconBriefcase, IconFolder, IconClose, IconTrash, IconMail, IconPhone, IconEye, IconDownload, IconWarning } from '@/components/Icons';
 
 const STATUS_LABELS = {
   ativo: 'Ativo',
@@ -377,7 +378,7 @@ function VagasContent() {
                 gap: '6px'
               }}
             >
-              💼 Vagas
+              <IconBriefcase size={14} /> Vagas
             </button>
             <button
               type="button"
@@ -398,7 +399,7 @@ function VagasContent() {
                 gap: '6px'
               }}
             >
-              📁 Banco de Talentos
+              <IconFolder size={14} /> Banco de Talentos
             </button>
           </div>
 
@@ -478,7 +479,7 @@ function VagasContent() {
                   </div>
                   <h3 className="vaga-card__title">{vaga.titulo}</h3>
                   <p className="vaga-card__dept">
-                    📍 {vaga.unidade}
+                    <IconMapPin size={14} /> {vaga.unidade}
                   </p>
                   <div className="vaga-card__footer">
                     <span className="vaga-card__tag">
@@ -543,7 +544,7 @@ function VagasContent() {
                   </div>
                   <h3 className="vaga-card__title">{banco.vagaTitulo}</h3>
                   <p className="vaga-card__dept">
-                    📍 {banco.vagaUnidade}
+                    <IconMapPin size={14} /> {banco.vagaUnidade}
                   </p>
                   <div className="vaga-card__footer" style={{ marginTop: 'auto' }}>
                     <span className="vaga-card__candidaturas">
@@ -563,7 +564,7 @@ function VagasContent() {
           <div className="vagas-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '1100px', width: '95%' }}>
             <div className="vagas-modal__header">
               <h2>{editingVaga ? 'Editar Vaga' : 'Nova Vaga'}</h2>
-              <button className="vagas-modal__close" onClick={() => setShowFormModal(false)}>✕</button>
+              <button className="vagas-modal__close" onClick={() => setShowFormModal(false)}><IconClose size={18} /></button>
             </div>
 
             <div className="vagas-modal__split-container">
@@ -689,8 +690,8 @@ function VagasContent() {
                       {formData.titulo || 'Título da Vaga'}
                     </h2>
                     <div style={{ display: 'flex', gap: '12px', fontSize: '11px', color: 'rgba(255,255,255,0.9)' }}>
-                      <span>📍 {formData.unidade || user?.unidade || 'Unidade'}</span>
-                      <span>💼 {MODALIDADE_LABELS[formData.modalidade]} ({CONTRATO_LABELS[formData.tipoContrato]})</span>
+                      <span><IconMapPin size={11} /> {formData.unidade || user?.unidade || 'Unidade'}</span>
+                      <span><IconBriefcase size={11} /> {MODALIDADE_LABELS[formData.modalidade]} ({CONTRATO_LABELS[formData.tipoContrato]})</span>
                     </div>
                   </div>
 
@@ -755,7 +756,7 @@ function VagasContent() {
           <div className="vagas-modal vagas-modal--detail" onClick={(e) => e.stopPropagation()}>
             <div className="vagas-modal__header">
               <h2>{selectedVaga.titulo}</h2>
-              <button className="vagas-modal__close" onClick={() => setShowDetailModal(false)}>✕</button>
+              <button className="vagas-modal__close" onClick={() => setShowDetailModal(false)}><IconClose size={18} /></button>
             </div>
 
             {/* Tabs do Modal */}
@@ -913,7 +914,7 @@ function VagasContent() {
                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
                     >
-                      🗑️ Excluir Vaga
+                      <IconTrash size={14} /> Excluir Vaga
                     </button>
                   </div>
                 )}
@@ -933,7 +934,7 @@ function VagasContent() {
                         <div className="candidatura-card__info">
                           <h4 className="candidatura-card__name">{cand.nomeCompleto}</h4>
                           <p className="candidatura-card__detail">
-                            📧 {cand.email} &nbsp;|&nbsp; 📱 {cand.telefone}
+                            <IconMail size={13} /> {cand.email} &nbsp;|&nbsp; <IconPhone size={13} /> {cand.telefone}
                           </p>
                           <p className="candidatura-card__date">
                             Enviado em {formatDate(cand.dataEnvio)}
@@ -951,14 +952,14 @@ function VagasContent() {
                             onClick={() => handleVisualizarCurriculo(cand.id, cand.curriculoNome)}
                             type="button"
                           >
-                            👁️ Visualizar
+                            <IconEye size={14} /> Visualizar
                           </button>
                           <button
                             className="candidatura-card__download"
                             onClick={() => handleDownloadCurriculo(cand.id, cand.curriculoNome)}
                             type="button"
                           >
-                            📥 Baixar
+                            <IconDownload size={14} /> Baixar
                           </button>
                         </div>
                       </div>
@@ -976,7 +977,7 @@ function VagasContent() {
         <div className="vagas-modal__overlay" style={{ zIndex: 1100 }} onClick={() => setShowDeleteConfirm(false)}>
           <div className="vagas-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px', width: '90%', padding: '24px' }}>
             <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-              <span style={{ fontSize: '42px' }}>⚠️</span>
+              <IconWarning size={42} style={{ color: '#f59e0b' }} />
               <h2 style={{ fontSize: '20px', color: '#111827', marginTop: '8px', marginBottom: '4px' }}>Excluir Vaga?</h2>
               <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
                 Tem certeza que deseja excluir a vaga <strong>"{selectedVaga.titulo}"</strong>?
@@ -1037,7 +1038,7 @@ function VagasContent() {
           <div className="vagas-modal vagas-modal--detail" onClick={(e) => e.stopPropagation()}>
             <div className="vagas-modal__header">
               <h2>Banco de Talentos — {selectedBanco.vagaTitulo}</h2>
-              <button className="vagas-modal__close" onClick={() => setShowBancoDetailModal(false)}>✕</button>
+              <button className="vagas-modal__close" onClick={() => setShowBancoDetailModal(false)}><IconClose size={18} /></button>
             </div>
 
             <div className="vagas-modal__tabs">
@@ -1060,7 +1061,7 @@ function VagasContent() {
                       <div className="candidatura-card__info">
                         <h4 className="candidatura-card__name">{talento.nomeCompleto}</h4>
                         <p className="candidatura-card__detail">
-                          📧 {talento.email} &nbsp;|&nbsp; 📱 {talento.telefone}
+                          <IconMail size={13} /> {talento.email} &nbsp;|&nbsp; <IconPhone size={13} /> {talento.telefone}
                         </p>
                         <p className="candidatura-card__date">
                           Enviado originalmente em {formatDate(talento.dataEnvioOriginal)} &nbsp;|&nbsp; Arquivado em {formatDate(talento.dataMovimentacao)}
@@ -1078,14 +1079,14 @@ function VagasContent() {
                           onClick={() => handleVisualizarCurriculoTalento(talento.id, talento.curriculoNome)}
                           type="button"
                         >
-                          👁️ Visualizar
+                          <IconEye size={14} /> Visualizar
                         </button>
                         <button
                           className="candidatura-card__download"
                           onClick={() => handleDownloadCurriculoTalento(talento.id, talento.curriculoNome)}
                           type="button"
                         >
-                          📥 Baixar
+                          <IconDownload size={14} /> Baixar
                         </button>
                       </div>
                     </div>

@@ -6,7 +6,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8
 
 function unwrapPayload(payload) {
   if (!payload || typeof payload !== 'object') return payload;
-  return payload.denuncia || payload.dados || payload.data || payload;
+  return payload.denuncia || payload.data || payload;
 }
 
 function normalizeMedidas(value, asText = false) {
@@ -19,20 +19,13 @@ function normalizeMedidas(value, asText = false) {
         return { id: `medida-${index}`, descricao: medida, dataRegistro: null };
       }
 
-      if (!medida || typeof medida !== 'object') {
-        return null;
-      }
+      if (!medida || typeof medida !== 'object') return null;
 
       return {
-        id: medida.id ?? medida.medidaId ?? `medida-${index}`,
-        descricao:
-          medida.descricao ??
-          medida.descricaoAcao ??
-          medida.medida ??
-          medida.texto ??
-          '',
-        dataRegistro: medida.dataRegistro ?? medida.criadoEm ?? medida.createdAt ?? null,
-        autor: medida.autor ?? null,
+        id: medida.id ?? `medida-${index}`,
+        descricao: medida.descricao || '',
+        dataRegistro: medida.dataRegistro || null,
+        autor: medida.autor || null,
       };
     })
     .filter(Boolean);
@@ -52,107 +45,28 @@ function normalizeDenuncia(raw) {
   const denuncia = unwrapPayload(raw);
   if (!denuncia || typeof denuncia !== 'object') return denuncia;
 
-  const denunciante = denuncia.denunciante || denuncia.denuncianteIdentificado || denuncia.denunciante_identificado || {};
-  const conclusao = denuncia.conclusao || denuncia.conclusaoDenuncia || denuncia.conclusao_denuncia || {};
-
   return {
     ...denuncia,
-    id: denuncia.id ?? denuncia.denunciaId,
-    protocolo: denuncia.protocolo ?? denuncia.numeroProtocolo ?? denuncia.numero_protocolo,
-    status: denuncia.status ?? denuncia.estado,
-    tipo: denuncia.tipo ?? denuncia.tipoDenuncia ?? denuncia.tipo_denuncia,
-    unidade: denuncia.unidade ?? denuncia.unidadeOcorrencia ?? denuncia.unidade_ocorrencia,
-    dataEnvio:
-      denuncia.dataEnvio ??
-      denuncia.data_envio ??
-      denuncia.dataCriacao ??
-      denuncia.data_criacao ??
-      denuncia.criadoEm ??
-      denuncia.criado_em ??
-      denuncia.createdAt ??
-      denuncia.created_at ??
-      denuncia.dataAbertura,
-    dataAbertura:
-      denuncia.dataAbertura ??
-      denuncia.data_abertura ??
-      denuncia.dataInicioApuracao ??
-      denuncia.data_inicio_apuracao ??
-      denuncia.dataEmAndamento,
-    ultimaAlteracao: denuncia.ultimaAlteracao ?? denuncia.ultima_alteracao ?? denuncia.atualizadoEm ?? denuncia.atualizado_em ?? denuncia.updatedAt ?? denuncia.updated_at,
-    dataFechamento:
-      denuncia.dataFechamento ??
-      denuncia.data_fechamento ??
-      denuncia.dataConclusao ??
-      denuncia.data_conclusao ??
-      conclusao.dataConclusao,
-    dataArquivamento:
-      denuncia.dataArquivamento ??
-      denuncia.data_arquivamento ??
-      denuncia.dataConclusao ??
-      denuncia.data_conclusao ??
-      conclusao.dataConclusao,
-    descricao:
-      denuncia.descricao ??
-      denuncia.descricaoDenuncia ??
-      denuncia.descricao_denuncia ??
-      denuncia.relato ??
-      denuncia.detalhes ??
-      '',
-    envolvidos:
-      denuncia.envolvidos ??
-      denuncia.pessoasEnvolvidas ??
-      denuncia.pessoas_envolvidas ??
-      denuncia.quemEstavaEnvolvido ??
-      denuncia.quem_estava_envolvido ??
-      '',
-    testemunhas:
-      denuncia.testemunhas ??
-      denuncia.quemTestemunhou ??
-      denuncia.quem_testemunhou ??
-      denuncia.testemunhasFatos ??
-      denuncia.testemunhas_fatos ??
-      '',
-    nomeDenunciante:
-      denuncia.nomeDenunciante ??
-      denuncia.nome_denunciante ??
-      denuncia.nomeCompleto ??
-      denuncia.nome_completo ??
-      denuncia.nome ??
-      denunciante.nomeCompleto ??
-      denunciante.nome_completo ??
-      denunciante.nome ??
-      '',
-    emailDenunciante:
-      denuncia.emailDenunciante ??
-      denuncia.email_denunciante ??
-      denuncia.email ??
-      denunciante.email ??
-      '',
-    telefoneDenunciante:
-      denuncia.telefoneDenunciante ??
-      denuncia.telefone_denunciante ??
-      denuncia.telefone ??
-      denunciante.telefone ??
-      '',
-    medidasAdotadas: normalizeMedidas(
-      denuncia.medidasAdotadas ?? denuncia.medidas_adotadas ?? denuncia.medidas ?? denuncia.historicoMedidas ?? denuncia.historico_medidas
-    ),
-    relatorioConclusao:
-      denuncia.relatorioConclusao ??
-      denuncia.relatorio_conclusao ??
-      denuncia.relatorioFinal ??
-      denuncia.relatorio_final ??
-      denuncia.relatorioArquivamento ??
-      denuncia.relatorio_arquivamento ??
-      conclusao.relatorio ??
-      '',
-    tipoConclusao:
-      denuncia.tipoConclusao ??
-      denuncia.tipo_conclusao ??
-      conclusao.tipoConclusao ??
-      conclusao.tipo_conclusao ??
-      null,
-    prioridade: (denuncia.prioridade ?? 'NEUTRA').toUpperCase(),
+    id: denuncia.id,
+    protocolo: denuncia.protocolo,
+    status: denuncia.status || denuncia.estado,
+    tipo: denuncia.tipo,
+    unidade: denuncia.unidade,
+    dataEnvio: denuncia.dataEnvio || denuncia.dataAbertura,
+    dataAbertura: denuncia.dataAbertura,
+    ultimaAlteracao: denuncia.ultimaAlteracao,
+    dataFechamento: denuncia.dataFechamento,
+    dataArquivamento: denuncia.dataArquivamento,
+    descricao: denuncia.descricao || '',
+    envolvidos: denuncia.envolvidos || '',
+    testemunhas: denuncia.testemunhas || '',
+    nomeDenunciante: denuncia.nomeDenunciante || '',
+    emailDenunciante: denuncia.emailDenunciante || '',
+    telefoneDenunciante: denuncia.telefoneDenunciante || '',
+    medidasAdotadas: normalizeMedidas(denuncia.medidasAdotadas),
+    relatorioConclusao: denuncia.relatorioConclusao || '',
+    tipoConclusao: denuncia.tipoConclusao || null,
+    prioridade: (denuncia.prioridade || 'NEUTRA').toUpperCase(),
   };
 }
 
@@ -326,6 +240,8 @@ export async function fetchDenunciasPorStatus(status, filtros = {}) {
     if (filtros.protocolo) url.searchParams.append('protocolo', filtros.protocolo.trim());
     if (filtros.dataInicio) url.searchParams.append('dataInicio', filtros.dataInicio);
     if (filtros.dataFim) url.searchParams.append('dataFim', filtros.dataFim);
+    if (filtros.page !== undefined && filtros.page !== null) url.searchParams.append('page', filtros.page);
+    if (filtros.size !== undefined && filtros.size !== null) url.searchParams.append('size', filtros.size);
 
     const response = await fetch(url, { headers: getAuthHeaders(), credentials: 'include' });
     
