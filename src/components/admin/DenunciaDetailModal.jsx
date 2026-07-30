@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useDenunciaDetalhes } from '@/hooks/useDenuncias';
+import { useAuth } from '@/contexts/AuthContext';
 import CustomSelect from './CustomSelect';
 
 function formatarData(dataStr) {
@@ -99,7 +100,9 @@ function mergeDenunciaData(base, detalhes) {
 }
 
 export default function DenunciaDetailModal({ denuncia, status, onClose, onAction }) {
+  const { user } = useAuth();
   const { data: detalhes, isLoading } = useDenunciaDetalhes(denuncia?.protocolo);
+  const isSuporte = user?.nivel?.toUpperCase() === 'SUPORTE';
   const [medidasList, setMedidasList] = useState([]);
   const [novaMedida, setNovaMedida] = useState('');
   const [editingMeasureId, setEditingMeasureId] = useState(null);
@@ -563,9 +566,24 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
               )}
 
               {(status === 'fechada' || status === 'arquivada') && (
-                <button className="btn btn--success" onClick={handleReabrir} type="button">
-                  Reabrir denúncia
-                </button>
+                <>
+                  {status === 'fechada' && isSuporte && (
+                    <button
+                      className="btn btn--danger"
+                      onClick={() => {
+                        if (confirm(`Tem certeza que deseja excluir permanentemente a denúncia com protocolo ${denuncia.protocolo}? Esta ação não pode ser desfeita.`)) {
+                          onAction?.('deletar', { protocolo: denuncia.protocolo });
+                        }
+                      }}
+                      type="button"
+                    >
+                      Excluir denúncia
+                    </button>
+                  )}
+                  <button className="btn btn--success" onClick={handleReabrir} type="button">
+                    Reabrir denúncia
+                  </button>
+                </>
               )}
             </div>
           </>

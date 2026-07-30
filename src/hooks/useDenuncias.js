@@ -9,6 +9,7 @@ import {
   fetchDenunciasPorStatus,
   fetchDenunciaDetalhes,
   atualizarDenuncia,
+  deletarDenuncia,
   fetchEstatisticas,
   consultarProtocolo,
 } from '@/lib/api';
@@ -40,6 +41,25 @@ export function useAtualizarDenuncia() {
       const result = await atualizarDenuncia(protocolo, data);
       if (!result || !result.success) {
         throw new Error(result?.message || 'Erro ao atualizar denúncia');
+      }
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['denuncias'] });
+      queryClient.invalidateQueries({ queryKey: ['denuncia'] });
+    },
+  });
+}
+
+// Deletar denúncia fechada (mutation)
+export function useDeletarDenuncia() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (protocolo) => {
+      const result = await deletarDenuncia(protocolo);
+      if (!result || !result.success) {
+        throw new Error(result?.message || 'Erro ao excluir denúncia');
       }
       return result;
     },

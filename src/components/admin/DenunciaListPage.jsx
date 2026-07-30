@@ -9,7 +9,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useDenuncias, useAtualizarDenuncia } from '@/hooks/useDenuncias';
+import { useDenuncias, useAtualizarDenuncia, useDeletarDenuncia } from '@/hooks/useDenuncias';
 import { STATUS_CONFIG, FILTROS_INICIAIS } from '@/lib/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import dynamic from 'next/dynamic';
@@ -30,6 +30,7 @@ export default function DenunciaListPage({ status }) {
 
   const { data: denuncias = [], isLoading, isError, error, refetch } = useDenuncias(status, filtrosAtivos);
   const atualizarMutation = useAtualizarDenuncia();
+  const deletarMutation = useDeletarDenuncia();
 
   useEffect(() => {
     if (isError && error) {
@@ -51,6 +52,19 @@ export default function DenunciaListPage({ status }) {
   }
 
   function handleAction(action, payload) {
+    if (action === 'deletar') {
+      deletarMutation.mutate(payload.protocolo, {
+        onSuccess: () => {
+          setSelectedDenuncia(null);
+          refetch();
+        },
+        onError: (err) => {
+          alert(err.message || 'Erro ao excluir denúncia.');
+        },
+      });
+      return;
+    }
+
     atualizarMutation.mutate(payload, {
       onSuccess: () => {
         setSelectedDenuncia(null);

@@ -314,6 +314,25 @@ export async function atualizarDenuncia(protocolo, payload) {
   }
 }
 
+export async function deletarDenuncia(protocolo) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/denuncias/${protocolo}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao excluir denúncia' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
 export async function fetchEstatisticas(filtros = {}) {
   try {
     let url = new URL(`${API_BASE_URL}/admin/estatisticas`);
