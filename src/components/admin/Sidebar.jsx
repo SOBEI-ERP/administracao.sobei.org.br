@@ -145,6 +145,9 @@ export default function Sidebar() {
               <span className="sidebar__text">Vagas</span>
             </Link>
 
+            <div className="sidebar__divider" />
+
+            {/* Mensagens */}
             <Link
               href="/mensagens"
               className={`sidebar__link ${
@@ -160,6 +163,8 @@ export default function Sidebar() {
               />
               <span className="sidebar__text">Mensagens</span>
             </Link>
+
+            <div className="sidebar__divider" />
           </>
         )}
       </nav>

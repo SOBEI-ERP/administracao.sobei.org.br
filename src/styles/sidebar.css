@@ -170,14 +170,20 @@
 
 .sidebar__divider {
   height: 1px;
-  background-color: rgba(255, 255, 255, 0.1);
-  margin: var(--spacing-md) var(--spacing-lg);
+  background-color: rgba(255, 255, 255, 0.12);
+  margin: var(--spacing-sm) var(--spacing-lg);
   opacity: 0;
   transition: opacity var(--transition-fast);
 }
 
 .sidebar:hover .sidebar__divider {
   opacity: 1;
+}
+
+@media (max-width: 1024px) {
+  .sidebar__divider {
+    opacity: 1;
+  }
 }
 
 .sidebar__link {
