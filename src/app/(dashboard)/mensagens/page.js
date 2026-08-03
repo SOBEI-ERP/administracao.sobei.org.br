@@ -115,7 +115,7 @@ export default function MensagensPage() {
             {user?.nivel === 'suporte' ? (
               <span>Visualizando mensagens enviadas para <strong>todas as unidades</strong></span>
             ) : (
-              <span>Mensagens e intenções de vaga enviadas para a unidade <strong>{user?.unidade || '—'}</strong></span>
+              <span>Mensagens enviadas para a unidade <strong>{user?.unidade || '—'}</strong></span>
             )}
           </p>
         </div>
@@ -374,7 +374,7 @@ export default function MensagensPage() {
 
               <div style={{ backgroundColor: '#f8fafc', border: '1px solid var(--color-gray-200, #e2e8f0)', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
                 <h4 style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--color-gray-500, #64748b)', textTransform: 'uppercase', marginBottom: '8px' }}>
-                  Conteúdo da Mensagem (Intenção de Vaga)
+                  Conteúdo da Mensagem
                 </h4>
                 <p style={{ fontSize: '14px', lineHeight: '1.6', color: 'var(--color-gray-800, #1e293b)', whiteSpace: 'pre-wrap', margin: 0 }}>
                   {selectedMensagem.mensagem}
