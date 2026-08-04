@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useDenunciaDetalhes } from '@/hooks/useDenuncias';
 import { useAuth } from '@/contexts/AuthContext';
 import CustomSelect from './CustomSelect';
+import ConfirmModal from './ConfirmModal';
 
 function formatarData(dataStr) {
   if (!dataStr) return '';
@@ -109,6 +110,8 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
   const [editingMeasureText, setEditingMeasureText] = useState('');
   const [relatorioFinal, setRelatorioFinal] = useState('');
   const [confirmingClose, setConfirmingClose] = useState(false);
+  const [showRelatorioAlert, setShowRelatorioAlert] = useState(false);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [tipoConclusaoLocal, setTipoConclusaoLocal] = useState('FINAL'); // 'FINAL' or 'ARQUIVAMENTO'
   const [prioridadeLocal, setPrioridadeLocal] = useState('NEUTRA');
 
@@ -138,7 +141,7 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
 
   function handleConfirmarEncerramento() {
     if (!relatorioFinal.trim()) {
-      alert('Por favor, insira o relatório de encerramento.');
+      setShowRelatorioAlert(true);
       return;
     }
     const finalMedidas = [...medidasList];
@@ -570,11 +573,7 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
                   {status === 'fechada' && isSuporte && (
                     <button
                       className="btn btn--danger"
-                      onClick={() => {
-                        if (confirm(`Tem certeza que deseja excluir permanentemente a denúncia com protocolo ${denuncia.protocolo}? Esta ação não pode ser desfeita.`)) {
-                          onAction?.('deletar', { protocolo: denuncia.protocolo });
-                        }
-                      }}
+                      onClick={() => setShowDeleteConfirmModal(true)}
                       type="button"
                     >
                       Excluir denúncia
@@ -589,6 +588,30 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
           </>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={showRelatorioAlert}
+        type="warning"
+        title="Relatório Obrigatório"
+        message="Por favor, preencha o relatório de encerramento para prosseguir com o fechamento ou arquivamento da denúncia."
+        confirmText="Entendido"
+        cancelText={null}
+        onClose={() => setShowRelatorioAlert(false)}
+      />
+
+      <ConfirmModal
+        isOpen={showDeleteConfirmModal}
+        type="danger"
+        title="Excluir Denúncia?"
+        message={`Tem certeza que deseja excluir permanentemente a denúncia com protocolo ${denuncia?.protocolo}? Esta ação é irreversível.`}
+        confirmText="Sim, Excluir"
+        cancelText="Cancelar"
+        onConfirm={() => {
+          setShowDeleteConfirmModal(false);
+          onAction?.('deletar', { protocolo: denuncia.protocolo });
+        }}
+        onClose={() => setShowDeleteConfirmModal(false)}
+      />
     </div>
   );
 }

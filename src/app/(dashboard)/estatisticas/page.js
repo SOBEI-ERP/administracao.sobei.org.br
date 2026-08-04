@@ -20,6 +20,7 @@ import {
 } from 'recharts';
 import { useEstatisticas, useTodasDenuncias } from '@/hooks/useDenuncias';
 import { UNIDADES } from '@/lib/mockData';
+import ConfirmModal from '@/components/admin/ConfirmModal';
 
 const CORES_PIE = ['#7C6BC4', '#FF7043', '#43A047', '#FFB74D', '#9C8FD9', '#E53935'];
 
@@ -131,6 +132,7 @@ export default function EstatisticasPage() {
   const { data: stats, isLoading: isStatsLoading } = useEstatisticas(filtros);
   const { data: todasDenuncias, isLoading: isDenunciasLoading } = useTodasDenuncias(filtros);
   const isLoading = isStatsLoading || isDenunciasLoading;
+  const [showPopupBlockedAlert, setShowPopupBlockedAlert] = useState(false);
 
   if (!mounted) {
     return (
@@ -188,7 +190,7 @@ export default function EstatisticasPage() {
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-      alert('Por favor, permita pop-ups para exportar o relatório.');
+      setShowPopupBlockedAlert(true);
       return;
     }
 
@@ -1051,6 +1053,16 @@ export default function EstatisticasPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={showPopupBlockedAlert}
+        type="warning"
+        title="Pop-ups Bloqueados"
+        message="Por favor, permita pop-ups no seu navegador para exportar e visualizar o relatório executivo."
+        confirmText="Entendido"
+        cancelText={null}
+        onClose={() => setShowPopupBlockedAlert(false)}
+      />
     </div>
   );
 }

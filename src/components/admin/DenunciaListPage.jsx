@@ -15,6 +15,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import FilterBar from '@/components/admin/FilterBar';
 import DenunciaCard from '@/components/admin/DenunciaCard';
+import ConfirmModal from '@/components/admin/ConfirmModal';
 
 const DenunciaDetailModal = dynamic(() => import('@/components/admin/DenunciaDetailModal'), {
   ssr: false
@@ -27,6 +28,7 @@ export default function DenunciaListPage({ status }) {
   const [filtros, setFiltros] = useState({ ...FILTROS_INICIAIS });
   const [filtrosAtivos, setFiltrosAtivos] = useState({ ...FILTROS_INICIAIS });
   const [selectedDenuncia, setSelectedDenuncia] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const { data: denuncias = [], isLoading, isError, error, refetch } = useDenuncias(status, filtrosAtivos);
   const atualizarMutation = useAtualizarDenuncia();
@@ -59,7 +61,7 @@ export default function DenunciaListPage({ status }) {
           refetch();
         },
         onError: (err) => {
-          alert(err.message || 'Erro ao excluir denúncia.');
+          setErrorMessage(err.message || 'Erro ao excluir denúncia.');
         },
       });
       return;
@@ -71,7 +73,7 @@ export default function DenunciaListPage({ status }) {
         refetch();
       },
       onError: (err) => {
-        alert(err.message || 'Erro ao processar a ação. Tente novamente.');
+        setErrorMessage(err.message || 'Erro ao processar a ação. Tente novamente.');
       },
     });
   }
@@ -119,6 +121,16 @@ export default function DenunciaListPage({ status }) {
           onAction={handleAction}
         />
       )}
+
+      <ConfirmModal
+        isOpen={!!errorMessage}
+        type="danger"
+        title="Erro na Operação"
+        message={errorMessage}
+        confirmText="Entendido"
+        cancelText={null}
+        onClose={() => setErrorMessage(null)}
+      />
     </div>
   );
 }
