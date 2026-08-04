@@ -163,8 +163,6 @@ export default function Sidebar() {
               />
               <span className="sidebar__text">Mensagens</span>
             </Link>
-
-            <div className="sidebar__divider" />
           </>
         )}
       </nav>
