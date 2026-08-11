@@ -19,6 +19,7 @@ export const UNIDADES = [
   'NCI Imbuias',
   'Oliveiras',
   'Orquídeas',
+  'Orquestra Jovem',
   'Sabiás',
   'Telecentro'
 ];
