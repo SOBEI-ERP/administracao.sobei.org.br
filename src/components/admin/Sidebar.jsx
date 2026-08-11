@@ -106,6 +106,24 @@ export default function Sidebar() {
         {user?.nivel?.toUpperCase() === 'SUPORTE' && (
           <>
             <div className="sidebar__divider" />
+            {/* Chamados */}
+            <Link
+              href="/chamados"
+              className={`sidebar__link ${
+                pathname === '/chamados' ? 'sidebar__link--active' : ''
+              }`}
+            >
+              <Image 
+                src="/images/attention-stop.svg" 
+                alt="" 
+                width={20} 
+                height={20} 
+                className="sidebar__icon" 
+              />
+              <span className="sidebar__text">Chamados</span>
+            </Link>
+
+            <div className="sidebar__divider" />
             {/* Usuários */}
             <Link
               href="/usuarios"

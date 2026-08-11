@@ -806,5 +806,94 @@ export async function deletarMensagemUnidade(id) {
   }
 }
 
+// ---- API Admin — Chamados de Suporte ----
+
+export async function fetchChamados(status = '', prioridade = '') {
+  try {
+    let url = new URL(`${API_BASE_URL}/admin/chamados`);
+    if (status) url.searchParams.append('status', status);
+    if (prioridade) url.searchParams.append('prioridade', prioridade);
+
+    const response = await fetch(url, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        throw new Error('Não autorizado.');
+      }
+      return [];
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao buscar chamados:', error);
+    return [];
+  }
+}
+
+export async function criarChamado(data) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/chamados`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao criar chamado' };
+    }
+
+    const chamado = await response.json();
+    return { success: true, chamado };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function atualizarChamado(id, data) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/chamados/${id}`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao atualizar chamado' };
+    }
+
+    const chamado = await response.json();
+    return { success: true, chamado };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function deletarChamado(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/chamados/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao excluir chamado' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+
 
 
