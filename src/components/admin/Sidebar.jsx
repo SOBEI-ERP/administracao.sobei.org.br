@@ -114,7 +114,7 @@ export default function Sidebar() {
               }`}
             >
               <Image 
-                src="/images/attention-stop.svg" 
+                src="/images/warning-triangle.svg" 
                 alt="" 
                 width={20} 
                 height={20} 

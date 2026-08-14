@@ -144,6 +144,28 @@ export default function MobileHeader() {
           </>
         )}
 
+        {user?.nivel?.toUpperCase() === 'SUPORTE' && (
+          <>
+            <div className="mobile-drawer__divider" />
+            <Link
+              href="/chamados"
+              className={`mobile-drawer__link ${
+                pathname === '/chamados' ? 'mobile-drawer__link--active' : ''
+              }`}
+              onClick={() => setMenuOpen(false)}
+            >
+              <Image
+                src="/images/warning-triangle.svg"
+                alt=""
+                width={20}
+                height={20}
+                className="mobile-drawer__icon"
+              />
+              <span>Chamados</span>
+            </Link>
+          </>
+        )}
+
         {(user?.nivel?.toUpperCase() === 'DIRETORA' || user?.nivel?.toUpperCase() === 'SUPORTE') && (
           <>
             <div className="mobile-drawer__divider" />
