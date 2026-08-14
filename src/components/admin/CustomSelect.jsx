@@ -20,6 +20,10 @@ export default function CustomSelect({ value, onChange, options, defaultOption, 
     ? options.find(o => o.value === value)?.label || defaultOption
     : defaultOption;
 
+  const displayOptions = allowEmpty 
+    ? options.filter(opt => opt.value !== '' && opt.value !== null && opt.value !== undefined)
+    : options;
+
   return (
     <div className={`custom-select-container ${className || ''}`} style={style} ref={containerRef}>
       <div 
@@ -45,7 +49,7 @@ export default function CustomSelect({ value, onChange, options, defaultOption, 
               {defaultOption}
             </div>
           )}
-          {options.map((opt) => (
+          {displayOptions.map((opt) => (
             <div 
               key={opt.value}
               data-value={opt.value}

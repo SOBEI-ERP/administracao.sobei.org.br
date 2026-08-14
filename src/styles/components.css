@@ -155,6 +155,11 @@
   color: var(--color-red) !important;
 }
 
+.priority-badge--urgente {
+  background-color: rgba(220, 38, 38, 0.22) !important;
+  color: #991b1b !important;
+}
+
 
 .btn--sm {
   padding: var(--spacing-sm) var(--spacing-base);
