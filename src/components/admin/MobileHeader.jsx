@@ -80,7 +80,8 @@ export default function MobileHeader() {
 
         <div className="mobile-drawer__divider" />
 
-        {user?.nivel?.toUpperCase() !== 'DIRETORA' && (
+        {/* Denúncias e Estatísticas: DP e SUPORTE */}
+        {(user?.nivel?.toUpperCase() === 'DP' || user?.nivel?.toUpperCase() === 'SUPORTE') && (
           <>
             {/* Denúncias */}
             <div className="mobile-drawer__section">
@@ -144,28 +145,7 @@ export default function MobileHeader() {
           </>
         )}
 
-        {user?.nivel?.toUpperCase() === 'SUPORTE' && (
-          <>
-            <div className="mobile-drawer__divider" />
-            <Link
-              href="/chamados"
-              className={`mobile-drawer__link ${
-                pathname === '/chamados' ? 'mobile-drawer__link--active' : ''
-              }`}
-              onClick={() => setMenuOpen(false)}
-            >
-              <Image
-                src="/images/warning-triangle.svg"
-                alt=""
-                width={20}
-                height={20}
-                className="mobile-drawer__icon"
-              />
-              <span>Chamados</span>
-            </Link>
-          </>
-        )}
-
+        {/* Vagas: DIRETORA e SUPORTE */}
         {(user?.nivel?.toUpperCase() === 'DIRETORA' || user?.nivel?.toUpperCase() === 'SUPORTE') && (
           <>
             <div className="mobile-drawer__divider" />
@@ -185,7 +165,13 @@ export default function MobileHeader() {
               />
               <span>Vagas</span>
             </Link>
+          </>
+        )}
 
+        {/* Mensagens: DIRETORA, COORDENADORA e SUPORTE */}
+        {(user?.nivel?.toUpperCase() === 'DIRETORA' || user?.nivel?.toUpperCase() === 'COORDENADORA' || user?.nivel?.toUpperCase() === 'SUPORTE') && (
+          <>
+            <div className="mobile-drawer__divider" />
             <Link
               href="/mensagens"
               className={`mobile-drawer__link ${
@@ -201,6 +187,70 @@ export default function MobileHeader() {
                 className="mobile-drawer__icon"
               />
               <span>Mensagens</span>
+            </Link>
+          </>
+        )}
+
+        {/* Congresso (Inscritos): CREDENCIADOR, COORDENADORA, COORDENADORA_EVENTO, SUPORTE, DP e DIRETORA */}
+        {(user?.nivel?.toUpperCase() === 'CREDENCIADOR' || user?.nivel?.toUpperCase() === 'COORDENADORA' || user?.nivel?.toUpperCase() === 'COORDENADORA_EVENTO' || user?.nivel?.toUpperCase() === 'SUPORTE' || user?.nivel?.toUpperCase() === 'DP' || user?.nivel?.toUpperCase() === 'DIRETORA') && (
+          <>
+            <div className="mobile-drawer__divider" />
+            <Link
+              href="/inscritos-congresso"
+              className={`mobile-drawer__link ${
+                pathname === '/inscritos-congresso' ? 'mobile-drawer__link--active' : ''
+              }`}
+              onClick={() => setMenuOpen(false)}
+            >
+              <Image
+                src="/images/user_icon.svg"
+                alt=""
+                width={20}
+                height={20}
+                className="mobile-drawer__icon"
+              />
+              <span>Congresso 2026</span>
+            </Link>
+          </>
+        )}
+
+        {/* Chamados e Usuários: Apenas SUPORTE */}
+        {user?.nivel?.toUpperCase() === 'SUPORTE' && (
+          <>
+            <div className="mobile-drawer__divider" />
+            <Link
+              href="/chamados"
+              className={`mobile-drawer__link ${
+                pathname === '/chamados' ? 'mobile-drawer__link--active' : ''
+              }`}
+              onClick={() => setMenuOpen(false)}
+            >
+              <Image
+                src="/images/warning-triangle.svg"
+                alt=""
+                width={20}
+                height={20}
+                className="mobile-drawer__icon"
+              />
+              <span>Chamados</span>
+            </Link>
+
+            <div className="mobile-drawer__divider" />
+            <Link
+              href="/usuarios"
+              className={`mobile-drawer__link ${
+                pathname === '/usuarios' ? 'mobile-drawer__link--active' : ''
+              }`}
+              onClick={() => setMenuOpen(false)}
+            >
+              <Image
+                src="/images/user_icon.svg"
+                alt=""
+                width={20}
+                height={20}
+                className="mobile-drawer__icon"
+              />
+              <span>Gerenciar Usuários</span>
             </Link>
           </>
         )}

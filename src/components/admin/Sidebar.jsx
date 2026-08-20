@@ -41,7 +41,8 @@ export default function Sidebar() {
       </Link>
 
       <nav className="sidebar__nav">
-        {user?.nivel?.toUpperCase() !== 'DIRETORA' && (
+        {/* Denúncias e Estatísticas: DP e SUPORTE */}
+        {(user?.nivel?.toUpperCase() === 'DP' || user?.nivel?.toUpperCase() === 'SUPORTE') && (
           <>
             {/* Denúncias section */}
             <div className="sidebar__section">
@@ -103,6 +104,73 @@ export default function Sidebar() {
           </>
         )}
 
+        {/* Vagas: DIRETORA e SUPORTE */}
+        {(user?.nivel?.toUpperCase() === 'DIRETORA' || user?.nivel?.toUpperCase() === 'SUPORTE') && (
+          <>
+            <div className="sidebar__divider" />
+            <Link
+              href="/vagas"
+              className={`sidebar__link ${
+                pathname === '/vagas' ? 'sidebar__link--active' : ''
+              }`}
+            >
+              <Image 
+                src="/images/briefcase.svg" 
+                alt="" 
+                width={20} 
+                height={20} 
+                className="sidebar__icon" 
+              />
+              <span className="sidebar__text">Vagas</span>
+            </Link>
+          </>
+        )}
+
+        {/* Mensagens: DIRETORA, COORDENADORA e SUPORTE */}
+        {(user?.nivel?.toUpperCase() === 'DIRETORA' || user?.nivel?.toUpperCase() === 'COORDENADORA' || user?.nivel?.toUpperCase() === 'SUPORTE') && (
+          <>
+            <div className="sidebar__divider" />
+            <Link
+              href="/mensagens"
+              className={`sidebar__link ${
+                pathname === '/mensagens' ? 'sidebar__link--active' : ''
+              }`}
+            >
+              <Image 
+                src="/images/attention-stop.svg" 
+                alt="" 
+                width={20} 
+                height={20} 
+                className="sidebar__icon" 
+              />
+              <span className="sidebar__text">Mensagens</span>
+            </Link>
+          </>
+        )}
+
+        {/* Congresso (Inscritos): CREDENCIADOR, COORDENADORA, COORDENADORA_EVENTO, SUPORTE, DP e DIRETORA */}
+        {(user?.nivel?.toUpperCase() === 'CREDENCIADOR' || user?.nivel?.toUpperCase() === 'COORDENADORA' || user?.nivel?.toUpperCase() === 'COORDENADORA_EVENTO' || user?.nivel?.toUpperCase() === 'SUPORTE' || user?.nivel?.toUpperCase() === 'DP' || user?.nivel?.toUpperCase() === 'DIRETORA') && (
+          <>
+            <div className="sidebar__divider" />
+            <Link
+              href="/inscritos-congresso"
+              className={`sidebar__link ${
+                pathname === '/inscritos-congresso' ? 'sidebar__link--active' : ''
+              }`}
+            >
+              <Image 
+                src="/images/user_icon.svg" 
+                alt="" 
+                width={20} 
+                height={20} 
+                className="sidebar__icon" 
+              />
+              <span className="sidebar__text">Congresso 2026</span>
+            </Link>
+          </>
+        )}
+
+        {/* Chamados e Gerenciamento de Usuários: Apenas SUPORTE */}
         {user?.nivel?.toUpperCase() === 'SUPORTE' && (
           <>
             <div className="sidebar__divider" />
@@ -139,47 +207,6 @@ export default function Sidebar() {
                 className="sidebar__icon" 
               />
               <span className="sidebar__text">Gerenciar Usuários</span>
-            </Link>
-          </>
-        )}
-
-        {(user?.nivel?.toUpperCase() === 'DIRETORA' || user?.nivel?.toUpperCase() === 'SUPORTE') && (
-          <>
-            <div className="sidebar__divider" />
-            {/* Vagas */}
-            <Link
-              href="/vagas"
-              className={`sidebar__link ${
-                pathname === '/vagas' ? 'sidebar__link--active' : ''
-              }`}
-            >
-              <Image 
-                src="/images/briefcase.svg" 
-                alt="" 
-                width={20} 
-                height={20} 
-                className="sidebar__icon" 
-              />
-              <span className="sidebar__text">Vagas</span>
-            </Link>
-
-            <div className="sidebar__divider" />
-
-            {/* Mensagens */}
-            <Link
-              href="/mensagens"
-              className={`sidebar__link ${
-                pathname === '/mensagens' ? 'sidebar__link--active' : ''
-              }`}
-            >
-              <Image 
-                src="/images/attention-stop.svg" 
-                alt="" 
-                width={20} 
-                height={20} 
-                className="sidebar__icon" 
-              />
-              <span className="sidebar__text">Mensagens</span>
             </Link>
           </>
         )}

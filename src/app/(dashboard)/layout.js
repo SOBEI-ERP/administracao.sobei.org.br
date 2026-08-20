@@ -15,8 +15,13 @@ export default function DashboardLayout({ children }) {
     if (!loading && !isAuthenticated) {
       router.push('/');
     } else if (!loading && isAuthenticated && user) {
-      if (user.nivel?.toUpperCase() === 'DIRETORA' && !['/vagas', '/banco-talentos', '/mensagens'].includes(pathname)) {
+      const nivel = user.nivel?.toUpperCase();
+      if (nivel === 'DIRETORA' && !['/vagas', '/banco-talentos', '/mensagens'].includes(pathname)) {
         router.push('/vagas');
+      } else if (nivel === 'COORDENADORA' && !['/inscritos-congresso', '/mensagens'].includes(pathname)) {
+        router.push('/inscritos-congresso');
+      } else if ((nivel === 'CREDENCIADOR' || nivel === 'COORDENADORA_EVENTO') && !['/inscritos-congresso'].includes(pathname)) {
+        router.push('/inscritos-congresso');
       }
     }
   }, [isAuthenticated, loading, router, user, pathname]);
