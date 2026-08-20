@@ -894,6 +894,110 @@ export async function deletarChamado(id) {
   }
 }
 
+// ---- Inscrições Congresso ----
 
+export async function fetchInscritosCongresso(filtros = {}) {
+  try {
+    const params = new URLSearchParams();
+    if (filtros.termo) params.append('termo', filtros.termo);
+    if (filtros.unidade) params.append('unidade', filtros.unidade);
+    if (filtros.tipoOsc) params.append('tipoOsc', filtros.tipoOsc);
+    if (filtros.presente !== undefined && filtros.presente !== '') params.append('presente', filtros.presente);
 
+    const query = params.toString();
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso${query ? `?${query}` : ''}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error('Erro ao buscar inscritos do congresso:', error);
+    return [];
+  }
+}
+
+export async function alterarPresencaInscrito(id, dia, presente) {
+  try {
+    const params = new URLSearchParams();
+    if (dia !== undefined && dia !== null) params.append('dia', dia);
+    if (presente !== undefined && presente !== null) params.append('presente', presente);
+    const query = params.toString();
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso/${id}/presenca${query ? `?${query}` : ''}`;
+
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao alterar presença' };
+    }
+
+    const inscricao = await response.json();
+    return { success: true, inscricao };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function enviarCertificadoInscrito(id) {
+  try {
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso/${id}/enviar-certificado`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao enviar certificado' };
+    }
+
+    const data = await response.json();
+    return { success: true, message: data.message || 'Certificado enviado com sucesso!' };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão ao enviar certificado' };
+  }
+}
+
+export async function downloadCertificadoInscrito(id, nomeCompleto = 'Participante') {
+  try {
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso/${id}/certificado`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return { success: false, message: 'Erro ao gerar certificado' };
+    }
+
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    const nomeLimpo = nomeCompleto.replace(/[^a-zA-Z0-9]/g, '_');
+    a.download = `Certificado_Congresso_${nomeLimpo}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro ao baixar arquivo do certificado' };
+  }
+}
 
