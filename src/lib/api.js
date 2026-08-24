@@ -1001,3 +1001,93 @@ export async function downloadCertificadoInscrito(id, nomeCompleto = 'Participan
   }
 }
 
+export async function atualizarOficinasInscrito(id, data) {
+  try {
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso/${id}/oficinas`;
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao atualizar oficinas' };
+    }
+
+    const inscricao = await response.json();
+    return { success: true, inscricao };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão ao salvar oficinas' };
+  }
+}
+
+export async function downloadCrachaInscrito(id, nomeCompleto = 'Participante') {
+  try {
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso/${id}/cracha`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return { success: false, message: 'Erro ao gerar crachá' };
+    }
+
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    const nomeLimpo = nomeCompleto.replace(/[^a-zA-Z0-9]/g, '_');
+    a.download = `Cracha_Congresso_${nomeLimpo}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro ao baixar crachá' };
+  }
+}
+
+export async function downloadCrachasLote(filtros = {}) {
+  try {
+    const params = new URLSearchParams();
+    if (filtros.termo) params.append('termo', filtros.termo);
+    if (filtros.unidade) params.append('unidade', filtros.unidade);
+    if (filtros.tipoOsc) params.append('tipoOsc', filtros.tipoOsc);
+    if (filtros.presente !== undefined && filtros.presente !== '') params.append('presente', filtros.presente);
+
+    const query = params.toString();
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso/crachas-lote${query ? `?${query}` : ''}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao gerar folha de crachás' };
+    }
+
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    const suf = filtros.unidade ? `_${filtros.unidade.replace(/[^a-zA-Z0-9]/g, '_')}` : '';
+    a.download = `Crachas_Congresso_SOBEI_2026${suf}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro ao baixar grade de crachás' };
+  }
+}
+
+

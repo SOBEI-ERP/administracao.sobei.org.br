@@ -2,9 +2,18 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchInscritosCongresso, alterarPresencaInscrito, enviarCertificadoInscrito, downloadCertificadoInscrito } from '@/lib/api';
+import {
+  fetchInscritosCongresso,
+  alterarPresencaInscrito,
+  enviarCertificadoInscrito,
+  downloadCertificadoInscrito,
+  atualizarOficinasInscrito,
+  downloadCrachaInscrito,
+  downloadCrachasLote,
+} from '@/lib/api';
 import { UNIDADES } from '@/lib/mockData';
 import CustomSelect from '@/components/admin/CustomSelect';
+import OficinasModal from '@/components/admin/OficinasModal';
 import { IconCheck, IconClose, IconSearch, IconUser, IconMapPin, IconClock } from '@/components/Icons';
 
 export default function InscritosCongressoPage() {
@@ -18,6 +27,9 @@ export default function InscritosCongressoPage() {
   const [updatingAction, setUpdatingAction] = useState(null); // 'id-11' ou 'id-12'
   const [enviandoCertId, setEnviandoCertId] = useState(null);
   const [baixandoCertId, setBaixandoCertId] = useState(null);
+  const [baixandoCrachaId, setBaixandoCrachaId] = useState(null);
+  const [gerandoLoteCrachas, setGerandoLoteCrachas] = useState(false);
+  const [selectedInscritoOficinas, setSelectedInscritoOficinas] = useState(null);
   const [toastFeedback, setToastFeedback] = useState(null); // { type: 'success' | 'error', message: string }
 
   const nivel = user?.nivel?.toUpperCase();
@@ -89,6 +101,61 @@ export default function InscritosCongressoPage() {
     setBaixandoCertId(null);
   };
 
+  const handleSalvarOficinas = async (id, data) => {
+    const res = await atualizarOficinasInscrito(id, data);
+    if (res.success && res.inscricao) {
+      setInscritos((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, ...res.inscricao } : item))
+      );
+      setToastFeedback({
+        type: 'success',
+        message: `Oficinas de ${res.inscricao.nomeCompleto} atualizadas com sucesso!`,
+      });
+      setTimeout(() => {
+        setToastFeedback((curr) => (curr?.type === 'success' ? null : curr));
+      }, 5000);
+    } else {
+      throw new Error(res.message || 'Erro ao atualizar oficinas.');
+    }
+  };
+
+  const handleBaixarCracha = async (inscrito) => {
+    setBaixandoCrachaId(inscrito.id);
+    const res = await downloadCrachaInscrito(inscrito.id, inscrito.nomeCompleto);
+    if (!res.success) {
+      setToastFeedback({
+        type: 'error',
+        message: res.message || 'Erro ao baixar o crachá do participante.',
+      });
+    }
+    setBaixandoCrachaId(null);
+  };
+
+  const handleBaixarCrachasLote = async () => {
+    if (inscritosFiltrados.length === 0) {
+      setToastFeedback({
+        type: 'error',
+        message: 'Nenhum inscrito disponível para gerar crachás com os filtros atuais.',
+      });
+      return;
+    }
+
+    setGerandoLoteCrachas(true);
+    const res = await downloadCrachasLote({
+      termo: termoBusca,
+      unidade: unidadeFilter,
+      tipoOsc: tipoOscFilter,
+    });
+
+    if (!res.success) {
+      setToastFeedback({
+        type: 'error',
+        message: res.message || 'Erro ao gerar folha de crachás.',
+      });
+    }
+    setGerandoLoteCrachas(false);
+  };
+
   // Contadores
   const total = inscritos.length;
   const presentesDia11 = inscritos.filter((i) => i.presenteDia11).length;
@@ -138,17 +205,57 @@ export default function InscritosCongressoPage() {
   return (
     <div className="admin-page">
       {/* Header */}
-      <div style={{ marginBottom: 'var(--spacing-xl)' }}>
-        <h1 className="admin-page__title" style={{ margin: 0 }}>
-          Congresso de Educação Infantil SOBEI 2026
-        </h1>
-        <p className="admin-page__description" style={{ marginTop: '6px', marginBottom: 0 }}>
-          {isCoordenadora ? (
-            <span>Inscritos da unidade <strong>{user?.unidade}</strong></span>
-          ) : (
-            <span>Gestão completa, credenciamento por dia e emissão de certificados</span>
-          )}
-        </p>
+      <div style={{
+        marginBottom: 'var(--spacing-xl)',
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '16px',
+      }}>
+        <div>
+          <h1 className="admin-page__title" style={{ margin: 0 }}>
+            Congresso de Educação Infantil SOBEI 2026
+          </h1>
+          <p className="admin-page__description" style={{ marginTop: '6px', marginBottom: 0 }}>
+            {isCoordenadora ? (
+              <span>Inscritos da unidade <strong>{user?.unidade}</strong> — Defina as oficinas das suas colaboradoras e emita os crachás padronizados</span>
+            ) : (
+              <span>Gestão de inscritos, credenciamento, oficinas e emissão de crachás e certificados</span>
+            )}
+          </p>
+        </div>
+
+        {/* Botão de Ação em Lote: Imprimir Folha de Crachás */}
+        <button
+          type="button"
+          onClick={handleBaixarCrachasLote}
+          disabled={gerandoLoteCrachas || inscritosFiltrados.length === 0}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 18px',
+            borderRadius: '10px',
+            backgroundColor: '#0c1b33',
+            color: '#ffffff',
+            fontWeight: '600',
+            fontSize: '0.88rem',
+            border: 'none',
+            cursor: (gerandoLoteCrachas || inscritosFiltrados.length === 0) ? 'not-allowed' : 'pointer',
+            boxShadow: '0 2px 6px rgba(12, 27, 51, 0.25)',
+            transition: 'all 0.2s ease',
+            opacity: (gerandoLoteCrachas || inscritosFiltrados.length === 0) ? 0.6 : 1,
+          }}
+          title="Gerar PDF com grade 3x4 de crachás padronizados com linhas de corte para impressão em folha"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9" />
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+            <rect x="6" y="14" width="12" height="8" />
+          </svg>
+          {gerandoLoteCrachas ? 'Gerando Folha de Crachás...' : 'Imprimir Folha de Crachás (PDF)'}
+        </button>
       </div>
 
       {/* Toast Feedback Banner */}
@@ -256,29 +363,29 @@ export default function InscritosCongressoPage() {
       </div>
 
       {/* Barra de Filtros e Busca Padrão SOBEI */}
-      <div className="filter-bar" style={{ display: 'flex', width: '100%', gap: 'var(--spacing-xl)', flexWrap: 'wrap', alignItems: 'flex-end', padding: 'var(--spacing-md) 0', marginBottom: 'var(--spacing-xl)' }}>
+      <div className="filter-bar" style={{ display: 'flex', width: '100%', gap: '14px', flexWrap: 'wrap', alignItems: 'flex-end', padding: 'var(--spacing-md) 0', marginBottom: 'var(--spacing-lg)' }}>
         {/* Input de Busca */}
-        <div className="filter-bar__group" style={{ flex: '2', minWidth: '260px' }}>
+        <div className="filter-bar__group" style={{ flex: '1.8', minWidth: '200px' }}>
           <span className="filter-bar__label">Buscar participante:</span>
           <div style={{ position: 'relative', width: '100%' }}>
             <input
               type="text"
               className="form-input"
               style={{
-                minHeight: '40px',
-                height: '40px',
-                padding: '0 36px 0 38px',
+                minHeight: '38px',
+                height: '38px',
+                padding: '0 34px 0 36px',
                 borderRadius: 'var(--radius-full)',
                 border: '1px solid var(--color-gray-300)',
                 backgroundColor: 'var(--color-gray-100)',
-                fontSize: '14px',
+                fontSize: '13.5px',
                 width: '100%'
               }}
               placeholder="Nome completo ou CPF..."
               value={termoBusca}
               onChange={(e) => setTermoBusca(e.target.value)}
             />
-            <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-gray-500)', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
+            <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-gray-500)', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
               <IconSearch size={15} />
             </span>
             {termoBusca && (
@@ -287,7 +394,7 @@ export default function InscritosCongressoPage() {
                 onClick={() => setTermoBusca('')}
                 style={{
                   position: 'absolute',
-                  right: '12px',
+                  right: '10px',
                   top: '50%',
                   transform: 'translateY(-50%)',
                   background: 'transparent',
@@ -305,7 +412,7 @@ export default function InscritosCongressoPage() {
         </div>
 
         {/* Filtro Status Presença */}
-        <div className="filter-bar__group" style={{ flex: '1.2', minWidth: '220px' }}>
+        <div className="filter-bar__group" style={{ flex: '1.2', minWidth: '180px' }}>
           <span className="filter-bar__label">Status de Presença:</span>
           <CustomSelect
             value={presencaFiltro}
@@ -318,7 +425,7 @@ export default function InscritosCongressoPage() {
 
         {/* Filtro Tipo OSC (apenas se não for coordenadora) */}
         {!isCoordenadora && (
-          <div className="filter-bar__group" style={{ flex: '1', minWidth: '170px' }}>
+          <div className="filter-bar__group" style={{ flex: '1', minWidth: '150px' }}>
             <span className="filter-bar__label">Tipo de OSC:</span>
             <CustomSelect
               value={tipoOscFilter}
@@ -332,7 +439,7 @@ export default function InscritosCongressoPage() {
 
         {/* Filtro Unidade SOBEI (apenas se não for coordenadora) */}
         {!isCoordenadora && (
-          <div className="filter-bar__group" style={{ flex: '1.3', minWidth: '210px' }}>
+          <div className="filter-bar__group" style={{ flex: '1.3', minWidth: '170px' }}>
             <span className="filter-bar__label">Unidade SOBEI:</span>
             <CustomSelect
               value={unidadeFilter}
@@ -346,7 +453,7 @@ export default function InscritosCongressoPage() {
 
         {/* Ação Limpar Filtros */}
         {(termoBusca || unidadeFilter || tipoOscFilter || presencaFiltro) && (
-          <div className="filter-bar__actions" style={{ marginLeft: 'auto', alignSelf: 'flex-end', minHeight: '40px' }}>
+          <div className="filter-bar__actions" style={{ marginLeft: 'auto', alignSelf: 'flex-end', minHeight: '38px' }}>
             <button
               className="btn btn--limpar"
               onClick={() => {
@@ -357,13 +464,14 @@ export default function InscritosCongressoPage() {
               }}
               type="button"
               style={{
-                minHeight: '40px',
-                height: '40px',
-                padding: '0 20px',
+                minHeight: '38px',
+                height: '38px',
+                padding: '0 16px',
                 borderRadius: 'var(--radius-full)',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '6px'
+                gap: '6px',
+                fontSize: '0.85rem'
               }}
             >
               <IconClose size={13} />
@@ -378,7 +486,8 @@ export default function InscritosCongressoPage() {
         background: '#fff',
         borderRadius: 'var(--border-radius-md)',
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        width: '100%'
       }}>
         {loading ? (
           <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center', color: 'var(--color-text-light)' }}>
@@ -403,17 +512,18 @@ export default function InscritosCongressoPage() {
             )}
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.92rem' }}>
+          <div style={{ overflowX: 'auto', width: '100%' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.88rem' }}>
               <thead>
-                <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb', color: '#4b5563', textTransform: 'uppercase', fontSize: '0.78rem', letterSpacing: '0.05em' }}>
-                  <th style={{ padding: '14px 18px' }}>Participante</th>
-                  <th style={{ padding: '14px 18px' }}>CPF</th>
-                  <th style={{ padding: '14px 18px' }}>OSC / Unidade</th>
-                  <th style={{ padding: '14px 18px', textAlign: 'center' }}>Presença 11/Set (Sexta)</th>
-                  <th style={{ padding: '14px 18px', textAlign: 'center' }}>Presença 12/Set (Sábado)</th>
-                  <th style={{ padding: '14px 18px', textAlign: 'center' }}>Emissões &amp; Ações</th>
-                  <th style={{ padding: '14px 18px' }}>Data Inscrição</th>
+                <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb', color: '#4b5563', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.04em' }}>
+                  <th style={{ padding: '12px 12px' }}>Participante</th>
+                  <th style={{ padding: '12px 10px', width: '125px' }}>CPF</th>
+                  <th style={{ padding: '12px 10px', width: '130px' }}>OSC / Unidade</th>
+                  <th style={{ padding: '12px 10px', width: '180px' }}>Oficinas Pedagógicas</th>
+                  <th style={{ padding: '12px 10px', textAlign: 'center', width: '140px' }}>Presença 11/Set</th>
+                  <th style={{ padding: '12px 10px', textAlign: 'center', width: '140px' }}>Presença 12/Set</th>
+                  <th style={{ padding: '12px 10px', textAlign: 'center', width: '150px' }}>Emissões &amp; Ações</th>
+                  <th style={{ padding: '12px 12px', width: '110px' }}>Inscrição</th>
                 </tr>
               </thead>
               <tbody>
@@ -427,31 +537,31 @@ export default function InscritosCongressoPage() {
                     }}
                   >
                     {/* Nome e Email */}
-                    <td style={{ padding: '14px 18px' }}>
-                      <div style={{ fontWeight: 'bold', color: '#111827' }}>{inscrito.nomeCompleto}</div>
-                      <div style={{ color: '#6b7280', fontSize: '0.85rem', marginTop: '2px' }}>{inscrito.email}</div>
+                    <td style={{ padding: '12px 12px' }}>
+                      <div style={{ fontWeight: 'bold', color: '#111827', wordBreak: 'break-word' }}>{inscrito.nomeCompleto}</div>
+                      <div style={{ color: '#6b7280', fontSize: '0.80rem', marginTop: '2px', wordBreak: 'break-all' }}>{inscrito.email}</div>
                     </td>
 
                     {/* CPF */}
-                    <td style={{ padding: '14px 18px', fontFamily: 'monospace', fontSize: '0.9rem', color: '#374151' }}>
+                    <td style={{ padding: '12px 10px', fontFamily: 'monospace', fontSize: '0.85rem', color: '#374151', whiteSpace: 'nowrap' }}>
                       {inscrito.cpf}
                     </td>
 
                     {/* OSC / Unidade */}
-                    <td style={{ padding: '14px 18px' }}>
+                    <td style={{ padding: '12px 10px' }}>
                       {inscrito.tipoOsc === 'SOBEI' ? (
                         <div>
                           <span style={{
                             display: 'inline-block',
                             background: '#e0e7ff',
                             color: '#3730a3',
-                            fontSize: '0.75rem',
+                            fontSize: '0.72rem',
                             fontWeight: 'bold',
-                            padding: '2px 6px',
+                            padding: '1px 5px',
                             borderRadius: '4px',
-                            marginRight: '6px'
+                            marginRight: '4px'
                           }}>SOBEI</span>
-                          <span style={{ color: '#1f2937', fontWeight: '500' }}>{inscrito.unidade}</span>
+                          <span style={{ color: '#1f2937', fontWeight: '500', fontSize: '0.82rem' }}>{inscrito.unidade}</span>
                         </div>
                       ) : (
                         <div>
@@ -459,20 +569,68 @@ export default function InscritosCongressoPage() {
                             display: 'inline-block',
                             background: '#fef3c7',
                             color: '#92400e',
-                            fontSize: '0.75rem',
+                            fontSize: '0.72rem',
                             fontWeight: 'bold',
-                            padding: '2px 6px',
+                            padding: '1px 5px',
                             borderRadius: '4px',
-                            marginRight: '6px'
+                            marginRight: '4px'
                           }}>OUTRA</span>
-                          <span style={{ color: '#1f2937' }}>{inscrito.outraOsc}</span>
+                          <span style={{ color: '#1f2937', fontSize: '0.82rem' }}>{inscrito.outraOsc}</span>
                         </div>
                       )}
                     </td>
 
+                    {/* Oficinas Pedagógicas (Manhã e Tarde) */}
+                    <td style={{ padding: '12px 10px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ fontSize: '0.76rem', color: '#374151' }}>
+                          <span style={{ fontWeight: 'bold', color: '#1e293b' }}>M:</span>{' '}
+                          {inscrito.oficinaManha ? (
+                            <span style={{ color: '#0f766e', fontWeight: '600' }}>{inscrito.oficinaManha}</span>
+                          ) : (
+                            <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>Não definida</span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: '0.76rem', color: '#374151' }}>
+                          <span style={{ fontWeight: 'bold', color: '#1e293b' }}>T:</span>{' '}
+                          {inscrito.oficinaTarde ? (
+                            <span style={{ color: '#0f766e', fontWeight: '600' }}>{inscrito.oficinaTarde}</span>
+                          ) : (
+                            <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>Não definida</span>
+                          )}
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => setSelectedInscritoOficinas(inscrito)}
+                          style={{
+                            alignSelf: 'flex-start',
+                            marginTop: '2px',
+                            padding: '3px 8px',
+                            borderRadius: '6px',
+                            fontSize: '0.72rem',
+                            fontWeight: '600',
+                            backgroundColor: (inscrito.oficinaManha || inscrito.oficinaTarde) ? '#f0fdf4' : '#eff6ff',
+                            color: (inscrito.oficinaManha || inscrito.oficinaTarde) ? '#166534' : '#1d4ed8',
+                            border: `1px solid ${(inscrito.oficinaManha || inscrito.oficinaTarde) ? '#bbf7d0' : '#bfdbfe'}`,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                          }}
+                        >
+                          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.2">
+                            <path d="M12 20h9" />
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                          </svg>
+                          {(inscrito.oficinaManha || inscrito.oficinaTarde) ? 'Editar Oficinas' : 'Definir Oficinas'}
+                        </button>
+                      </div>
+                    </td>
+
                     {/* Presença Dia 11 (Sexta) */}
-                    <td style={{ padding: '14px 18px', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                      <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                    <td style={{ padding: '12px 10px', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                      <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
                         {inscrito.presenteDia11 ? (
                           <span style={{
                             display: 'inline-flex',
@@ -480,7 +638,7 @@ export default function InscritosCongressoPage() {
                             gap: '4px',
                             padding: '3px 8px',
                             borderRadius: '12px',
-                            fontSize: '0.78rem',
+                            fontSize: '0.75rem',
                             fontWeight: 'bold',
                             background: '#d1fae5',
                             color: '#065f46',
@@ -492,7 +650,7 @@ export default function InscritosCongressoPage() {
                             display: 'inline-block',
                             padding: '3px 8px',
                             borderRadius: '12px',
-                            fontSize: '0.78rem',
+                            fontSize: '0.75rem',
                             fontWeight: 'bold',
                             background: '#f3f4f6',
                             color: '#6b7280',
@@ -506,9 +664,9 @@ export default function InscritosCongressoPage() {
                             onClick={() => handleTogglePresenca(inscrito.id, 11, inscrito.presenteDia11)}
                             disabled={updatingAction === `${inscrito.id}-11`}
                             style={{
-                              padding: '4px 10px',
+                              padding: '3px 8px',
                               borderRadius: 'var(--border-radius-sm)',
-                              fontSize: '0.78rem',
+                              fontSize: '0.75rem',
                               fontWeight: 'bold',
                               cursor: 'pointer',
                               border: 'none',
@@ -529,8 +687,8 @@ export default function InscritosCongressoPage() {
                     </td>
 
                     {/* Presença Dia 12 (Sábado) */}
-                    <td style={{ padding: '14px 18px', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                      <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                    <td style={{ padding: '12px 10px', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                      <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
                         {inscrito.presenteDia12 ? (
                           <span style={{
                             display: 'inline-flex',
@@ -538,7 +696,7 @@ export default function InscritosCongressoPage() {
                             gap: '4px',
                             padding: '3px 8px',
                             borderRadius: '12px',
-                            fontSize: '0.78rem',
+                            fontSize: '0.75rem',
                             fontWeight: 'bold',
                             background: '#d1fae5',
                             color: '#065f46',
@@ -550,7 +708,7 @@ export default function InscritosCongressoPage() {
                             display: 'inline-block',
                             padding: '3px 8px',
                             borderRadius: '12px',
-                            fontSize: '0.78rem',
+                            fontSize: '0.75rem',
                             fontWeight: 'bold',
                             background: '#f3f4f6',
                             color: '#6b7280',
@@ -564,9 +722,9 @@ export default function InscritosCongressoPage() {
                             onClick={() => handleTogglePresenca(inscrito.id, 12, inscrito.presenteDia12)}
                             disabled={updatingAction === `${inscrito.id}-12`}
                             style={{
-                              padding: '4px 10px',
+                              padding: '3px 8px',
                               borderRadius: 'var(--border-radius-sm)',
-                              fontSize: '0.78rem',
+                              fontSize: '0.75rem',
                               fontWeight: 'bold',
                               cursor: 'pointer',
                               border: 'none',
@@ -586,10 +744,42 @@ export default function InscritosCongressoPage() {
                       </div>
                     </td>
 
-                    {/* Emissões & Ações: Gerar Crachá, Enviar Certificado e Baixar Certificado */}
-                    <td style={{ padding: '14px 18px', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                      <div style={{ display: 'inline-flex', flexDirection: 'column', gap: '6px', minWidth: '150px' }}>
-                        {/* Botão 1: Enviar Certificado por E-mail */}
+                    {/* Emissões & Ações: Crachá, Enviar Certificado e Baixar Certificado */}
+                    <td style={{ padding: '12px 10px', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                      <div style={{ display: 'inline-flex', flexDirection: 'column', gap: '4px', width: '100%', maxWidth: '140px' }}>
+                        {/* Botão 1: Imprimir Crachá Individual */}
+                        <button
+                          type="button"
+                          onClick={() => handleBaixarCracha(inscrito)}
+                          disabled={baixandoCrachaId === inscrito.id}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '5px',
+                            padding: '5px 8px',
+                            borderRadius: '6px',
+                            fontSize: '0.75rem',
+                            fontWeight: '700',
+                            cursor: baixandoCrachaId === inscrito.id ? 'wait' : 'pointer',
+                            border: '1px solid #bfdbfe',
+                            backgroundColor: '#eff6ff',
+                            color: '#1d4ed8',
+                            transition: 'all 0.2s ease',
+                            width: '100%',
+                            opacity: baixandoCrachaId === inscrito.id ? 0.7 : 1,
+                          }}
+                          title="Gerar PDF do crachá padronizado deste participante"
+                        >
+                          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="4" width="18" height="16" rx="2" />
+                            <circle cx="12" cy="10" r="2" />
+                            <path d="M8 16h8" />
+                          </svg>
+                          {baixandoCrachaId === inscrito.id ? 'Gerando...' : 'Imprimir Crachá'}
+                        </button>
+
+                        {/* Botão 2: Enviar Certificado por E-mail */}
                         <button
                           type="button"
                           onClick={() => handleEnviarCertificado(inscrito)}
@@ -598,11 +788,11 @@ export default function InscritosCongressoPage() {
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: '6px',
-                            padding: '6px 12px',
+                            gap: '5px',
+                            padding: '4px 8px',
                             borderRadius: '6px',
-                            fontSize: '0.78rem',
-                            fontWeight: '700',
+                            fontSize: '0.72rem',
+                            fontWeight: '600',
                             cursor: enviandoCertId === inscrito.id ? 'wait' : 'pointer',
                             border: '1px solid #C7D2FE',
                             backgroundColor: '#EEF2FF',
@@ -613,14 +803,14 @@ export default function InscritosCongressoPage() {
                           }}
                           title="Gerar Certificado com Nome e CPF e enviar diretamente no e-mail do participante"
                         >
-                          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                             <circle cx="12" cy="8" r="6" />
                             <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
                           </svg>
-                          {enviandoCertId === inscrito.id ? 'Enviando E-mail...' : 'Enviar Certificado'}
+                          {enviandoCertId === inscrito.id ? 'Enviando...' : 'Enviar Certificado'}
                         </button>
 
-                        {/* Botão 2: Baixar / Visualizar Certificado em PDF */}
+                        {/* Botão 3: Baixar / Visualizar Certificado em PDF */}
                         <button
                           type="button"
                           onClick={() => handleBaixarCertificado(inscrito)}
@@ -629,11 +819,11 @@ export default function InscritosCongressoPage() {
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: '6px',
-                            padding: '5px 10px',
+                            gap: '5px',
+                            padding: '3px 8px',
                             borderRadius: '6px',
-                            fontSize: '0.75rem',
-                            fontWeight: '600',
+                            fontSize: '0.70rem',
+                            fontWeight: '500',
                             cursor: baixandoCertId === inscrito.id ? 'wait' : 'pointer',
                             border: '1px solid #E5E7EB',
                             backgroundColor: '#F9FAFB',
@@ -643,18 +833,18 @@ export default function InscritosCongressoPage() {
                           }}
                           title="Baixar ou visualizar o arquivo PDF do Certificado"
                         >
-                          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                             <polyline points="7 10 12 15 17 10" />
                             <line x1="12" y1="15" x2="12" y2="3" />
                           </svg>
-                          {baixandoCertId === inscrito.id ? 'Gerando...' : 'Baixar Certificado'}
+                          {baixandoCertId === inscrito.id ? 'Baixando...' : 'Baixar Certificado'}
                         </button>
                       </div>
                     </td>
 
                     {/* Data de Inscrição */}
-                    <td style={{ padding: '14px 18px', color: '#6b7280', fontSize: '0.85rem' }}>
+                    <td style={{ padding: '12px 12px', color: '#6b7280', fontSize: '0.80rem', whiteSpace: 'nowrap' }}>
                       {formatDate(inscrito.dataInscricao)}
                     </td>
                   </tr>
@@ -664,6 +854,15 @@ export default function InscritosCongressoPage() {
           </div>
         )}
       </div>
+
+      {/* Modal de Definição de Oficinas */}
+      {selectedInscritoOficinas && (
+        <OficinasModal
+          inscrito={selectedInscritoOficinas}
+          onClose={() => setSelectedInscritoOficinas(null)}
+          onSave={handleSalvarOficinas}
+        />
+      )}
     </div>
   );
 }

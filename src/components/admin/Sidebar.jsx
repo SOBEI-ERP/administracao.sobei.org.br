@@ -212,7 +212,7 @@ export default function Sidebar() {
         )}
       </nav>
 
-      <div className="sidebar__logout" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', padding: 'var(--spacing-md) 0' }}>
+      <div className="sidebar__logout">
         <button
           onClick={handleLogout}
           className="sidebar__link"
