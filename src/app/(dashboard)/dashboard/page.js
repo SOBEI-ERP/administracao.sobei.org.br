@@ -3,27 +3,25 @@ import Image from 'next/image';
 export default function AdminDashboardPage() {
   return (
     <div className="dashboard-home">
-      <div className="dashboard-home__container">
+      <div className="dashboard-home__card">
         <div className="dashboard-home__logo-wrapper">
           <Image
             src="/images/LOGO AZUL.png"
             alt="SOBEI - Sociedade Beneficente Equilíbrio de Interlagos"
-            width={480}
-            height={192}
+            width={460}
+            height={184}
             className="dashboard-home__logo"
             priority
           />
         </div>
 
-        <div className="dashboard-home__header">
-          <h1 className="dashboard-home__title">Painel de Administração</h1>
-          <p className="dashboard-home__subtitle">
-            Selecione uma opção no menu lateral para gerenciar as demandas
-          </p>
-        </div>
+        <h1 className="dashboard-home__title">
+          Painel de administração de denúncias
+        </h1>
       </div>
     </div>
   );
 }
+
 
 
