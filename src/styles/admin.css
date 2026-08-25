@@ -19,52 +19,32 @@
 }
 
 /* ---- Dashboard Home ---- */
-.dashboard-home__title {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-black);
-  color: var(--color-gray-900);
-  margin-bottom: var(--spacing-xl);
-  font-style: italic;
-  text-align: center;
+.dashboard-home {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 2 * var(--spacing-xl));
+  width: 100%;
 }
 
-.dashboard-home__content {
-  max-width: 800px;
-  margin: 0 auto;
+.dashboard-home__logo-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  max-width: 520px;
+  width: 100%;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
-.dashboard-home__text {
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-relaxed);
-  color: var(--color-gray-700);
-  margin-bottom: var(--spacing-lg);
-  text-align: justify;
+.dashboard-home__logo {
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.04));
 }
 
-.dashboard-home__subtitle {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-gray-900);
-  margin-bottom: var(--spacing-md);
-  text-align: center;
-}
-
-.dashboard-home__list {
-  padding-left: var(--spacing-lg);
-  margin-bottom: var(--spacing-xl);
-}
-
-.dashboard-home__list li {
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-relaxed);
-  color: var(--color-gray-700);
-  margin-bottom: var(--spacing-sm);
-  list-style-type: disc;
-}
-
-.dashboard-home__list li strong {
-  color: var(--color-gray-900);
-}
 
 /* ---- Filter Bar ---- */
 .filter-bar {
@@ -110,21 +90,10 @@
 }
 
 @media (max-width: 768px) {
-  .dashboard-home__title {
-    font-size: var(--font-size-xl);
+  .dashboard-home__logo {
+    max-width: 280px;
   }
 
-  .dashboard-home__content {
-    max-width: 100%;
-  }
-
-  .dashboard-home__text {
-    font-size: var(--font-size-sm);
-  }
-
-  .dashboard-home__subtitle {
-    font-size: var(--font-size-base);
-  }
 
   .admin-page__title {
     font-size: var(--font-size-xl);
