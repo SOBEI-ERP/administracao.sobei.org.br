@@ -27,23 +27,57 @@
   width: 100%;
 }
 
+.dashboard-home__container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl);
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
 .dashboard-home__logo-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-xl);
-  max-width: 520px;
   width: 100%;
-  animation: fadeIn 0.4s ease-in-out;
+  max-width: 440px;
 }
 
 .dashboard-home__logo {
   width: 100%;
-  max-width: 460px;
+  max-width: 420px;
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.04));
 }
+
+.dashboard-home__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.dashboard-home__title {
+  font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-primary, #1B1464);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.dashboard-home__subtitle {
+  font-size: clamp(0.88rem, 1.2vw, 1rem);
+  color: var(--color-gray-600);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
+  margin: 0;
+}
+
 
 
 /* ---- Filter Bar ---- */
