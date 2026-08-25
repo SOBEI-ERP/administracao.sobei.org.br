@@ -106,6 +106,12 @@ h1, h2, h3, h4, h5, h6 {
   outline-offset: 2px;
 }
 
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+
 /* ---- Utility Classes ---- */
 .sr-only {
   position: absolute;

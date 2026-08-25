@@ -553,11 +553,11 @@ export default function InscritosCongressoPage() {
                         <div>
                           <span style={{
                             display: 'inline-block',
-                            background: '#e0e7ff',
-                            color: '#3730a3',
+                            background: '#1B1464',
+                            color: '#FFFFFF',
                             fontSize: '0.72rem',
-                            fontWeight: 'bold',
-                            padding: '1px 5px',
+                            fontWeight: '700',
+                            padding: '2px 6px',
                             borderRadius: '4px',
                             marginRight: '4px'
                           }}>SOBEI</span>
@@ -567,11 +567,11 @@ export default function InscritosCongressoPage() {
                         <div>
                           <span style={{
                             display: 'inline-block',
-                            background: '#fef3c7',
-                            color: '#92400e',
+                            background: '#D97706',
+                            color: '#FFFFFF',
                             fontSize: '0.72rem',
-                            fontWeight: 'bold',
-                            padding: '1px 5px',
+                            fontWeight: '700',
+                            padding: '2px 6px',
                             borderRadius: '4px',
                             marginRight: '4px'
                           }}>OUTRA</span>
@@ -606,17 +606,18 @@ export default function InscritosCongressoPage() {
                           style={{
                             alignSelf: 'flex-start',
                             marginTop: '2px',
-                            padding: '3px 8px',
+                            padding: '4px 9px',
                             borderRadius: '6px',
-                            fontSize: '0.72rem',
-                            fontWeight: '600',
-                            backgroundColor: (inscrito.oficinaManha || inscrito.oficinaTarde) ? '#f0fdf4' : '#eff6ff',
-                            color: (inscrito.oficinaManha || inscrito.oficinaTarde) ? '#166534' : '#1d4ed8',
-                            border: `1px solid ${(inscrito.oficinaManha || inscrito.oficinaTarde) ? '#bbf7d0' : '#bfdbfe'}`,
+                            fontSize: '0.73rem',
+                            fontWeight: '700',
+                            backgroundColor: (inscrito.oficinaManha || inscrito.oficinaTarde) ? '#059669' : '#2563EB',
+                            color: '#FFFFFF',
+                            border: 'none',
                             cursor: 'pointer',
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '4px',
+                            transition: 'background-color 0.15s ease',
                           }}
                         >
                           <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.2">
@@ -640,8 +641,8 @@ export default function InscritosCongressoPage() {
                             borderRadius: '12px',
                             fontSize: '0.75rem',
                             fontWeight: 'bold',
-                            background: '#d1fae5',
-                            color: '#065f46',
+                            background: '#10B981',
+                            color: '#FFFFFF',
                           }}>
                             <IconCheck size={12} /> Presente {formatHora(inscrito.dataPresencaDia11)}
                           </span>
@@ -652,8 +653,8 @@ export default function InscritosCongressoPage() {
                             borderRadius: '12px',
                             fontSize: '0.75rem',
                             fontWeight: 'bold',
-                            background: '#f3f4f6',
-                            color: '#6b7280',
+                            background: '#6B7280',
+                            color: '#FFFFFF',
                           }}>
                             Pendente
                           </span>
@@ -665,15 +666,15 @@ export default function InscritosCongressoPage() {
                             disabled={updatingAction === `${inscrito.id}-11`}
                             style={{
                               padding: '3px 8px',
-                              borderRadius: 'var(--border-radius-sm)',
+                              borderRadius: '4px',
                               fontSize: '0.75rem',
                               fontWeight: 'bold',
                               cursor: 'pointer',
                               border: 'none',
                               transition: 'all 0.2s ease',
-                              backgroundColor: inscrito.presenteDia11 ? '#fee2e2' : '#10b981',
-                              color: inscrito.presenteDia11 ? '#991b1b' : '#ffffff',
-                              opacity: updatingAction === `${inscrito.id}-11` ? 0.6 : 1,
+                              backgroundColor: inscrito.presenteDia11 ? '#DC2626' : '#059669',
+                              color: '#FFFFFF',
+                              opacity: updatingAction === `${inscrito.id}-11` ? 0.7 : 1,
                             }}
                           >
                             {updatingAction === `${inscrito.id}-11`
@@ -698,8 +699,8 @@ export default function InscritosCongressoPage() {
                             borderRadius: '12px',
                             fontSize: '0.75rem',
                             fontWeight: 'bold',
-                            background: '#d1fae5',
-                            color: '#065f46',
+                            background: '#10B981',
+                            color: '#FFFFFF',
                           }}>
                             <IconCheck size={12} /> Presente {formatHora(inscrito.dataPresencaDia12)}
                           </span>
@@ -710,8 +711,8 @@ export default function InscritosCongressoPage() {
                             borderRadius: '12px',
                             fontSize: '0.75rem',
                             fontWeight: 'bold',
-                            background: '#f3f4f6',
-                            color: '#6b7280',
+                            background: '#6B7280',
+                            color: '#FFFFFF',
                           }}>
                             Pendente
                           </span>
@@ -723,15 +724,15 @@ export default function InscritosCongressoPage() {
                             disabled={updatingAction === `${inscrito.id}-12`}
                             style={{
                               padding: '3px 8px',
-                              borderRadius: 'var(--border-radius-sm)',
+                              borderRadius: '4px',
                               fontSize: '0.75rem',
                               fontWeight: 'bold',
                               cursor: 'pointer',
                               border: 'none',
                               transition: 'all 0.2s ease',
-                              backgroundColor: inscrito.presenteDia12 ? '#fee2e2' : '#059669',
-                              color: inscrito.presenteDia12 ? '#991b1b' : '#ffffff',
-                              opacity: updatingAction === `${inscrito.id}-12` ? 0.6 : 1,
+                              backgroundColor: inscrito.presenteDia12 ? '#DC2626' : '#059669',
+                              color: '#FFFFFF',
+                              opacity: updatingAction === `${inscrito.id}-12` ? 0.7 : 1,
                             }}
                           >
                             {updatingAction === `${inscrito.id}-12`
@@ -762,9 +763,9 @@ export default function InscritosCongressoPage() {
                             fontSize: '0.75rem',
                             fontWeight: '700',
                             cursor: baixandoCrachaId === inscrito.id ? 'wait' : 'pointer',
-                            border: '1px solid #bfdbfe',
-                            backgroundColor: '#eff6ff',
-                            color: '#1d4ed8',
+                            border: 'none',
+                            backgroundColor: '#2563EB',
+                            color: '#FFFFFF',
                             transition: 'all 0.2s ease',
                             width: '100%',
                             opacity: baixandoCrachaId === inscrito.id ? 0.7 : 1,
@@ -792,11 +793,11 @@ export default function InscritosCongressoPage() {
                             padding: '4px 8px',
                             borderRadius: '6px',
                             fontSize: '0.72rem',
-                            fontWeight: '600',
+                            fontWeight: '700',
                             cursor: enviandoCertId === inscrito.id ? 'wait' : 'pointer',
-                            border: '1px solid #C7D2FE',
-                            backgroundColor: '#EEF2FF',
-                            color: '#3730A3',
+                            border: 'none',
+                            backgroundColor: '#7C3AED',
+                            color: '#FFFFFF',
                             transition: 'all 0.2s ease',
                             width: '100%',
                             opacity: enviandoCertId === inscrito.id ? 0.7 : 1,
@@ -823,13 +824,14 @@ export default function InscritosCongressoPage() {
                             padding: '3px 8px',
                             borderRadius: '6px',
                             fontSize: '0.70rem',
-                            fontWeight: '500',
+                            fontWeight: '700',
                             cursor: baixandoCertId === inscrito.id ? 'wait' : 'pointer',
-                            border: '1px solid #E5E7EB',
-                            backgroundColor: '#F9FAFB',
-                            color: '#4B5563',
+                            border: 'none',
+                            backgroundColor: '#4B5563',
+                            color: '#FFFFFF',
                             transition: 'all 0.2s ease',
                             width: '100%',
+                            opacity: baixandoCertId === inscrito.id ? 0.7 : 1,
                           }}
                           title="Baixar ou visualizar o arquivo PDF do Certificado"
                         >

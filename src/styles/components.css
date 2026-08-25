@@ -222,13 +222,14 @@
 
 .form-input {
   width: 100%;
-  padding: var(--spacing-md) var(--spacing-base);
-  background-color: var(--color-gray-200);
-  border: 2px solid transparent;
-  border-radius: var(--radius-full);
+  padding: 12px 16px;
+  background-color: var(--color-white);
+  border: 1.5px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
   font-size: var(--font-size-base);
   color: var(--color-gray-900);
-  transition: all var(--transition-fast);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
   min-height: 48px;
 }
 
@@ -236,15 +237,32 @@
   color: var(--color-gray-500);
 }
 
-.form-input:focus {
+.form-input:hover {
+  border-color: var(--color-gray-400);
+}
+
+.form-input:focus,
+.form-input:focus-visible {
   border-color: var(--color-primary);
   background-color: var(--color-white);
-  box-shadow: 0 0 0 3px rgba(27, 20, 100, 0.1);
+  box-shadow: 0 0 0 3px rgba(27, 20, 100, 0.08);
+  outline: none;
 }
 
 .form-input--error {
   border-color: var(--color-red);
   background-color: #FFF5F5;
+}
+
+.form-input--error:hover {
+  border-color: var(--color-red);
+}
+
+.form-input--error:focus,
+.form-input--error:focus-visible {
+  border-color: var(--color-red);
+  box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.1);
+  outline: none;
 }
 
 .form-error {
@@ -257,14 +275,15 @@
 .form-textarea {
   width: 100%;
   padding: var(--spacing-base);
-  background-color: var(--color-gray-200);
-  border: 2px solid transparent;
-  border-radius: var(--radius-lg);
+  background-color: var(--color-white);
+  border: 1.5px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
   font-size: var(--font-size-base);
   color: var(--color-gray-900);
   resize: vertical;
-  min-height: 160px;
-  transition: all var(--transition-fast);
+  min-height: 140px;
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
   font-family: var(--font-family);
   line-height: var(--line-height-normal);
 }
@@ -273,25 +292,32 @@
   color: var(--color-gray-500);
 }
 
-.form-textarea:focus {
+.form-textarea:hover {
+  border-color: var(--color-gray-400);
+}
+
+.form-textarea:focus,
+.form-textarea:focus-visible {
   border-color: var(--color-primary);
   background-color: var(--color-white);
-  box-shadow: 0 0 0 3px rgba(27, 20, 100, 0.1);
+  box-shadow: 0 0 0 3px rgba(27, 20, 100, 0.08);
+  outline: none;
 }
 
 /* ---- Select ---- */
 .form-select {
   width: 100%;
-  padding: var(--spacing-md) var(--spacing-base);
+  padding: 12px 16px;
   padding-right: var(--spacing-2xl);
-  background-color: var(--color-gray-200);
-  border: 2px solid transparent;
-  border-radius: var(--radius-full);
+  background-color: var(--color-white);
+  border: 1.5px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
   font-size: var(--font-size-base);
   color: var(--color-gray-900);
   appearance: none;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
   min-height: 48px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23757575' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -299,13 +325,14 @@
 }
 
 .form-select:hover {
-  background-color: var(--color-gray-300);
+  border-color: var(--color-gray-400);
 }
 
-.form-select:focus {
+.form-select:focus,
+.form-select:focus-visible {
   border-color: var(--color-primary);
   background-color: var(--color-white);
-  box-shadow: 0 0 0 3px rgba(27, 20, 100, 0.12);
+  box-shadow: 0 0 0 3px rgba(27, 20, 100, 0.08);
   outline: none;
 }
 
