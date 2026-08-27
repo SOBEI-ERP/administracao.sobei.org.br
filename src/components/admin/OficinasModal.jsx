@@ -3,19 +3,30 @@
 import { useState } from 'react';
 import { IconClose, IconCheck } from '@/components/Icons';
 
-// Lista de oficinas / palestrantes de referência para agilizar o preenchimento
+// Lista de oficinas / ministrantes oficiais de referência para agilizar o preenchimento
 const OFICINAS_SUGERIDAS = [
-  'Fernanda Polezein',
-  'Angelina',
-  'Fabiola',
-  'Música e Expressão Corporal',
-  'Contação de Histórias e Literatura Infantil',
-  'Jogos e Brincadeiras na Primeira Infância',
-  'Artes Visuais e Sensoriais',
-  'Neurociência e Desenvolvimento Infantil',
-  'Inclusão e Acessibilidade no CEI',
-  'Educação Ambiental e Sustentabilidade',
-  'Práticas Pedagógicas Inovadoras',
+  'Cleide Derenzi Valadas',
+  'Rodrigo Cândido',
+  'Cristiano dos Santos Araujo',
+  'Maria Cecília Martin Ferri',
+  'Ana Gilda Leocadio',
+  'Jaqueline Gomes Silva Veleda',
+  'Márcia Curti de Mello',
+  'Leila Saita',
+  'Erika Aparecida da Silva',
+  'Regiane Lays Jacinto de Brito',
+  'Liliane Laviano',
+  'Talita Regina Lopes de Oliveira Marques',
+  'Irene Izilda da Silva',
+  'Patrícia Couto Gimael',
+  'Raissa Cintra',
+  'Shirley Maria de Oliveira',
+  'Elaine Maria da Silva',
+  'Rose Brito',
+  'Ivani Magalhães',
+  'Márcia Polacchini',
+  'Leticia de Almeida Oliveira',
+  'Juliana Neves e Leticia Alves',
 ];
 
 export default function OficinasModal({ inscrito, onClose, onSave }) {
