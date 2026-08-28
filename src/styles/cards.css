@@ -17,14 +17,13 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-xl);
+  font-family: var(--font-montserrat);
   transition: all var(--transition-base);
   animation: fadeInUp 0.4s ease both;
 }
 
 .denuncia-card:hover {
-  box-shadow: var(--shadow-md);
   border-color: var(--color-gray-300);
-  transform: translateY(-1px);
 }
 
 .denuncia-card__info {
@@ -41,6 +40,7 @@
 
 .denuncia-card__field strong {
   color: var(--color-gray-900);
+  font-weight: 700;
 }
 
 .denuncia-card__right {
@@ -52,8 +52,9 @@
 }
 
 .denuncia-card__protocol {
+  font-family: var(--font-montserrat);
   font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
+  font-weight: 700;
   color: var(--color-gray-900);
 }
 
@@ -108,3 +109,129 @@
     font-size: var(--font-size-xs);
   }
 }
+
+/* ============================================
+   Card Especial: Denúncias Em Andamento (2 Colunas)
+   ============================================ */
+
+.denuncia-card--andamento {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: var(--shadow-card);
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--spacing-md);
+  transition: all var(--transition-base);
+  animation: fadeInUp 0.4s ease both;
+}
+
+.denuncia-card--andamento:hover {
+  border-color: var(--color-gray-300);
+}
+
+.denuncia-card__top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-gray-200);
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.denuncia-card__two-columns {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: var(--spacing-xl);
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .denuncia-card__two-columns {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+}
+
+.denuncia-card__col-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.denuncia-card__col-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  background-color: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+}
+
+.denuncia-card__section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.denuncia-card__quote-box {
+  background-color: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-800);
+  line-height: var(--line-height-relaxed);
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.denuncia-card__measures-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.denuncia-card__measure-item {
+  font-size: 13px;
+  color: var(--color-gray-800);
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-left: 3.5px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.denuncia-card__textarea {
+  width: 100%;
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 60px;
+  background: var(--color-white);
+  color: var(--color-gray-900);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.denuncia-card__textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(27, 20, 100, 0.15);
+}
+

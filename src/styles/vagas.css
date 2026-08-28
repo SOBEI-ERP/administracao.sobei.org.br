@@ -17,10 +17,13 @@
 }
 
 .vagas-admin__title {
+  font-family: var(--font-montserrat);
   font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-gray-900);
+  font-weight: var(--font-weight-black);
+  color: var(--color-primary);
   margin: 0;
+  font-style: normal;
+  letter-spacing: -0.01em;
 }
 
 .vagas-admin__subtitle {
@@ -117,8 +120,6 @@
 
 .vaga-card:hover {
   border-color: var(--color-primary-light);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
 }
 
 .vaga-card__header {

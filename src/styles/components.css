@@ -9,6 +9,7 @@
   justify-content: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-md) var(--spacing-xl);
+  font-family: var(--font-montserrat);
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-base);
   border-radius: var(--radius-full);
@@ -36,7 +37,6 @@
 .btn--primary:hover {
   background-color: var(--color-accent-hover);
   border-color: var(--color-accent-hover);
-  box-shadow: 0 4px 20px rgba(232, 255, 0, 0.3);
 }
 
 .btn--secondary {
@@ -83,7 +83,6 @@
 
 .btn--danger:hover {
   background-color: var(--color-red-hover);
-  box-shadow: 0 4px 16px rgba(229, 57, 53, 0.3);
 }
 
 .btn--success {
@@ -94,7 +93,6 @@
 
 .btn--success:hover {
   background-color: var(--color-green-hover);
-  box-shadow: 0 4px 16px rgba(67, 160, 71, 0.3);
 }
 
 .btn--purple {
@@ -105,7 +103,6 @@
 
 .btn--purple:hover {
   background-color: var(--color-purple-hover);
-  box-shadow: 0 4px 16px rgba(124, 107, 196, 0.3);
 }
 
 .btn--blue {
@@ -118,7 +115,6 @@
 .btn--blue:hover {
   background-color: var(--color-primary-light);
   border-color: var(--color-primary-light);
-  box-shadow: 0 4px 16px rgba(27, 20, 100, 0.25);
 }
 
 /* ---- Badges de Prioridade ---- */
@@ -127,11 +123,12 @@
   align-items: center;
   justify-content: center;
   padding: 2px 8px;
+  font-family: var(--font-montserrat);
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
   border-radius: var(--radius-sm);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.04em;
   line-height: 1.2;
 }
 
@@ -400,6 +397,7 @@
   background-color: var(--color-gray-100);
   border: 1px solid var(--color-gray-300);
   border-radius: var(--radius-full);
+  font-family: var(--font-montserrat);
   font-size: var(--font-size-sm);
   color: var(--color-gray-900);
   cursor: pointer;
@@ -489,9 +487,10 @@
 }
 
 .custom-select-option {
-  padding: 10px 16px;
+  padding: 10px 14px;
   margin: 2px 6px;
   border-radius: var(--radius-sm);
+  font-family: var(--font-montserrat);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--color-gray-700);

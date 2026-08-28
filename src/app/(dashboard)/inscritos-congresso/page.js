@@ -243,18 +243,17 @@ export default function InscritosCongressoPage() {
             fontSize: '0.88rem',
             border: 'none',
             cursor: (gerandoLoteCrachas || inscritosFiltrados.length === 0) ? 'not-allowed' : 'pointer',
-            boxShadow: '0 2px 6px rgba(12, 27, 51, 0.25)',
             transition: 'all 0.2s ease',
             opacity: (gerandoLoteCrachas || inscritosFiltrados.length === 0) ? 0.6 : 1,
           }}
-          title="Gerar PDF com grade 3x4 de crachás padronizados com linhas de corte para impressão em folha"
+          title="Gerar PDF com grade de 14 etiquetas por folha (2 colunas x 7 linhas - 33,9 x 101,6 mm no padrão Tilibra TB182 A4)"
         >
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="6 9 6 2 18 2 18 9" />
             <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
             <rect x="6" y="14" width="12" height="8" />
           </svg>
-          {gerandoLoteCrachas ? 'Gerando Folha de Crachás...' : 'Imprimir Folha de Crachás (PDF)'}
+          {gerandoLoteCrachas ? 'Gerando Folha de Etiquetas...' : 'Imprimir Folha de Etiquetas (Tilibra TB182)'}
         </button>
       </div>
 
@@ -310,54 +309,56 @@ export default function InscritosCongressoPage() {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
-        gap: 'var(--spacing-md)',
+        gap: 'var(--spacing-base)',
         marginBottom: 'var(--spacing-xl)'
       }}>
         <div style={{
-          background: '#fff',
-          padding: 'var(--spacing-md)',
-          borderRadius: 'var(--border-radius-md)',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-          borderLeft: '4px solid var(--color-primary)'
+          backgroundColor: 'var(--color-white)',
+          padding: 'var(--spacing-md) var(--spacing-lg)',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--color-gray-200)',
+          boxShadow: 'var(--shadow-card)'
         }}>
-          <span style={{ fontSize: '0.82rem', color: 'var(--color-text-light)', textTransform: 'uppercase', fontWeight: 'bold' }}>Total Inscritos</span>
-          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'var(--color-text-dark)', marginTop: '4px' }}>{total}</div>
+          <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Inscritos</span>
+          <p style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-900)', margin: 'var(--spacing-xs) 0 0 0' }}>{total}</p>
         </div>
 
         <div style={{
-          background: '#fff',
-          padding: 'var(--spacing-md)',
-          borderRadius: 'var(--border-radius-md)',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-          borderLeft: '4px solid #10b981'
+          backgroundColor: 'var(--color-white)',
+          padding: 'var(--spacing-md) var(--spacing-lg)',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--color-gray-200)',
+          boxShadow: 'var(--shadow-card)'
         }}>
-          <span style={{ fontSize: '0.82rem', color: 'var(--color-text-light)', textTransform: 'uppercase', fontWeight: 'bold' }}>Check-in Dia 11 (Sexta)</span>
-          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#10b981', marginTop: '4px' }}>{presentesDia11}</div>
+          <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Check-in Dia 11 (Sexta)</span>
+          <p style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', margin: 'var(--spacing-xs) 0 0 0' }}>{presentesDia11}</p>
         </div>
 
         <div style={{
-          background: '#fff',
-          padding: 'var(--spacing-md)',
-          borderRadius: 'var(--border-radius-md)',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-          borderLeft: '4px solid #059669'
+          backgroundColor: 'var(--color-white)',
+          padding: 'var(--spacing-md) var(--spacing-lg)',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--color-gray-200)',
+          boxShadow: 'var(--shadow-card)'
         }}>
-          <span style={{ fontSize: '0.82rem', color: 'var(--color-text-light)', textTransform: 'uppercase', fontWeight: 'bold' }}>Check-in Dia 12 (Sábado)</span>
-          <div style={{ fontSize: '1.8rem', fontWeight: 'bold', color: '#059669', marginTop: '4px' }}>{presentesDia12}</div>
+          <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Check-in Dia 12 (Sábado)</span>
+          <p style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', margin: 'var(--spacing-xs) 0 0 0' }}>{presentesDia12}</p>
         </div>
 
         {!isCoordenadora && (
           <div style={{
-            background: '#fff',
-            padding: 'var(--spacing-md)',
-            borderRadius: 'var(--border-radius-md)',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-            borderLeft: '4px solid #6366f1'
+            backgroundColor: 'var(--color-white)',
+            padding: 'var(--spacing-md) var(--spacing-lg)',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--color-gray-200)',
+            boxShadow: 'var(--shadow-card)'
           }}>
-            <span style={{ fontSize: '0.82rem', color: 'var(--color-text-light)', textTransform: 'uppercase', fontWeight: 'bold' }}>SOBEI vs Outras</span>
-            <div style={{ fontSize: '1.3rem', fontWeight: 'bold', color: '#6366f1', marginTop: '6px' }}>
-              {sobeiCount} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--color-text-light)' }}>SOBEI</span> / {total - sobeiCount} <span style={{ fontSize: '0.9rem', fontWeight: 'normal', color: 'var(--color-text-light)' }}>Outras</span>
-            </div>
+            <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-purple)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>SOBEI vs Outras</span>
+            <p style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-purple)', margin: 'var(--spacing-xs) 0 0 0' }}>
+              {sobeiCount} <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-medium)', color: 'var(--color-gray-500)' }}>SOBEI</span>{' '}
+              <span style={{ color: 'var(--color-gray-300)', margin: '0 4px' }}>/</span>{' '}
+              {total - sobeiCount} <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-medium)', color: 'var(--color-gray-500)' }}>Outras</span>
+            </p>
           </div>
         )}
       </div>
@@ -483,18 +484,19 @@ export default function InscritosCongressoPage() {
 
       {/* Lista / Tabela de Inscritos */}
       <div style={{
-        background: '#fff',
-        borderRadius: 'var(--border-radius-md)',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+        backgroundColor: 'var(--color-white)',
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid var(--color-gray-200)',
+        boxShadow: 'var(--shadow-card)',
         overflow: 'hidden',
         width: '100%'
       }}>
         {loading ? (
-          <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center', color: 'var(--color-text-light)' }}>
+          <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center', color: 'var(--color-gray-500)' }}>
             Carregando inscritos...
           </div>
         ) : inscritosFiltrados.length === 0 ? (
-          <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center', color: 'var(--color-text-light)' }}>
+          <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center', color: 'var(--color-gray-500)' }}>
             <p style={{ fontSize: '1.1rem', marginBottom: '8px' }}>Nenhum inscrito encontrado com os filtros aplicados.</p>
             {(termoBusca || unidadeFilter || tipoOscFilter || presencaFiltro) && (
               <button

@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { fetchMensagensUnidade, marcarMensagemComoLida, deletarMensagemUnidade } from '@/lib/api';
 import { UNIDADES } from '@/lib/mockData';
 import CustomSelect from '@/components/admin/CustomSelect';
-import { IconMapPin, IconClock, IconMail, IconPhone, IconChat, IconCheck, IconTrash, IconClose, IconWarning } from '@/components/Icons';
+import { IconMapPin, IconClock, IconMail, IconPhone, IconChat, IconWhatsApp, IconCheck, IconTrash, IconClose, IconWarning } from '@/components/Icons';
 
 export default function MensagensPage() {
   const { user } = useAuth();
@@ -185,7 +185,6 @@ export default function MensagensPage() {
                 padding: '20px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: msg.lida ? 'none' : '0 4px 12px rgba(27, 20, 100, 0.08)',
                 position: 'relative'
               }}
             >
@@ -260,7 +259,7 @@ export default function MensagensPage() {
                         gap: '6px'
                       }}
                     >
-                      <IconChat size={14} /> WhatsApp
+                      <IconWhatsApp size={16} /> WhatsApp
                     </a>
                   )}
 
@@ -366,7 +365,7 @@ export default function MensagensPage() {
                         gap: '6px'
                       }}
                     >
-                      <IconChat size={14} /> Abrir WhatsApp
+                      <IconWhatsApp size={16} /> Abrir WhatsApp
                     </a>
                   )}
                 </div>

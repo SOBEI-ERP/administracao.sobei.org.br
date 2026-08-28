@@ -3,14 +3,17 @@
    ============================================ */
 
 .admin-page__title {
+  font-family: var(--font-montserrat);
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-black);
-  color: var(--color-gray-900);
+  color: var(--color-primary);
   margin-bottom: var(--spacing-xl);
-  font-style: italic;
+  font-style: normal;
+  letter-spacing: -0.01em;
 }
 
 .admin-page__description {
+  font-family: var(--font-montserrat);
   font-size: var(--font-size-base);
   line-height: var(--line-height-relaxed);
   color: var(--color-gray-700);
@@ -55,10 +58,11 @@
 }
 
 .dashboard-home__title {
+  font-family: var(--font-montserrat);
   font-size: clamp(1.25rem, 2vw, 1.6rem);
   font-weight: var(--font-weight-black);
-  color: var(--color-gray-900);
-  font-style: italic;
+  color: var(--color-primary);
+  font-style: normal;
   letter-spacing: -0.01em;
   margin: 0;
 }

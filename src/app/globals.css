@@ -20,6 +20,7 @@
 }
 
 html {
+  font-family: var(--font-family);
   font-size: 16px;
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
@@ -60,18 +61,19 @@ button {
   cursor: pointer;
   border: none;
   background: none;
-  font-family: inherit;
+  font-family: var(--font-family);
   font-size: inherit;
 }
 
 input, textarea, select {
-  font-family: inherit;
+  font-family: var(--font-family);
   font-size: inherit;
   outline: none;
   border: none;
 }
 
 h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family);
   line-height: var(--line-height-tight);
   font-weight: var(--font-weight-bold);
 }

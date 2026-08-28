@@ -211,35 +211,35 @@ export default function ChamadosPage() {
     });
   };
 
-  const getStatusBadge = (status) => {
+  const getStatusInfo = (status) => {
     switch (status) {
       case 'aberto':
-        return { label: 'Aberto', bg: 'rgba(27, 20, 100, 0.08)', color: 'var(--color-primary)', border: '1px solid rgba(27, 20, 100, 0.2)' };
+        return { label: 'Aberto', color: 'var(--color-primary)' };
       case 'em_andamento':
-        return { label: 'Em Andamento', bg: 'rgba(124, 58, 237, 0.12)', color: 'var(--color-purple)', border: '1px solid rgba(124, 58, 237, 0.25)' };
+        return { label: 'Em Andamento', color: 'var(--color-purple)' };
       case 'aguardando_informacao':
-        return { label: 'Aguardando Informação', bg: 'rgba(245, 158, 11, 0.12)', color: 'var(--color-orange)', border: '1px solid rgba(245, 158, 11, 0.25)' };
+        return { label: 'Aguardando Informação', color: 'var(--color-orange)' };
       case 'concluido':
-        return { label: 'Concluído', bg: 'rgba(22, 163, 74, 0.12)', color: 'var(--color-green)', border: '1px solid rgba(22, 163, 74, 0.25)' };
+        return { label: 'Concluído', color: 'var(--color-green)' };
       case 'cancelado':
-        return { label: 'Cancelado', bg: 'var(--color-gray-100)', color: 'var(--color-gray-600)', border: '1px solid var(--color-gray-300)' };
+        return { label: 'Cancelado', color: 'var(--color-gray-500)' };
       default:
-        return { label: status, bg: 'var(--color-gray-100)', color: 'var(--color-gray-700)', border: '1px solid var(--color-gray-300)' };
+        return { label: status, color: 'var(--color-gray-600)' };
     }
   };
 
-  const getPrioridadeBadgeClass = (prioridade) => {
+  const getPrioridadeInfo = (prioridade) => {
     switch (prioridade) {
       case 'baixa':
-        return 'priority-badge priority-badge--baixa';
+        return { label: 'Baixa', color: 'var(--color-green)' };
       case 'media':
-        return 'priority-badge priority-badge--media';
+        return { label: 'Média', color: 'var(--color-orange)' };
       case 'alta':
-        return 'priority-badge priority-badge--alta';
+        return { label: 'Alta', color: 'var(--color-red)' };
       case 'urgente':
-        return 'priority-badge priority-badge--urgente';
+        return { label: 'Urgente', color: '#b91c1c' };
       default:
-        return 'priority-badge priority-badge--neutra';
+        return { label: prioridade ? prioridade.toUpperCase() : 'N/A', color: 'var(--color-gray-500)' };
     }
   };
 
@@ -321,8 +321,8 @@ export default function ChamadosPage() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
           {chamados.map((c) => {
-            const stBadge = getStatusBadge(c.status);
-            const prClass = getPrioridadeBadgeClass(c.prioridade);
+            const stInfo = getStatusInfo(c.status);
+            const prInfo = getPrioridadeInfo(c.prioridade);
 
             return (
               <div
@@ -332,39 +332,40 @@ export default function ChamadosPage() {
                 style={{ cursor: 'pointer', flexDirection: 'column', alignItems: 'stretch', gap: 'var(--spacing-sm)' }}
               >
                 {/* Header Card */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 'var(--spacing-sm)' }}>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-xs)', marginBottom: 'var(--spacing-xs)', flexWrap: 'wrap' }}>
-                      <span style={{
-                        backgroundColor: stBadge.bg,
-                        color: stBadge.color,
-                        border: stBadge.border,
-                        fontSize: 'var(--font-size-xs)',
-                        fontWeight: 'var(--font-weight-bold)',
-                        padding: '3px 10px',
-                        borderRadius: 'var(--radius-full)',
-                        textTransform: 'uppercase'
-                      }}>
-                        {stBadge.label}
-                      </span>
-                      <span className={prClass}>
-                        Prioridade: {c.prioridade ? c.prioridade.toUpperCase() : 'N/A'}
-                      </span>
-                    </div>
-                    <h3 style={{ fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-900)', margin: 0 }}>
-                      #{c.id} — {c.titulo}
-                    </h3>
-                  </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--spacing-sm)' }}>
+                  <h3 style={{ fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-900)', margin: 0 }}>
+                    #{c.id} — {c.titulo}
+                  </h3>
 
-                  <button
-                    type="button"
-                    className="btn btn--limpar btn--sm"
-                    onClick={(e) => handleOpenDelete(e, c.id)}
-                    title="Excluir Chamado"
-                    style={{ padding: 'var(--spacing-xs) var(--spacing-sm)', minHeight: '32px' }}
-                  >
-                    <IconTrash size={14} /> Excluir
-                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
+                    <span style={{
+                      color: stInfo.color,
+                      fontSize: 'var(--font-size-xs)',
+                      fontWeight: 'var(--font-weight-bold)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em'
+                    }}>
+                      ● {stInfo.label}
+                    </span>
+                    <span style={{
+                      color: prInfo.color,
+                      fontSize: 'var(--font-size-xs)',
+                      fontWeight: 'var(--font-weight-bold)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em'
+                    }}>
+                      Prioridade: {prInfo.label}
+                    </span>
+                    <button
+                      type="button"
+                      className="btn btn--limpar btn--sm"
+                      onClick={(e) => handleOpenDelete(e, c.id)}
+                      title="Excluir Chamado"
+                      style={{ padding: 'var(--spacing-xs) var(--spacing-sm)', minHeight: '32px' }}
+                    >
+                      <IconTrash size={14} /> Excluir
+                    </button>
+                  </div>
                 </div>
 
                 {/* Metadados: Solicitante e Prazo */}

@@ -15,14 +15,22 @@ import {
   Pie,
   Cell,
   Legend,
-  LineChart,
-  Line,
 } from 'recharts';
 import { useEstatisticas, useTodasDenuncias } from '@/hooks/useDenuncias';
 import { UNIDADES } from '@/lib/mockData';
 import ConfirmModal from '@/components/admin/ConfirmModal';
+import DenunciasHeatmap from '@/components/admin/DenunciasHeatmap';
 
-const CORES_PIE = ['#7C6BC4', '#FF7043', '#43A047', '#FFB74D', '#9C8FD9', '#E53935'];
+const CORES_AZUIS = [
+  '#1B1464', // Azul institucional SOBEI primário
+  '#3B82F6', // Azul vibrante
+  '#2563EB', // Azul royal
+  '#60A5FA', // Azul suave
+  '#1D4ED8', // Azul marinho
+  '#93C5FD', // Azul pastel
+  '#0284C7', // Azul oceano
+  '#38BDF8', // Azul celeste
+];
 
 const parseDate = (dateStr) => {
   if (!dateStr) return null;
@@ -288,11 +296,7 @@ export default function EstatisticasPage() {
             border-radius: 8px;
             padding: 12px 14px;
             background-color: #fff;
-            border-left: 4px solid #1B1464;
           }
-          .kpi-card.accent { border-left-color: #7C6BC4; }
-          .kpi-card.green { border-left-color: #43A047; }
-          .kpi-card.orange { border-left-color: #FF7043; }
           .kpi-card__title {
             font-size: 10px;
             color: #718096;
@@ -451,7 +455,7 @@ export default function EstatisticasPage() {
             <div class="kpi-card__desc">${anonimas} anônimas, ${identificadas} identificadas</div>
           </div>
           <div class="kpi-card accent">
-            <div class="kpi-card__title">Tempo Médio de Resolução (SLA)</div>
+            <div class="kpi-card__title">Tempo Médio de Apuração</div>
             <div class="kpi-card__value">${mediaDiasResolucao ? `${mediaDiasResolucao} dias` : '—'}</div>
             <div class="kpi-card__desc">Média até fechamento</div>
           </div>
@@ -601,7 +605,7 @@ export default function EstatisticasPage() {
     ? barData.map((item, idx) => ({
         unidade: item.unidade,
         percentual: parseFloat(((item.total / totalDenuncias) * 100).toFixed(1)),
-        cor: CORES_PIE[idx % CORES_PIE.length]
+        cor: CORES_AZUIS[idx % CORES_AZUIS.length]
       }))
     : [];
 
@@ -609,7 +613,7 @@ export default function EstatisticasPage() {
     ? stats.distribuicao.tipos.map((item, idx) => ({
         name: item.name === 'ANONIMA' ? 'Anônima' : 'Identificada',
         value: item.value,
-        cor: idx === 0 ? '#7C6BC4' : '#FF7043',
+        cor: idx === 0 ? '#1B1464' : '#3B82F6',
       }))
     : [];
 
@@ -788,10 +792,9 @@ export default function EstatisticasPage() {
       {!isLoading && (
         <div className="statistics-kpis">
           {/* Card 1: Taxa de Anonimato */}
-          <div className="kpi-card kpi-card--accent">
+          <div className="kpi-card">
             <div className="kpi-card__header">
               <span className="kpi-card__title" style={{ textTransform: 'uppercase' }}>Taxa de Anonimato</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="kpi-card__icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             </div>
             <span className="kpi-card__value">
               {totalDenuncias > 0
@@ -806,17 +809,15 @@ export default function EstatisticasPage() {
           <div className="kpi-card">
             <div className="kpi-card__header">
               <span className="kpi-card__title" style={{ textTransform: 'uppercase' }}>Total de Manifestações</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="kpi-card__icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             </div>
             <span className="kpi-card__value">{totalDenuncias}</span>
             <span className="kpi-card__desc">Manifestações no período</span>
           </div>
 
-          {/* Card 3: Tempo Médio de Resolução (SLA) */}
-          <div className="kpi-card kpi-card--accent">
+          {/* Card 3: Tempo Médio de Apuração */}
+          <div className="kpi-card">
             <div className="kpi-card__header">
-              <span className="kpi-card__title" style={{ textTransform: 'uppercase' }}>Tempo Médio (SLA)</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="kpi-card__icon"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span className="kpi-card__title" style={{ textTransform: 'uppercase' }}>Tempo Médio de Apuração</span>
             </div>
             <span className="kpi-card__value">
               {mediaDiasResolucao ? `${mediaDiasResolucao} dias` : '—'}
@@ -825,10 +826,9 @@ export default function EstatisticasPage() {
           </div>
 
           {/* Card 4: Casos em Resolução */}
-          <div className="kpi-card kpi-card--orange">
+          <div className="kpi-card">
             <div className="kpi-card__header">
               <span className="kpi-card__title" style={{ textTransform: 'uppercase' }}>Casos em Resolução</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="kpi-card__icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
             </div>
             <span className="kpi-card__value">
               {statusData.find(s => s.name === 'Em Andamento')?.value || 0}
@@ -837,10 +837,9 @@ export default function EstatisticasPage() {
           </div>
 
           {/* Card 5: Casos Resolvidos */}
-          <div className="kpi-card kpi-card--green">
+          <div className="kpi-card">
             <div className="kpi-card__header">
               <span className="kpi-card__title" style={{ textTransform: 'uppercase' }}>Casos Resolvidos</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="kpi-card__icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
             </div>
             <span className="kpi-card__value">
               {statusData.find(s => s.name === 'Protocolo Fechado')?.value || 0}
@@ -849,10 +848,9 @@ export default function EstatisticasPage() {
           </div>
 
           {/* Card 6: Taxa de Resolutividade */}
-          <div className="kpi-card kpi-card--green">
+          <div className="kpi-card">
             <div className="kpi-card__header">
               <span className="kpi-card__title" style={{ textTransform: 'uppercase' }}>Resolutividade</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="kpi-card__icon"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
             </div>
             <span className="kpi-card__value">{taxaResolutividade}%</span>
             <span className="kpi-card__desc">Casos encerrados com solução</span>
@@ -899,21 +897,15 @@ export default function EstatisticasPage() {
                     dataKey="total"
                     radius={[4, 4, 0, 0]}
                     maxBarSize={40}
-                    activeBar={{ fill: '#7C6BC4', stroke: 'none', outline: 'none' }}
+                    activeBar={{ fill: '#1B1464', stroke: 'none', outline: 'none' }}
                     style={{ outline: 'none' }}
                   >
                     {barData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={CORES_PIE[index % CORES_PIE.length]} />
+                      <Cell key={`cell-${index}`} fill={CORES_AZUIS[index % CORES_AZUIS.length]} />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
-            </div>
-            <div className="chart-explanation-card">
-              <p className="chart-explanation-card__text">
-                <strong>O que este gráfico mostra:</strong> A distribuição quantitativa de denúncias registradas em cada unidade escolar da SOBEI.
-                Use estas informações para identificar recorrências geográficas e planejar ações preventivas direcionadas, como treinamentos de compliance e acolhimento específicos para cada localidade.
-              </p>
             </div>
           </div>
 
@@ -958,12 +950,6 @@ export default function EstatisticasPage() {
                 <p style={{ color: 'var(--color-gray-500)', textAlign: 'center', padding: '40px 0' }}>Sem dados de tipo no período</p>
               )}
             </div>
-            <div className="chart-explanation-card" style={{ margin: '16px' }}>
-              <p className="chart-explanation-card__text">
-                <strong>O que este gráfico mostra:</strong> A proporção de denúncias <strong>Anônimas</strong> vs <strong>Identificadas</strong>.
-                Ajuda a monitorar a confiança da comunidade no anonimato do canal da SOBEI.
-              </p>
-            </div>
           </div>
         </div>
       ) : (
@@ -973,34 +959,15 @@ export default function EstatisticasPage() {
       {/* Segunda Linha de Gráficos (Bento Grid) */}
       {!isLoading && (
         <div className="statistics-bento" style={{ marginTop: 'var(--spacing-xl)' }}>
-          {/* Coluna 1: Evolução no Tempo (Line Chart) */}
+          {/* Coluna 1: Evolução no Tempo (Heatmap Estilo GitHub) */}
           <div className="statistics-page__chart-container" style={{ margin: 0 }}>
             <h2 className="statistics-page__chart-title">Evolução de Denúncias no Tempo:</h2>
-            <div className="statistics-chart__wrapper" style={{ height: '300px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={evolucaoData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#eee" vertical={false} />
-                  <XAxis dataKey="data" tick={{ fontSize: 12, fill: '#333' }} tickLine={false} axisLine={false} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 13, fill: '#333' }} tickLine={false} axisLine={false} width={40} />
-                  <Tooltip
-                    cursor={{ stroke: 'rgba(27, 20, 100, 0.1)', strokeWidth: 2 }}
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="total" 
-                    stroke="#7C6BC4" 
-                    strokeWidth={3} 
-                    dot={{ r: 4, fill: '#7C6BC4', strokeWidth: 2, stroke: '#fff' }} 
-                    activeDot={{ r: 6, fill: '#FF7043', stroke: '#fff', strokeWidth: 2 }} 
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="chart-explanation-card">
-              <p className="chart-explanation-card__text">
-                <strong>O que este gráfico mostra:</strong> A tendência e o volume de denúncias ao longo do tempo. Este gráfico responde aos filtros globais de período e unidade definidos no topo.
-              </p>
+            <div className="statistics-chart__wrapper" style={{ minHeight: 'auto', padding: 'var(--spacing-xs) 0' }}>
+              <DenunciasHeatmap
+                denuncias={todasDenuncias || []}
+                dataInicio={filtros.dataInicio}
+                dataFim={filtros.dataFim}
+              />
             </div>
           </div>
 
@@ -1044,11 +1011,6 @@ export default function EstatisticasPage() {
               ) : (
                 <p style={{ color: 'var(--color-gray-500)', textAlign: 'center', padding: '40px 0' }}>Sem dados de prioridade no período</p>
               )}
-            </div>
-            <div className="chart-explanation-card">
-              <p className="chart-explanation-card__text">
-                <strong>O que este gráfico mostra:</strong> A proporção de denúncias classificadas por prioridade. Auxilia a entender a carga de trabalho crítica (Alta/Média) vs rotineira (Baixa/Neutra).
-              </p>
             </div>
           </div>
         </div>

@@ -18,19 +18,21 @@
 }
 
 .statistics-page__title {
+  font-family: var(--font-montserrat);
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-black);
   color: var(--color-primary);
   margin: 0;
-  font-style: italic;
+  font-style: normal;
 }
 
 .statistics-page__chart-title {
+  font-family: var(--font-montserrat);
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-bold);
   color: var(--color-gray-900);
   margin-bottom: var(--spacing-lg);
-  font-style: italic;
+  font-style: normal;
 }
 
 .statistics-page__chart-container {
@@ -263,36 +265,12 @@
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  font-family: var(--font-montserrat);
   transition: all var(--transition-base);
 }
 
 .kpi-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(27, 20, 100, 0.08);
-  border-color: rgba(27, 20, 100, 0.15);
-}
-
-.kpi-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 4px;
-  height: 100%;
-  background: var(--color-primary);
-  opacity: 0.8;
-}
-
-.kpi-card--accent::before {
-  background: var(--color-purple);
-}
-
-.kpi-card--green::before {
-  background: var(--color-green);
-}
-
-.kpi-card--orange::before {
-  background: var(--color-orange);
+  border-color: rgba(27, 20, 100, 0.2);
 }
 
 .kpi-card__header {
@@ -303,31 +281,26 @@
 }
 
 .kpi-card__title {
+  font-family: var(--font-montserrat);
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
+  font-weight: 800;
   color: var(--color-gray-500);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.kpi-card__icon {
-  color: var(--color-gray-400);
-  transition: color var(--transition-fast);
-}
-
-.kpi-card:hover .kpi-card__icon {
-  color: var(--color-primary);
+  letter-spacing: 0.04em;
 }
 
 .kpi-card__value {
+  font-family: var(--font-montserrat);
   font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-black);
+  font-weight: 900;
   color: var(--color-primary);
   line-height: var(--line-height-tight);
 }
 
 .kpi-card__desc {
+  font-family: var(--font-montserrat);
   font-size: var(--font-size-xs);
+  font-weight: 500;
   color: var(--color-gray-600);
   margin-top: var(--spacing-xs);
 }
@@ -351,3 +324,10 @@
 .chart-explanation-card__text strong {
   color: var(--color-primary);
 }
+
+/* ---- GitHub Heatmap Component ---- */
+.heatmap-cell:hover {
+  filter: brightness(0.85);
+  opacity: 0.88;
+}
+

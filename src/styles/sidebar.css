@@ -16,6 +16,7 @@
   overflow: hidden; /* Mantém logo e logout 100% fixos */
   border-top-right-radius: 24px;
   border-bottom-right-radius: 24px;
+  font-family: var(--font-montserrat);
   transition: width var(--transition-base), box-shadow var(--transition-base);
   white-space: nowrap;
 }

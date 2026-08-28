@@ -3,13 +3,7 @@
 // ============================================
 // SOBEI Portal — Card de Denúncia
 // ============================================
-// Configuração data-driven de datas extras por status,
-// eliminando blocos condicionais repetitivos.
 
-/**
- * Mapeia cada status às datas extras que devem ser exibidas no card.
- * Cada entrada tem a label de exibição e o campo correspondente na denúncia.
- */
 const DATAS_POR_STATUS = {
   na_fila: [],
   em_andamento: [

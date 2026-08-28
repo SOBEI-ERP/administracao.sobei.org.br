@@ -269,324 +269,417 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <button className="modal__close" onClick={onClose} aria-label="Fechar">
-          ×
-        </button>
+    <>
+      <div className="modal-overlay" onClick={onClose}>
+        <div className={`modal ${status === 'em_andamento' ? 'modal--wide' : ''}`} onClick={(e) => e.stopPropagation()}>
+          <button className="modal__close" onClick={onClose} aria-label="Fechar">
+            ×
+          </button>
 
-        <h2 className="modal__title">Detalhes da denúncia</h2>
+          <h2 className="modal__title">Detalhes da denúncia</h2>
 
-        {isLoading ? (
-          <p style={{ color: 'var(--color-gray-500)', padding: '24px 0', textAlign: 'center' }}>Carregando detalhes...</p>
-        ) : (
-          <>
-            {/* Informações da denúncia */}
-            <div className="modal__section">
-              <h3 className="modal__section-title">Informações da denúncia</h3>
-              <div className="modal__blockquote">
-                <p><strong>Protocolo:</strong> {displayDenuncia.protocolo}</p>
-                <p><strong>Unidade:</strong> {displayDenuncia.unidade}</p>
-                <p><strong>Tipo de denuncia:</strong> Denúncia {tipoDenunciaFormatado}</p>
-                {status === 'em_andamento' && (
-                  <p style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 0' }}>
-                    <strong>Prioridade:</strong>
-                    <div style={{ width: '140px' }}>
-                      <CustomSelect
-                        value={prioridadeLocal}
-                        onChange={setPrioridadeLocal}
-                        allowEmpty={false}
-                        className={`priority-select priority-badge--${prioridadeLocal.toLowerCase()}`}
-                        options={[
-                          { value: 'NEUTRA', label: 'Neutra' },
-                          { value: 'BAIXA', label: 'Baixa' },
-                          { value: 'MEDIA', label: 'Média' },
-                          { value: 'ALTA', label: 'Alta' }
-                        ]}
-                      />
-                    </div>
-                  </p>
-                )}
-                <p><strong>Data de envio:</strong> {formatarData(displayDenuncia.dataEnvio)}</p>
-                {status === 'fechada' && displayDenuncia.dataFechamento && (
-                  <p><strong>Data de fechamento:</strong> {formatarData(displayDenuncia.dataFechamento)}</p>
-                )}
-                {status === 'arquivada' && displayDenuncia.dataArquivamento && (
-                  <p><strong>Data de arquivamento:</strong> {formatarData(displayDenuncia.dataArquivamento)}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Informações do denunciante (se identificada) */}
-            {displayDenuncia.tipo && displayDenuncia.tipo.toLowerCase() === 'identificada' && (
-              <div className="modal__section">
-                <h3 className="modal__section-title">Dados de identificação do denunciante</h3>
-                <div className="modal__blockquote">
-                  <p><strong>Nome completo:</strong> {displayDenuncia.nomeDenunciante || 'Não informado'}</p>
-                  <p><strong>E-mail:</strong> {displayDenuncia.emailDenunciante || 'Não informado'}</p>
-                  <p><strong>Telefone:</strong> {displayDenuncia.telefoneDenunciante || 'Não informado'}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Descrição */}
-            <div className="modal__section">
-              <h3 className="modal__section-title">Descrição da denúncia</h3>
-              <div className="modal__blockquote">
-                <p style={{ whiteSpace: 'pre-wrap' }}>&ldquo;{displayDenuncia.descricao}&rdquo;</p>
-              </div>
-            </div>
-
-            {/* Envolvidos */}
-            <div className="modal__section">
-              <h3 className="modal__section-title">Quem estava envolvido:</h3>
-              <div className="modal__blockquote">
-                {displayDenuncia.envolvidos ? (
-                  displayDenuncia.envolvidos.split('\n').map((e, i) => <p key={i}>{e}</p>)
-                ) : (
-                  <p>Não informado</p>
-                )}
-              </div>
-            </div>
-
-            {/* Testemunhas */}
-            <div className="modal__section">
-              <h3 className="modal__section-title">Quem testemunhou os fatos?</h3>
-              <div className="modal__blockquote">
-                <p>{displayDenuncia.testemunhas || 'Não informado'}</p>
-              </div>
-            </div>
-
-            {/* ---- Status-specific sections ---- */}
-
-            {/* Em andamento: campo de medidas editável */}
-            {status === 'em_andamento' && (
-              <>
-                <div className="modal__divider" />
-                <div className="modal__section">
-                  <h3 className="modal__section-title" style={{ textAlign: 'center', marginBottom: 'var(--spacing-sm)' }}>
-                    Medidas adotadas até o momento
-                  </h3>
-
-                  {/* Lista de Medidas Existentes com opção de edição */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
-                    {medidasList.map((medida) => (
-                      <div key={medida.id} style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3px solid #7C6BC4', paddingLeft: '12px', paddingBottom: '4px' }}>
-                        {editingMeasureId === medida.id ? (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <textarea
-                              className="modal__textarea"
-                              style={{ margin: 0, minHeight: '60px' }}
-                              value={editingMeasureText}
-                              onChange={(e) => setEditingMeasureText(e.target.value)}
-                            />
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                              <button
-                                type="button"
-                                className="btn btn--sm btn--success"
-                                style={{ padding: '4px 12px', cursor: 'pointer' }}
-                                onClick={() => {
-                                  if (editingMeasureText.trim()) {
-                                    setMedidasList(medidasList.map(m => m.id === medida.id ? { ...m, descricao: editingMeasureText.trim() } : m));
-                                    setEditingMeasureId(null);
-                                    setEditingMeasureText('');
-                                  }
-                                }}
-                              >
-                                Salvar Medida
-                              </button>
-                              <button
-                                type="button"
-                                className="btn btn--sm btn--outline"
-                                style={{ border: '1px solid var(--color-gray-300)', padding: '4px 12px', background: 'transparent', cursor: 'pointer' }}
-                                onClick={() => {
-                                  setEditingMeasureId(null);
-                                  setEditingMeasureText('');
-                                }}
-                              >
-                                Cancelar
-                              </button>
-                              <button
-                                type="button"
-                                className="btn btn--sm btn--danger"
-                                style={{ padding: '4px 12px', cursor: 'pointer' }}
-                                onClick={() => {
-                                  setMedidasList(medidasList.map(m => m.id === medida.id ? { ...m, descricao: '' } : m));
-                                  setEditingMeasureId(null);
-                                  setEditingMeasureText('');
-                                }}
-                              >
-                                Excluir
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          medida.descricao && (
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
-                              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <p style={{ margin: 0, fontSize: '14px', whiteSpace: 'pre-wrap', color: 'var(--color-gray-800)' }}>
-                                  {medida.descricao}
-                                </p>
-                                {medida.autor && (
-                                  <span style={{ fontSize: '11px', color: 'var(--color-gray-500)', marginTop: '4px', fontStyle: 'italic' }}>
-                                    autor: {medida.autor}
-                                  </span>
-                                )}
-                              </div>
-                              <button
-                                type="button"
-                                className="btn btn--outline btn--sm"
-                                style={{ padding: '2px 8px', fontSize: '12px', border: '1px solid var(--color-gray-300)', background: 'transparent', cursor: 'pointer', flexShrink: 0 }}
-                                onClick={() => {
-                                  setEditingMeasureId(medida.id);
-                                  setEditingMeasureText(medida.descricao);
-                                }}
-                              >
-                                Editar
-                              </button>
-                            </div>
-                          )
+          {isLoading ? (
+            <p style={{ color: 'var(--color-gray-500)', padding: '24px 0', textAlign: 'center' }}>Carregando detalhes...</p>
+          ) : (
+            <>
+              {/* Se for Em Andamento, renderiza o layout especial em 2 colunas */}
+              {status === 'em_andamento' ? (
+                <div className="modal__two-columns">
+                  {/* LADO ESQUERDO: Informações Registradas na Denúncia */}
+                  <div className="modal__col-info">
+                    {/* Informações Básicas da Denúncia */}
+                    <div className="modal__section" style={{ marginBottom: 'var(--spacing-md)' }}>
+                      <h3 className="modal__section-title" style={{ fontSize: '15px', color: 'var(--color-primary)' }}>
+                        Informações registradas
+                      </h3>
+                      <div className="modal__blockquote">
+                        <p><strong>Protocolo:</strong> {displayDenuncia.protocolo}</p>
+                        <p><strong>Unidade:</strong> {displayDenuncia.unidade}</p>
+                        <p><strong>Tipo de denúncia:</strong> Denúncia {tipoDenunciaFormatado}</p>
+                        <p><strong>Data de envio:</strong> {formatarData(displayDenuncia.dataEnvio)}</p>
+                        {displayDenuncia.dataAbertura && (
+                          <p><strong>Data de abertura:</strong> {formatarData(displayDenuncia.dataAbertura)}</p>
+                        )}
+                        {displayDenuncia.ultimaAlteracao && (
+                          <p><strong>Última alteração:</strong> {formatarData(displayDenuncia.ultimaAlteracao)}</p>
                         )}
                       </div>
-                    ))}
-                  </div>
+                    </div>
 
-                  {/* Campo para Adicionar Nova Medida */}
-                  <div style={{ marginTop: '16px' }}>
-                    <h4 style={{ fontSize: '14px', marginBottom: '8px', color: 'var(--color-gray-700)' }}>Adicionar nova ação/medida:</h4>
-                    <textarea
-                      className="modal__textarea"
-                      placeholder="Descreva a nova ação tomada..."
-                      value={novaMedida}
-                      onChange={(e) => setNovaMedida(e.target.value)}
-                    />
-                  </div>
-
-                </div>
-              </>
-            )}
-
-
-
-            {/* Fechadas: medidas + retorno ao denunciante + relatório final (somente leitura) */}
-            {status === 'fechada' && (
-              <>
-                <div className="modal__divider" />
-                <div className="modal__section">
-                  <h3 className="modal__section-title" style={{ textAlign: 'center', marginBottom: 'var(--spacing-sm)' }}>
-                    Medidas adotadas até o momento
-                  </h3>
-                  <div className="modal__blockquote">
-                    {medidasList && medidasList.filter(m => m.descricao).length > 0 ? (
-                      medidasList.filter(m => m.descricao).map((m, idx) => (
-                        <div key={idx} style={{ borderLeft: '3px solid #7C6BC4', paddingLeft: '8px', marginBottom: '12px' }}>
-                          <p style={{ whiteSpace: 'pre-wrap', margin: 0, fontSize: '14px', color: 'var(--color-gray-800)' }}>
-                            {m.descricao}
-                          </p>
-                          {m.autor && (
-                            <span style={{ fontSize: '11px', color: 'var(--color-gray-500)', display: 'block', marginTop: '2px', fontStyle: 'italic' }}>
-                              autor: {m.autor}
-                            </span>
-                          )}
+                    {/* Dados do Denunciante (se identificada) */}
+                    {displayDenuncia.tipo && displayDenuncia.tipo.toLowerCase() === 'identificada' && (
+                      <div className="modal__section" style={{ marginBottom: 'var(--spacing-md)' }}>
+                        <h3 className="modal__section-title" style={{ fontSize: '14px' }}>Dados do Denunciante</h3>
+                        <div className="modal__blockquote">
+                          <p><strong>Nome completo:</strong> {displayDenuncia.nomeDenunciante || 'Não informado'}</p>
+                          <p><strong>E-mail:</strong> {displayDenuncia.emailDenunciante || 'Não informado'}</p>
+                          <p><strong>Telefone:</strong> {displayDenuncia.telefoneDenunciante || 'Não informado'}</p>
                         </div>
-                      ))
-                    ) : (
-                      <p>Nenhuma medida registrada.</p>
+                      </div>
                     )}
-                  </div>
-                </div>
-                <div className="modal__section">
-                  <h3 className="modal__section-title" style={{ textAlign: 'center', marginBottom: 'var(--spacing-sm)' }}>
-                    Relatório final da denúncia
-                  </h3>
-                  <div className="modal__blockquote">
-                    <p style={{ whiteSpace: 'pre-wrap' }}>{displayDenuncia.relatorioConclusao || 'Nenhum relatório registrado.'}</p>
-                  </div>
-                </div>
-              </>
-            )}
 
-            {/* Arquivadas: medidas + retorno ao denunciante + relatório de arquivamento (somente leitura) */}
-            {status === 'arquivada' && (
-              <>
-                <div className="modal__divider" />
-                <div className="modal__section">
-                  <h3 className="modal__section-title" style={{ textAlign: 'center', marginBottom: 'var(--spacing-sm)' }}>
-                    Medidas adotadas até o momento
-                  </h3>
-                  <div className="modal__blockquote">
-                    {medidasList && medidasList.filter(m => m.descricao).length > 0 ? (
-                      medidasList.filter(m => m.descricao).map((m, idx) => (
-                        <div key={idx} style={{ borderLeft: '3px solid #7C6BC4', paddingLeft: '8px', marginBottom: '12px' }}>
-                          <p style={{ whiteSpace: 'pre-wrap', margin: 0, fontSize: '14px', color: 'var(--color-gray-800)' }}>
-                            {m.descricao}
+                    {/* Descrição / Relato da Denúncia */}
+                    <div className="modal__section" style={{ marginBottom: 'var(--spacing-md)' }}>
+                      <h3 className="modal__section-title" style={{ fontSize: '14px' }}>Relato da Denúncia</h3>
+                      <div className="modal__blockquote">
+                        <p style={{ whiteSpace: 'pre-wrap' }}>&ldquo;{displayDenuncia.descricao}&rdquo;</p>
+                      </div>
+                    </div>
+
+                    {/* Envolvidos */}
+                    <div className="modal__section" style={{ marginBottom: 'var(--spacing-md)' }}>
+                      <h3 className="modal__section-title" style={{ fontSize: '14px' }}>Quem estava envolvido:</h3>
+                      <div className="modal__blockquote">
+                        {displayDenuncia.envolvidos ? (
+                          displayDenuncia.envolvidos.split('\n').map((e, i) => <p key={i}>{e}</p>)
+                        ) : (
+                          <p>Não informado</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Testemunhas */}
+                    <div className="modal__section" style={{ marginBottom: 'var(--spacing-md)' }}>
+                      <h3 className="modal__section-title" style={{ fontSize: '14px' }}>Quem testemunhou os fatos?</h3>
+                      <div className="modal__blockquote">
+                        <p>{displayDenuncia.testemunhas || 'Não informado'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* LADO DIREITO: Funcionalidades de Gestão, Medidas e Ações */}
+                  <div className="modal__col-actions">
+                    <h3 className="modal__section-title" style={{ fontSize: '15px', color: 'var(--color-primary)', margin: 0 }}>
+                      Gestão e Ações
+                    </h3>
+
+                    {/* Seletor de Prioridade */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: 'var(--color-white)', padding: '10px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-gray-200)' }}>
+                      <strong style={{ fontSize: '13px', color: 'var(--color-gray-800)' }}>Prioridade:</strong>
+                      <div style={{ width: '140px' }}>
+                        <CustomSelect
+                          value={prioridadeLocal}
+                          onChange={setPrioridadeLocal}
+                          allowEmpty={false}
+                          className={`priority-select priority-badge--${prioridadeLocal.toLowerCase()}`}
+                          options={[
+                            { value: 'NEUTRA', label: 'Neutra' },
+                            { value: 'BAIXA', label: 'Baixa' },
+                            { value: 'MEDIA', label: 'Média' },
+                            { value: 'ALTA', label: 'Alta' }
+                          ]}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Lista de Medidas Adotadas */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-gray-800)', margin: 0 }}>
+                        Medidas adotadas até o momento ({medidasList.filter(m => m.descricao).length}):
+                      </h4>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '220px', overflowY: 'auto' }}>
+                        {medidasList && medidasList.filter(m => m.descricao).length > 0 ? (
+                          medidasList.map((medida) => (
+                            <div key={medida.id} style={{ display: 'flex', flexDirection: 'column', gap: '6px', borderLeft: '3.5px solid var(--color-primary)', padding: '8px 10px', backgroundColor: 'var(--color-white)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--color-gray-200)', borderLeftWidth: '3.5px', borderLeftColor: 'var(--color-primary)' }}>
+                              {editingMeasureId === medida.id ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                  <textarea
+                                    className="modal__textarea"
+                                    style={{ margin: 0, minHeight: '60px' }}
+                                    value={editingMeasureText}
+                                    onChange={(e) => setEditingMeasureText(e.target.value)}
+                                  />
+                                  <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button
+                                      type="button"
+                                      className="btn btn--sm btn--success"
+                                      style={{ padding: '4px 12px', cursor: 'pointer' }}
+                                      onClick={() => {
+                                        if (editingMeasureText.trim()) {
+                                          setMedidasList(medidasList.map(m => m.id === medida.id ? { ...m, descricao: editingMeasureText.trim() } : m));
+                                          setEditingMeasureId(null);
+                                          setEditingMeasureText('');
+                                        }
+                                      }}
+                                    >
+                                      Salvar
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="btn btn--sm btn--outline"
+                                      style={{ border: '1px solid var(--color-gray-300)', padding: '4px 12px', background: 'transparent', cursor: 'pointer' }}
+                                      onClick={() => {
+                                        setEditingMeasureId(null);
+                                        setEditingMeasureText('');
+                                      }}
+                                    >
+                                      Cancelar
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="btn btn--sm btn--danger"
+                                      style={{ padding: '4px 12px', cursor: 'pointer' }}
+                                      onClick={() => {
+                                        setMedidasList(medidasList.map(m => m.id === medida.id ? { ...m, descricao: '' } : m));
+                                        setEditingMeasureId(null);
+                                        setEditingMeasureText('');
+                                      }}
+                                    >
+                                      Excluir
+                                    </button>
+                                  </div>
+                                </div>
+                              ) : (
+                                medida.descricao && (
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                      <p style={{ margin: 0, fontSize: '13px', whiteSpace: 'pre-wrap', color: 'var(--color-gray-800)' }}>
+                                        {medida.descricao}
+                                      </p>
+                                      {medida.autor && (
+                                        <span style={{ fontSize: '11px', color: 'var(--color-gray-500)', marginTop: '4px', fontStyle: 'italic' }}>
+                                          autor: {medida.autor}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <button
+                                      type="button"
+                                      className="btn btn--outline btn--sm"
+                                      style={{ padding: '2px 8px', fontSize: '11px', border: '1px solid var(--color-gray-300)', background: 'transparent', cursor: 'pointer', flexShrink: 0 }}
+                                      onClick={() => {
+                                        setEditingMeasureId(medida.id);
+                                        setEditingMeasureText(medida.descricao);
+                                      }}
+                                    >
+                                      Editar
+                                    </button>
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          ))
+                        ) : (
+                          <p style={{ fontSize: '13px', color: 'var(--color-gray-500)', fontStyle: 'italic', margin: 0 }}>
+                            Nenhuma medida cadastrada ainda.
                           </p>
-                          {m.autor && (
-                            <span style={{ fontSize: '11px', color: 'var(--color-gray-500)', display: 'block', marginTop: '2px', fontStyle: 'italic' }}>
-                              autor: {m.autor}
-                            </span>
-                          )}
-                        </div>
-                      ))
-                    ) : (
-                      <p>Nenhuma medida registrada.</p>
-                    )}
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Campo para Adicionar Nova Medida */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
+                      <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-gray-800)', margin: 0 }}>
+                        Adicionar nova ação ou medida:
+                      </h4>
+                      <textarea
+                        className="modal__textarea"
+                        style={{ minHeight: '75px', backgroundColor: 'var(--color-white)' }}
+                        placeholder="Descreva a nova ação tomada..."
+                        value={novaMedida}
+                        onChange={(e) => setNovaMedida(e.target.value)}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn--blue btn--sm"
+                        style={{ alignSelf: 'flex-start', padding: '6px 14px', fontSize: '12px' }}
+                        onClick={() => {
+                          if (novaMedida.trim()) {
+                            setMedidasList([...medidasList, { id: `medida-${Date.now()}`, descricao: novaMedida.trim() }]);
+                            setNovaMedida('');
+                          }
+                        }}
+                        disabled={!novaMedida.trim()}
+                      >
+                        Adicionar à Lista
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <div className="modal__section">
-                  <h3 className="modal__section-title" style={{ textAlign: 'center', marginBottom: 'var(--spacing-sm)' }}>
-                    Relatório de arquivamento da denúncia
-                  </h3>
-                  <div className="modal__blockquote">
-                    <p style={{ whiteSpace: 'pre-wrap' }}>{displayDenuncia.relatorioConclusao || 'Nenhum relatório registrado.'}</p>
+              ) : (
+                /* Demais status (na_fila, fechada, arquivada) usam o layout padrão */
+                <>
+                  {/* Informações Básicas da Denúncia */}
+                  <div className="modal__section" style={{ marginBottom: 'var(--spacing-md)' }}>
+                    <h3 className="modal__section-title" style={{ fontSize: '15px', color: 'var(--color-primary)' }}>
+                      Informações registradas
+                    </h3>
+                    <div className="modal__blockquote">
+                      <p><strong>Protocolo:</strong> {displayDenuncia.protocolo}</p>
+                      <p><strong>Unidade:</strong> {displayDenuncia.unidade}</p>
+                      <p><strong>Tipo de denúncia:</strong> Denúncia {tipoDenunciaFormatado}</p>
+                      <p><strong>Data de envio:</strong> {formatarData(displayDenuncia.dataEnvio)}</p>
+                      {displayDenuncia.dataAbertura && (
+                        <p><strong>Data de abertura:</strong> {formatarData(displayDenuncia.dataAbertura)}</p>
+                      )}
+                      {displayDenuncia.ultimaAlteracao && (
+                        <p><strong>Última alteração:</strong> {formatarData(displayDenuncia.ultimaAlteracao)}</p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </>
-            )}
 
-            {/* ---- Action Buttons ---- */}
-            <div className="modal__actions">
-              {status === 'na_fila' && (
-                <>
-                  <button className="btn btn--danger" onClick={() => setConfirmingClose(true)} type="button">
-                    Fechar denúncia
-                  </button>
-                  <button className="btn btn--success" onClick={handleApurar} type="button">
-                    Apurar denúncia
-                  </button>
-                </>
-              )}
-
-              {status === 'em_andamento' && (
-                <>
-                  <button className="btn btn--danger" onClick={() => setConfirmingClose(true)} type="button">
-                    Fechar denúncia
-                  </button>
-                  <button className="btn btn--success" onClick={handleSalvar} type="button">
-                    Salvar alterações
-                  </button>
-                </>
-              )}
-
-              {(status === 'fechada' || status === 'arquivada') && (
-                <>
-                  {status === 'fechada' && isSuporte && (
-                    <button
-                      className="btn btn--danger"
-                      onClick={() => setShowDeleteConfirmModal(true)}
-                      type="button"
-                    >
-                      Excluir denúncia
-                    </button>
+                  {/* Dados do Denunciante (se identificada) */}
+                  {displayDenuncia.tipo && displayDenuncia.tipo.toLowerCase() === 'identificada' && (
+                    <div className="modal__section" style={{ marginBottom: 'var(--spacing-md)' }}>
+                      <h3 className="modal__section-title" style={{ fontSize: '14px' }}>Dados do Denunciante</h3>
+                      <div className="modal__blockquote">
+                        <p><strong>Nome completo:</strong> {displayDenuncia.nomeDenunciante || 'Não informado'}</p>
+                        <p><strong>E-mail:</strong> {displayDenuncia.emailDenunciante || 'Não informado'}</p>
+                        <p><strong>Telefone:</strong> {displayDenuncia.telefoneDenunciante || 'Não informado'}</p>
+                      </div>
+                    </div>
                   )}
-                  <button className="btn btn--success" onClick={handleReabrir} type="button">
-                    Reabrir denúncia
-                  </button>
+
+                  {/* Descrição / Relato da Denúncia */}
+                  <div className="modal__section" style={{ marginBottom: 'var(--spacing-md)' }}>
+                    <h3 className="modal__section-title" style={{ fontSize: '14px' }}>Relato da Denúncia</h3>
+                    <div className="modal__blockquote">
+                      <p style={{ whiteSpace: 'pre-wrap' }}>&ldquo;{displayDenuncia.descricao}&rdquo;</p>
+                    </div>
+                  </div>
+
+                  {/* Envolvidos */}
+                  <div className="modal__section" style={{ marginBottom: 'var(--spacing-md)' }}>
+                    <h3 className="modal__section-title" style={{ fontSize: '14px' }}>Quem estava envolvido:</h3>
+                    <div className="modal__blockquote">
+                      {displayDenuncia.envolvidos ? (
+                        displayDenuncia.envolvidos.split('\n').map((e, i) => <p key={i}>{e}</p>)
+                      ) : (
+                        <p>Não informado</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Testemunhas */}
+                  <div className="modal__section" style={{ marginBottom: 'var(--spacing-md)' }}>
+                    <h3 className="modal__section-title" style={{ fontSize: '14px' }}>Quem testemunhou os fatos?</h3>
+                    <div className="modal__blockquote">
+                      <p>{displayDenuncia.testemunhas || 'Não informado'}</p>
+                    </div>
+                  </div>
                 </>
               )}
-            </div>
-          </>
-        )}
+
+              {/* Fechadas: medidas + retorno ao denunciante + relatório final (somente leitura) */}
+              {status === 'fechada' && (
+                <>
+                  <div className="modal__divider" />
+                  <div className="modal__section">
+                    <h3 className="modal__section-title" style={{ textAlign: 'center', marginBottom: 'var(--spacing-sm)' }}>
+                      Medidas adotadas até o momento
+                    </h3>
+                    <div className="modal__blockquote">
+                      {medidasList && medidasList.filter(m => m.descricao).length > 0 ? (
+                        medidasList.filter(m => m.descricao).map((m, idx) => (
+                          <div key={idx} style={{ borderLeft: '3.5px solid var(--color-primary)', paddingLeft: '8px', marginBottom: '12px' }}>
+                            <p style={{ whiteSpace: 'pre-wrap', margin: 0, fontSize: '14px', color: 'var(--color-gray-800)' }}>
+                              {m.descricao}
+                            </p>
+                            {m.autor && (
+                              <span style={{ fontSize: '11px', color: 'var(--color-gray-500)', display: 'block', marginTop: '2px', fontStyle: 'italic' }}>
+                                autor: {m.autor}
+                              </span>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <p>Nenhuma medida registrada.</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="modal__section">
+                    <h3 className="modal__section-title" style={{ textAlign: 'center', marginBottom: 'var(--spacing-sm)' }}>
+                      Relatório final da denúncia
+                    </h3>
+                    <div className="modal__blockquote">
+                      <p style={{ whiteSpace: 'pre-wrap' }}>{displayDenuncia.relatorioConclusao || 'Nenhum relatório registrado.'}</p>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Arquivadas: medidas + retorno ao denunciante + relatório de arquivamento (somente leitura) */}
+              {status === 'arquivada' && (
+                <>
+                  <div className="modal__divider" />
+                  <div className="modal__section">
+                    <h3 className="modal__section-title" style={{ textAlign: 'center', marginBottom: 'var(--spacing-sm)' }}>
+                      Medidas adotadas até o momento
+                    </h3>
+                    <div className="modal__blockquote">
+                      {medidasList && medidasList.filter(m => m.descricao).length > 0 ? (
+                        medidasList.filter(m => m.descricao).map((m, idx) => (
+                          <div key={idx} style={{ borderLeft: '3.5px solid var(--color-primary)', paddingLeft: '8px', marginBottom: '12px' }}>
+                            <p style={{ whiteSpace: 'pre-wrap', margin: 0, fontSize: '14px', color: 'var(--color-gray-800)' }}>
+                              {m.descricao}
+                            </p>
+                            {m.autor && (
+                              <span style={{ fontSize: '11px', color: 'var(--color-gray-500)', display: 'block', marginTop: '2px', fontStyle: 'italic' }}>
+                                autor: {m.autor}
+                              </span>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <p>Nenhuma medida registrada.</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="modal__section">
+                    <h3 className="modal__section-title" style={{ textAlign: 'center', marginBottom: 'var(--spacing-sm)' }}>
+                      Relatório de arquivamento da denúncia
+                    </h3>
+                    <div className="modal__blockquote">
+                      <p style={{ whiteSpace: 'pre-wrap' }}>{displayDenuncia.relatorioConclusao || 'Nenhum relatório registrado.'}</p>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* ---- Action Buttons ---- */}
+              <div className="modal__actions">
+                {status === 'na_fila' && (
+                  <>
+                    <button className="btn btn--danger" onClick={() => setConfirmingClose(true)} type="button">
+                      Fechar denúncia
+                    </button>
+                    <button className="btn btn--success" onClick={handleApurar} type="button">
+                      Apurar denúncia
+                    </button>
+                  </>
+                )}
+
+                {status === 'em_andamento' && (
+                  <>
+                    <button className="btn btn--danger" onClick={() => setConfirmingClose(true)} type="button">
+                      Fechar denúncia
+                    </button>
+                    <button className="btn btn--success" onClick={handleSalvar} type="button">
+                      Salvar alterações
+                    </button>
+                  </>
+                )}
+
+                {(status === 'fechada' || status === 'arquivada') && (
+                  <>
+                    {status === 'fechada' && isSuporte && (
+                      <button
+                        className="btn btn--danger"
+                        onClick={() => setShowDeleteConfirmModal(true)}
+                        type="button"
+                      >
+                        Excluir denúncia
+                      </button>
+                    )}
+                    <button className="btn btn--success" onClick={handleReabrir} type="button">
+                      Reabrir denúncia
+                    </button>
+                  </>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       <ConfirmModal
@@ -612,6 +705,6 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
         }}
         onClose={() => setShowDeleteConfirmModal(false)}
       />
-    </div>
+    </>
   );
 }
