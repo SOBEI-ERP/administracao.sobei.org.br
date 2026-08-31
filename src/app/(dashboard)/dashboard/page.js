@@ -14,10 +14,6 @@ export default function AdminDashboardPage() {
             priority
           />
         </div>
-
-        <h1 className="dashboard-home__title">
-          Painel de administração de denúncias
-        </h1>
       </div>
     </div>
   );

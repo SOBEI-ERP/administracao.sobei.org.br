@@ -180,7 +180,7 @@ export default function MobileHeader() {
               onClick={() => setMenuOpen(false)}
             >
               <Image
-                src="/images/attention-stop.svg"
+                src="/images/bell.svg"
                 alt=""
                 width={20}
                 height={20}

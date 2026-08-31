@@ -137,7 +137,7 @@ export default function Sidebar() {
               }`}
             >
               <Image 
-                src="/images/attention-stop.svg" 
+                src="/images/bell.svg" 
                 alt="" 
                 width={20} 
                 height={20} 
@@ -221,9 +221,9 @@ export default function Sidebar() {
           <Image 
             src="/images/Log_Out.svg" 
             alt="" 
-            width={20} 
-            height={20} 
-            className="sidebar__icon" 
+            width={26} 
+            height={26} 
+            className="sidebar__icon sidebar__icon--logout" 
           />
           <span className="sidebar__text" style={{ fontWeight: 'var(--font-weight-bold)' }}>Sair da Conta</span>
         </button>

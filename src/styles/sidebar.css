@@ -127,6 +127,11 @@
   filter: brightness(0) invert(1);
 }
 
+.sidebar__icon--logout {
+  width: 26px;
+  height: 26px;
+}
+
 .sidebar__text {
   opacity: 0;
   transition: opacity var(--transition-fast);
