@@ -6,6 +6,7 @@ import {
   fetchInscritosCongresso,
   alterarPresencaInscrito,
   enviarCertificadoInscrito,
+  enviarCertificadosLoteAmbosDias,
   downloadCertificadoInscrito,
   atualizarOficinasInscrito,
   downloadCrachaInscrito,
@@ -29,6 +30,8 @@ export default function InscritosCongressoPage() {
   const [baixandoCertId, setBaixandoCertId] = useState(null);
   const [baixandoCrachaId, setBaixandoCrachaId] = useState(null);
   const [gerandoLoteCrachas, setGerandoLoteCrachas] = useState(false);
+  const [enviandoLoteCertificados, setEnviandoLoteCertificados] = useState(false);
+  const [showConfirmModalCertificados, setShowConfirmModalCertificados] = useState(false);
   const [selectedInscritoOficinas, setSelectedInscritoOficinas] = useState(null);
   const [toastFeedback, setToastFeedback] = useState(null); // { type: 'success' | 'error', message: string }
 
@@ -156,10 +159,35 @@ export default function InscritosCongressoPage() {
     setGerandoLoteCrachas(false);
   };
 
+  const handleDispararCertificadosLote = async () => {
+    setShowConfirmModalCertificados(false);
+    setEnviandoLoteCertificados(true);
+    setToastFeedback(null);
+
+    const res = await enviarCertificadosLoteAmbosDias();
+    if (res.success) {
+      setToastFeedback({
+        type: 'success',
+        message: res.message || `${res.totalEnviados} certificados enviados com sucesso!`,
+      });
+    } else {
+      setToastFeedback({
+        type: 'error',
+        message: res.message || 'Erro ao enviar certificados em lote.',
+      });
+    }
+
+    setEnviandoLoteCertificados(false);
+    setTimeout(() => {
+      setToastFeedback((curr) => (curr?.type === 'success' ? null : curr));
+    }, 8000);
+  };
+
   // Contadores
   const total = inscritos.length;
   const presentesDia11 = inscritos.filter((i) => i.presenteDia11).length;
   const presentesDia12 = inscritos.filter((i) => i.presenteDia12).length;
+  const presentesAmbosDias = inscritos.filter((i) => i.presenteDia11 && i.presenteDia12).length;
   const sobeiCount = inscritos.filter((i) => i.tipoOsc?.toUpperCase() === 'SOBEI').length;
 
   const formatHora = (dateStr) => {
@@ -226,35 +254,72 @@ export default function InscritosCongressoPage() {
           </p>
         </div>
 
-        {/* Botão de Ação em Lote: Imprimir Folha de Crachás */}
-        <button
-          type="button"
-          onClick={handleBaixarCrachasLote}
-          disabled={gerandoLoteCrachas || inscritosFiltrados.length === 0}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '10px 18px',
-            borderRadius: '10px',
-            backgroundColor: '#0c1b33',
-            color: '#ffffff',
-            fontWeight: '600',
-            fontSize: '0.88rem',
-            border: 'none',
-            cursor: (gerandoLoteCrachas || inscritosFiltrados.length === 0) ? 'not-allowed' : 'pointer',
-            transition: 'all 0.2s ease',
-            opacity: (gerandoLoteCrachas || inscritosFiltrados.length === 0) ? 0.6 : 1,
-          }}
-          title="Gerar PDF com grade de 14 etiquetas por folha (2 colunas x 7 linhas - 33,9 x 101,6 mm no padrão Tilibra TB182 A4)"
-        >
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="6 9 6 2 18 2 18 9" />
-            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
-            <rect x="6" y="14" width="12" height="8" />
-          </svg>
-          {gerandoLoteCrachas ? 'Gerando Folha de Etiquetas...' : 'Imprimir Folha de Etiquetas (Tilibra TB182)'}
-        </button>
+        {/* Botões de Ação no Topo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {/* Botão de Ação em Lote: Enviar Certificados para Presentes em Ambos os Dias */}
+          <button
+            type="button"
+            onClick={() => setShowConfirmModalCertificados(true)}
+            disabled={enviandoLoteCertificados || presentesAmbosDias === 0}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 18px',
+              borderRadius: '10px',
+              backgroundColor: '#7C3AED',
+              color: '#ffffff',
+              fontWeight: '600',
+              fontSize: '0.88rem',
+              border: 'none',
+              cursor: (enviandoLoteCertificados || presentesAmbosDias === 0) ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s ease',
+              opacity: (enviandoLoteCertificados || presentesAmbosDias === 0) ? 0.6 : 1,
+              boxShadow: '0 2px 4px rgba(124, 58, 237, 0.25)',
+            }}
+            title={
+              presentesAmbosDias === 0
+                ? 'Nenhum participante possui check-in em ambos os dias (11 e 12/Set)'
+                : `Disparar certificados por e-mail para ${presentesAmbosDias} participantes com presença em ambos os dias`
+            }
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="8" r="6" />
+              <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+            </svg>
+            {enviandoLoteCertificados ? 'Enviando Certificados...' : `Enviar Certificados (Ambos os Dias: ${presentesAmbosDias})`}
+          </button>
+
+          {/* Botão de Ação em Lote: Imprimir Folha de Crachás */}
+          <button
+            type="button"
+            onClick={handleBaixarCrachasLote}
+            disabled={gerandoLoteCrachas || inscritosFiltrados.length === 0}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 18px',
+              borderRadius: '10px',
+              backgroundColor: '#0c1b33',
+              color: '#ffffff',
+              fontWeight: '600',
+              fontSize: '0.88rem',
+              border: 'none',
+              cursor: (gerandoLoteCrachas || inscritosFiltrados.length === 0) ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s ease',
+              opacity: (gerandoLoteCrachas || inscritosFiltrados.length === 0) ? 0.6 : 1,
+            }}
+            title="Gerar PDF com grade de 14 etiquetas por folha (2 colunas x 7 linhas - 33,9 x 101,6 mm no padrão Tilibra TB182 A4)"
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9" />
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+              <rect x="6" y="14" width="12" height="8" />
+            </svg>
+            {gerandoLoteCrachas ? 'Gerando Folha de Etiquetas...' : 'Imprimir Folha de Etiquetas (Tilibra TB182)'}
+          </button>
+        </div>
       </div>
 
       {/* Toast Feedback Banner */}
@@ -308,7 +373,7 @@ export default function InscritosCongressoPage() {
       {/* Cards de Métricas */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
         gap: 'var(--spacing-base)',
         marginBottom: 'var(--spacing-xl)'
       }}>
@@ -343,6 +408,18 @@ export default function InscritosCongressoPage() {
         }}>
           <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Check-in Dia 12 (Sábado)</span>
           <p style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', margin: 'var(--spacing-xs) 0 0 0' }}>{presentesDia12}</p>
+        </div>
+
+        <div style={{
+          backgroundColor: 'var(--color-white)',
+          padding: 'var(--spacing-md) var(--spacing-lg)',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid #C4B5FD',
+          boxShadow: '0 2px 8px rgba(124, 58, 237, 0.08)',
+          background: 'linear-gradient(180deg, #FFFFFF 0%, #FAF5FF 100%)',
+        }}>
+          <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-bold)', color: '#7C3AED', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Check-in Ambos os Dias</span>
+          <p style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)', color: '#7C3AED', margin: 'var(--spacing-xs) 0 0 0' }}>{presentesAmbosDias}</p>
         </div>
 
         {!isCoordenadora && (
@@ -860,6 +937,131 @@ export default function InscritosCongressoPage() {
           onClose={() => setSelectedInscritoOficinas(null)}
           onSave={handleSalvarOficinas}
         />
+      )}
+
+      {/* Modal de Confirmação de Disparo em Lote de Certificados */}
+      {showConfirmModalCertificados && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(10, 25, 63, 0.65)',
+          backdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px',
+        }}>
+          <div style={{
+            backgroundColor: '#FFFFFF',
+            borderRadius: '16px',
+            maxWidth: '520px',
+            width: '100%',
+            padding: '28px',
+            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+              <div style={{
+                width: '44px',
+                height: '44px',
+                borderRadius: '12px',
+                backgroundColor: '#F5F3FF',
+                color: '#7C3AED',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}>
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="8" r="6" />
+                  <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+                </svg>
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800', color: '#111827' }}>
+                  Disparar Certificados por E-mail
+                </h3>
+                <p style={{ margin: '2px 0 0', fontSize: '0.85rem', color: '#6B7280' }}>
+                  Apenas para participantes com 100% de presença
+                </p>
+              </div>
+            </div>
+
+            <div style={{
+              backgroundColor: '#F8FAFC',
+              border: '1px solid #E2E8F0',
+              borderRadius: '12px',
+              padding: '16px',
+              marginBottom: '20px',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ fontSize: '0.88rem', color: '#64748B', fontWeight: '500' }}>Critério de Elegibilidade:</span>
+                <span style={{ fontSize: '0.88rem', color: '#0F172A', fontWeight: '700' }}>Presença em 11/Set e 12/Set</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ fontSize: '0.88rem', color: '#64748B', fontWeight: '500' }}>Total de Participantes Aptos:</span>
+                <span style={{ fontSize: '0.95rem', color: '#7C3AED', fontWeight: '800' }}>{presentesAmbosDias} inscrito(s)</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: '0.88rem', color: '#64748B', fontWeight: '500' }}>Formato:</span>
+                <span style={{ fontSize: '0.88rem', color: '#0F172A', fontWeight: '600' }}>PDF Oficial + Resend SMTP</span>
+              </div>
+            </div>
+
+            <p style={{ fontSize: '0.9rem', color: '#374151', lineHeight: '1.5', margin: '0 0 24px' }}>
+              Deseja confirmar o disparo automático do Certificado Oficial de Participação por e-mail para todos os <strong>{presentesAmbosDias} participantes</strong> com presença registrada nos dois dias do congresso?
+            </p>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button
+                type="button"
+                onClick={() => setShowConfirmModalCertificados(false)}
+                disabled={enviandoLoteCertificados}
+                style={{
+                  padding: '9px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid #D1D5DB',
+                  backgroundColor: '#FFFFFF',
+                  color: '#374151',
+                  fontSize: '0.88rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleDispararCertificadosLote}
+                disabled={enviandoLoteCertificados}
+                style={{
+                  padding: '9px 18px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  backgroundColor: '#7C3AED',
+                  color: '#FFFFFF',
+                  fontSize: '0.88rem',
+                  fontWeight: '700',
+                  cursor: enviandoLoteCertificados ? 'wait' : 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  boxShadow: '0 2px 6px rgba(124, 58, 237, 0.3)',
+                  opacity: enviandoLoteCertificados ? 0.7 : 1,
+                }}
+              >
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13" />
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg>
+                {enviandoLoteCertificados ? 'Enviando Certificados...' : 'Confirmar e Enviar Certificados'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

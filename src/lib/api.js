@@ -972,6 +972,33 @@ export async function enviarCertificadoInscrito(id) {
   }
 }
 
+export async function enviarCertificadosLoteAmbosDias() {
+  try {
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso/enviar-certificados-ambos-dias`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao enviar certificados em lote' };
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      totalElegiveis: data.totalElegiveis,
+      totalEnviados: data.totalEnviados,
+      totalFalhas: data.totalFalhas,
+      message: data.message || 'Certificados enviados com sucesso!',
+    };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão ao enviar certificados em lote' };
+  }
+}
+
 export async function downloadCertificadoInscrito(id, nomeCompleto = 'Participante') {
   try {
     const url = `${API_BASE_URL}/admin/inscricoes-congresso/${id}/certificado`;
