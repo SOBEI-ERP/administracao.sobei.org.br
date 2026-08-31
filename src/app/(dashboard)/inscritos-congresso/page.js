@@ -525,7 +525,6 @@ export default function InscritosCongressoPage() {
                   <th style={{ padding: '12px 10px', textAlign: 'center', width: '140px' }}>Presença 11/Set</th>
                   <th style={{ padding: '12px 10px', textAlign: 'center', width: '140px' }}>Presença 12/Set</th>
                   <th style={{ padding: '12px 10px', textAlign: 'center', width: '150px' }}>Emissões &amp; Ações</th>
-                  <th style={{ padding: '12px 12px', width: '110px' }}>Inscrição</th>
                 </tr>
               </thead>
               <tbody>
@@ -845,11 +844,6 @@ export default function InscritosCongressoPage() {
                           {baixandoCertId === inscrito.id ? 'Baixando...' : 'Baixar Certificado'}
                         </button>
                       </div>
-                    </td>
-
-                    {/* Data de Inscrição */}
-                    <td style={{ padding: '12px 12px', color: '#6b7280', fontSize: '0.80rem', whiteSpace: 'nowrap' }}>
-                      {formatDate(inscrito.dataInscricao)}
                     </td>
                   </tr>
                 ))}
