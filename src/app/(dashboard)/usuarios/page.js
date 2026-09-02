@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { fetchUsuarios, criarUsuario, alterarSenhaUsuario, deletarUsuario } from '@/lib/api';
 import { IconMapPin, IconClose } from '@/components/Icons';
+import CustomSelect from '@/components/admin/CustomSelect';
 import { useRouter } from 'next/navigation';
 
 const UNIDADES_SOBEI = [
@@ -22,16 +23,36 @@ const UNIDADES_SOBEI = [
   'Sabiás',
 ];
 
+const OPCOES_NIVEL = [
+  { value: 'suporte', label: 'Suporte' },
+  { value: 'dp', label: 'Departamento Pessoal (DP)' },
+  { value: 'diretora', label: 'Diretora de Unidade' },
+  { value: 'coordenadora', label: 'Coordenadora Pedagógica' },
+  { value: 'coordenadora_evento', label: 'Coordenadora de Eventos' },
+  { value: 'credenciador', label: 'Credenciador' },
+];
+
+const OPCOES_UNIDADE = UNIDADES_SOBEI.map((u) => ({
+  value: u,
+  label: u,
+}));
+
 const NIVEL_LABELS = {
   suporte: 'Suporte',
-  admin: 'Administrador',
+  dp: 'Departamento Pessoal (DP)',
   diretora: 'Diretora',
+  coordenadora: 'Coordenadora Pedagógica',
+  coordenadora_evento: 'Coordenadora de Eventos',
+  credenciador: 'Credenciador',
 };
 
 const NIVEL_BADGE_STATUS = {
   suporte: 'em_andamento',
-  admin: 'fechada',
+  dp: 'fechada',
   diretora: 'aberta',
+  coordenadora: 'aberta',
+  coordenadora_evento: 'em_andamento',
+  credenciador: 'fechada',
 };
 
 export default function UsuariosPage() {
@@ -43,7 +64,7 @@ export default function UsuariosPage() {
 
   // Modal states for creating user
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [novoUsuario, setNovoUsuario] = useState({ usuario: '', email: '', senha: '', nivel: 'admin', unidade: '' });
+  const [novoUsuario, setNovoUsuario] = useState({ usuario: '', email: '', senha: '', nivel: 'suporte', unidade: '' });
   const [formError, setFormError] = useState('');
   const [formLoading, setFormLoading] = useState(false);
 
@@ -84,15 +105,21 @@ export default function UsuariosPage() {
     setFormLoading(true);
     setFormError('');
 
+    const nivelLower = novoUsuario.nivel.toLowerCase();
     const payload = {
       usuario: novoUsuario.usuario,
       email: novoUsuario.email,
       senha: novoUsuario.senha,
-      nivel: novoUsuario.nivel.toLowerCase(),
+      nivel: nivelLower,
     };
 
-    // Inclui unidade somente para diretora
-    if (novoUsuario.nivel.toLowerCase() === 'diretora') {
+    // Inclui unidade para diretora e coordenadora
+    if (nivelLower === 'diretora' || nivelLower === 'coordenadora') {
+      if (!novoUsuario.unidade) {
+        setFormError('A unidade vinculada é obrigatória para este nível.');
+        setFormLoading(false);
+        return;
+      }
       payload.unidade = novoUsuario.unidade;
     }
 
@@ -101,7 +128,7 @@ export default function UsuariosPage() {
     if (res.success) {
       setUsuarios([...usuarios, res.usuario]);
       setIsModalOpen(false);
-      setNovoUsuario({ usuario: '', email: '', senha: '', nivel: 'admin', unidade: '' });
+      setNovoUsuario({ usuario: '', email: '', senha: '', nivel: 'suporte', unidade: '' });
     } else {
       setFormError(res.message);
     }
@@ -302,31 +329,30 @@ export default function UsuariosPage() {
 
               <div className="form-group" style={{ marginBottom: 'var(--spacing-lg)' }}>
                 <label className="form-label">Nível de Acesso</label>
-                <select
-                  className="form-select"
+                <CustomSelect
                   value={novoUsuario.nivel}
-                  onChange={(e) => setNovoUsuario({ ...novoUsuario, nivel: e.target.value, unidade: '' })}
-                >
-                  <option value="admin">Administrador</option>
-                  <option value="suporte">Suporte</option>
-                  <option value="diretora">Diretora</option>
-                </select>
+                  onChange={(val) => setNovoUsuario({ ...novoUsuario, nivel: val, unidade: '' })}
+                  options={OPCOES_NIVEL}
+                  defaultOption="Selecione o nível de acesso"
+                  allowEmpty={false}
+                />
               </div>
 
-              {novoUsuario.nivel === 'diretora' && (
+              {(novoUsuario.nivel === 'diretora' || novoUsuario.nivel === 'coordenadora') && (
                 <div className="form-group" style={{ marginBottom: 'var(--spacing-xl)' }}>
-                  <label className="form-label">Unidade Vinculada *</label>
-                  <select
-                    className="form-select"
+                  <label className="form-label">
+                    Unidade Vinculada *{' '}
+                    <span style={{ fontSize: '0.78rem', color: 'var(--color-gray-500)', fontWeight: 'normal' }}>
+                      ({novoUsuario.nivel === 'diretora' ? 'Diretora' : 'Coordenadora'} terá acesso aos dados desta unidade)
+                    </span>
+                  </label>
+                  <CustomSelect
                     value={novoUsuario.unidade}
-                    onChange={(e) => setNovoUsuario({ ...novoUsuario, unidade: e.target.value })}
-                    required
-                  >
-                    <option value="">Selecione a unidade</option>
-                    {UNIDADES_SOBEI.map((u) => (
-                      <option key={u} value={u}>{u}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => setNovoUsuario({ ...novoUsuario, unidade: val })}
+                    options={OPCOES_UNIDADE}
+                    defaultOption="Selecione a unidade"
+                    allowEmpty={true}
+                  />
                 </div>
               )}
 

@@ -112,13 +112,13 @@ export default function InscritosCongressoPage() {
       );
       setToastFeedback({
         type: 'success',
-        message: `Oficinas de ${res.inscricao.nomeCompleto} atualizadas com sucesso!`,
+        message: `Oficina de ${res.inscricao.nomeCompleto} atualizada com sucesso!`,
       });
       setTimeout(() => {
         setToastFeedback((curr) => (curr?.type === 'success' ? null : curr));
       }, 5000);
     } else {
-      throw new Error(res.message || 'Erro ao atualizar oficinas.');
+      throw new Error(res.message || 'Erro ao atualizar oficina.');
     }
   };
 
@@ -373,67 +373,67 @@ export default function InscritosCongressoPage() {
       {/* Cards de Métricas */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: 'var(--spacing-base)',
-        marginBottom: 'var(--spacing-xl)'
+        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+        gap: '10px',
+        marginBottom: 'var(--spacing-md)'
       }}>
         <div style={{
           backgroundColor: 'var(--color-white)',
-          padding: 'var(--spacing-md) var(--spacing-lg)',
-          borderRadius: 'var(--radius-lg)',
+          padding: '8px 14px',
+          borderRadius: 'var(--radius-md)',
           border: '1px solid var(--color-gray-200)',
           boxShadow: 'var(--shadow-card)'
         }}>
-          <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Inscritos</span>
-          <p style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-900)', margin: 'var(--spacing-xs) 0 0 0' }}>{total}</p>
+          <span style={{ fontSize: '0.68rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Total Inscritos</span>
+          <p style={{ fontSize: '1.35rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-900)', margin: '2px 0 0 0' }}>{total}</p>
         </div>
 
         <div style={{
           backgroundColor: 'var(--color-white)',
-          padding: 'var(--spacing-md) var(--spacing-lg)',
-          borderRadius: 'var(--radius-lg)',
+          padding: '8px 14px',
+          borderRadius: 'var(--radius-md)',
           border: '1px solid var(--color-gray-200)',
           boxShadow: 'var(--shadow-card)'
         }}>
-          <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Check-in Dia 11 (Sexta)</span>
-          <p style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', margin: 'var(--spacing-xs) 0 0 0' }}>{presentesDia11}</p>
+          <span style={{ fontSize: '0.68rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Check-in Dia 11 (Sexta)</span>
+          <p style={{ fontSize: '1.35rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', margin: '2px 0 0 0' }}>{presentesDia11}</p>
         </div>
 
         <div style={{
           backgroundColor: 'var(--color-white)',
-          padding: 'var(--spacing-md) var(--spacing-lg)',
-          borderRadius: 'var(--radius-lg)',
+          padding: '8px 14px',
+          borderRadius: 'var(--radius-md)',
           border: '1px solid var(--color-gray-200)',
           boxShadow: 'var(--shadow-card)'
         }}>
-          <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Check-in Dia 12 (Sábado)</span>
-          <p style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', margin: 'var(--spacing-xs) 0 0 0' }}>{presentesDia12}</p>
+          <span style={{ fontSize: '0.68rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Check-in Dia 12 (Sábado)</span>
+          <p style={{ fontSize: '1.35rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', margin: '2px 0 0 0' }}>{presentesDia12}</p>
         </div>
 
         <div style={{
           backgroundColor: 'var(--color-white)',
-          padding: 'var(--spacing-md) var(--spacing-lg)',
-          borderRadius: 'var(--radius-lg)',
+          padding: '8px 14px',
+          borderRadius: 'var(--radius-md)',
           border: '1px solid var(--color-gray-200)',
           boxShadow: 'var(--shadow-card)'
         }}>
-          <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-bold)', color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Check-in Ambos os Dias</span>
-          <p style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)', color: '#0284C7', margin: 'var(--spacing-xs) 0 0 0' }}>{presentesAmbosDias}</p>
+          <span style={{ fontSize: '0.68rem', fontWeight: 'var(--font-weight-bold)', color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Check-in Ambos os Dias</span>
+          <p style={{ fontSize: '1.35rem', fontWeight: 'var(--font-weight-bold)', color: '#0284C7', margin: '2px 0 0 0' }}>{presentesAmbosDias}</p>
         </div>
 
         {!isCoordenadora && (
           <div style={{
             backgroundColor: 'var(--color-white)',
-            padding: 'var(--spacing-md) var(--spacing-lg)',
-            borderRadius: 'var(--radius-lg)',
+            padding: '8px 14px',
+            borderRadius: 'var(--radius-md)',
             border: '1px solid var(--color-gray-200)',
             boxShadow: 'var(--shadow-card)'
           }}>
-            <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-bold)', color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.05em' }}>SOBEI vs Outras</span>
-            <p style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)', color: '#0284C7', margin: 'var(--spacing-xs) 0 0 0' }}>
-              {sobeiCount} <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-medium)', color: 'var(--color-gray-500)' }}>SOBEI</span>{' '}
-              <span style={{ color: 'var(--color-gray-300)', margin: '0 4px' }}>/</span>{' '}
-              {total - sobeiCount} <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-medium)', color: 'var(--color-gray-500)' }}>Outras</span>
+            <span style={{ fontSize: '0.68rem', fontWeight: 'var(--font-weight-bold)', color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.04em' }}>SOBEI vs Outras</span>
+            <p style={{ fontSize: '1.35rem', fontWeight: 'var(--font-weight-bold)', color: '#0284C7', margin: '2px 0 0 0' }}>
+              {sobeiCount} <span style={{ fontSize: '0.72rem', fontWeight: 'var(--font-weight-medium)', color: 'var(--color-gray-500)' }}>SOBEI</span>{' '}
+              <span style={{ color: 'var(--color-gray-300)', margin: '0 3px' }}>/</span>{' '}
+              {total - sobeiCount} <span style={{ fontSize: '0.72rem', fontWeight: 'var(--font-weight-medium)', color: 'var(--color-gray-500)' }}>Outras</span>
             </p>
           </div>
         )}
@@ -597,7 +597,7 @@ export default function InscritosCongressoPage() {
                   <th style={{ padding: '12px 10px', textAlign: 'center', width: '22%' }}>Participante</th>
                   <th style={{ padding: '12px 8px', textAlign: 'center', width: '13%' }}>CPF</th>
                   <th style={{ padding: '12px 8px', textAlign: 'center', width: '14%' }}>OSC / Unidade</th>
-                  <th style={{ padding: '12px 10px', textAlign: 'center', width: '25%' }}>Oficinas Pedagógicas</th>
+                  <th style={{ padding: '12px 10px', textAlign: 'center', width: '25%' }}>Oficina Pedagógica</th>
                   <th style={{ padding: '12px 6px', textAlign: 'center', width: '12%' }}>Presença 11/Set</th>
                   <th style={{ padding: '12px 6px', textAlign: 'center', width: '12%' }}>Presença 12/Set</th>
                   <th style={{ padding: '12px 8px', textAlign: 'center', width: '14%' }}>Emissões &amp; Ações</th>
@@ -655,25 +655,31 @@ export default function InscritosCongressoPage() {
                       )}
                     </td>
 
-                    {/* Oficinas Pedagógicas (Manhã e Tarde) */}
+                    {/* Oficina Pedagógica Única */}
                     <td style={{ padding: '12px 10px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
-                        <div style={{ fontSize: '0.76rem', color: '#374151', textAlign: 'center' }}>
-                          <span style={{ fontWeight: 'bold', color: '#1e293b' }}>M:</span>{' '}
-                          {inscrito.oficinaManha ? (
-                            <span style={{ color: '#0f766e', fontWeight: '600' }}>{inscrito.oficinaManha}</span>
-                          ) : (
-                            <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>Não definida</span>
-                          )}
-                        </div>
-                        <div style={{ fontSize: '0.76rem', color: '#374151', textAlign: 'center' }}>
-                          <span style={{ fontWeight: 'bold', color: '#1e293b' }}>T:</span>{' '}
-                          {inscrito.oficinaTarde ? (
-                            <span style={{ color: '#0f766e', fontWeight: '600' }}>{inscrito.oficinaTarde}</span>
-                          ) : (
-                            <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>Não definida</span>
-                          )}
-                        </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                        {(inscrito.oficina || inscrito.oficinaManha || inscrito.oficinaTarde) ? (
+                          <span
+                            style={{
+                              color: '#0f766e',
+                              fontWeight: '600',
+                              fontSize: '0.80rem',
+                              lineHeight: '1.25',
+                              maxWidth: '240px',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              textAlign: 'center',
+                            }}
+                            title={inscrito.oficina || inscrito.oficinaManha || inscrito.oficinaTarde}
+                          >
+                            {inscrito.oficina || inscrito.oficinaManha || inscrito.oficinaTarde}
+                          </span>
+                        ) : (
+                          <span style={{ color: '#9ca3af', fontStyle: 'italic', fontSize: '0.78rem' }}>Não definida</span>
+                        )}
 
                         <button
                           type="button"
@@ -681,11 +687,11 @@ export default function InscritosCongressoPage() {
                           style={{
                             alignSelf: 'center',
                             marginTop: '2px',
-                            padding: '4px 9px',
+                            padding: '4px 10px',
                             borderRadius: '6px',
                             fontSize: '0.73rem',
                             fontWeight: '700',
-                            backgroundColor: (inscrito.oficinaManha || inscrito.oficinaTarde) ? '#059669' : '#2563EB',
+                            backgroundColor: (inscrito.oficina || inscrito.oficinaManha || inscrito.oficinaTarde) ? '#059669' : '#2563EB',
                             color: '#FFFFFF',
                             border: 'none',
                             cursor: 'pointer',
@@ -699,7 +705,7 @@ export default function InscritosCongressoPage() {
                             <path d="M12 20h9" />
                             <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
                           </svg>
-                          {(inscrito.oficinaManha || inscrito.oficinaTarde) ? 'Editar Oficinas' : 'Definir Oficinas'}
+                          {(inscrito.oficina || inscrito.oficinaManha || inscrito.oficinaTarde) ? 'Editar Oficina' : 'Definir Oficina'}
                         </button>
                       </div>
                     </td>
@@ -931,6 +937,7 @@ export default function InscritosCongressoPage() {
       {selectedInscritoOficinas && (
         <OficinasModal
           inscrito={selectedInscritoOficinas}
+          inscritos={inscritos}
           onClose={() => setSelectedInscritoOficinas(null)}
           onSave={handleSalvarOficinas}
         />
@@ -938,45 +945,42 @@ export default function InscritosCongressoPage() {
 
       {/* Modal de Confirmação de Disparo em Lote de Certificados */}
       {showConfirmModalCertificados && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(15, 23, 42, 0.65)',
-          backdropFilter: 'blur(6px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '20px',
-        }}>
-          <div style={{
-            backgroundColor: '#FFFFFF',
-            borderRadius: '16px',
-            maxWidth: '500px',
-            width: '100%',
-            padding: '28px 32px',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-            border: '1px solid #E2E8F0',
-          }}>
+        <div className="modal-overlay" onClick={() => !enviandoLoteCertificados && setShowConfirmModalCertificados(false)} style={{ zIndex: 1200 }}>
+          <div
+            className="modal"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '520px',
+              padding: '28px 24px',
+              borderRadius: '16px',
+            }}
+          >
+            <button
+              type="button"
+              className="modal__close"
+              onClick={() => setShowConfirmModalCertificados(false)}
+              disabled={enviandoLoteCertificados}
+              aria-label="Fechar modal"
+            >
+              <IconClose size={18} />
+            </button>
+
             {/* Cabeçalho */}
-            <div style={{ marginBottom: '18px' }}>
-              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '800', color: '#0F172A', letterSpacing: '-0.02em' }}>
+            <div style={{ marginBottom: '16px', textAlign: 'left' }}>
+              <h2 className="modal__title" style={{ margin: 0, fontSize: '1.25rem' }}>
                 Disparar Certificados por E-mail
-              </h3>
-              <p style={{ margin: '4px 0 0', fontSize: '0.86rem', color: '#64748B' }}>
+              </h2>
+              <p className="admin-page__description" style={{ margin: '4px 0 0', fontSize: '0.86rem' }}>
                 Confirmação de envio automático em lote
               </p>
             </div>
 
             {/* Linha divisória sutil */}
-            <div style={{ height: '1px', backgroundColor: '#F1F5F9', marginBottom: '20px' }} />
+            <div style={{ height: '1px', backgroundColor: 'var(--color-gray-200)', marginBottom: '18px' }} />
 
             {/* Corpo formatado */}
-            <div style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <p style={{ fontSize: '0.94rem', color: '#334155', lineHeight: '1.6', margin: 0 }}>
+            <div style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'left' }}>
+              <p style={{ fontSize: '0.92rem', color: 'var(--color-gray-700)', lineHeight: '1.5', margin: 0 }}>
                 Deseja confirmar o disparo do <strong>Certificado Oficial de Participação</strong> para os participantes que compareceram em ambos os dias do evento?
               </p>
 
@@ -984,66 +988,47 @@ export default function InscritosCongressoPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '12px 0',
-                borderTop: '1px dashed #E2E8F0',
-                borderBottom: '1px dashed #E2E8F0',
+                padding: '12px 14px',
+                backgroundColor: 'var(--color-gray-50)',
+                borderRadius: '8px',
+                border: '1px solid var(--color-gray-200)',
               }}>
-                <span style={{ fontSize: '0.9rem', color: '#64748B', fontWeight: '500' }}>
+                <span style={{ fontSize: '0.88rem', color: 'var(--color-gray-600)', fontWeight: '500' }}>
                   Destinatários elegíveis:
                 </span>
                 <span style={{
                   fontSize: '1.05rem',
                   fontWeight: '800',
-                  color: '#1D4ED8',
+                  color: 'var(--color-primary)',
                 }}>
                   {presentesAmbosDias} {presentesAmbosDias === 1 ? 'participante' : 'participantes'}
                 </span>
               </div>
 
-              <p style={{ fontSize: '0.82rem', color: '#64748B', margin: 0, lineHeight: '1.4' }}>
+              <p style={{ fontSize: '0.80rem', color: 'var(--color-gray-500)', margin: 0, lineHeight: '1.4' }}>
                 * O certificado em anexo será enviado apenas a quem possui check-in em <strong>11/Set</strong> e <strong>12/Set</strong>.
               </p>
             </div>
 
             {/* Botões de Ação */}
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '14px', marginTop: '6px' }}>
+            <div className="modal__actions">
               <button
                 type="button"
+                className="btn btn--outline"
                 onClick={() => setShowConfirmModalCertificados(false)}
                 disabled={enviandoLoteCertificados}
-                style={{
-                  padding: '10px 18px',
-                  borderRadius: '10px',
-                  border: '1px solid #CBD5E1',
-                  backgroundColor: '#FFFFFF',
-                  color: '#475569',
-                  fontSize: '0.88rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                }}
               >
                 Cancelar
               </button>
               <button
                 type="button"
+                className="btn btn--primary"
                 onClick={handleDispararCertificadosLote}
                 disabled={enviandoLoteCertificados}
                 style={{
-                  padding: '10px 20px',
-                  borderRadius: '10px',
-                  border: 'none',
-                  backgroundColor: '#1D4ED8',
-                  color: '#FFFFFF',
-                  fontSize: '0.88rem',
-                  fontWeight: '700',
-                  cursor: enviandoLoteCertificados ? 'wait' : 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '8px',
-                  boxShadow: 'none',
-                  transition: 'all 0.15s ease',
-                  opacity: enviandoLoteCertificados ? 0.7 : 1,
                 }}
               >
                 <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">

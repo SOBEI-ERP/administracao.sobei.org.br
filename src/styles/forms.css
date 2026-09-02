@@ -223,7 +223,7 @@
 .protocol-modal__title {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
-  color: var(--color-primary);
+  color: var(--color-gray-900);
   margin-bottom: var(--spacing-base);
 }
 
