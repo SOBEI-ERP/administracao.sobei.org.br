@@ -21,7 +21,7 @@
   font-family: var(--font-montserrat);
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-black);
-  color: var(--color-primary);
+  color: var(--color-gray-900);
   margin: 0;
   font-style: normal;
 }
