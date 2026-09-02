@@ -1117,4 +1117,24 @@ export async function downloadCrachasLote(filtros = {}) {
   }
 }
 
+export async function deletarInscritoCongresso(id) {
+  try {
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso/${id}`;
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao excluir inscrição' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão ao excluir inscrição' };
+  }
+}
+
 
