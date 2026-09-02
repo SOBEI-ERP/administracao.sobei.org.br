@@ -6,22 +6,7 @@ import { fetchUsuarios, criarUsuario, alterarSenhaUsuario, deletarUsuario } from
 import { IconMapPin, IconClose } from '@/components/Icons';
 import CustomSelect from '@/components/admin/CustomSelect';
 import { useRouter } from 'next/navigation';
-
-const UNIDADES_SOBEI = [
-  'Araucárias',
-  'Cedro',
-  'Oliveiras',
-  'Macaúbas',
-  'Montanaro',
-  'Leblon',
-  'Imbuias',
-  'Acácias',
-  'Ipês',
-  'Bela Vista',
-  'Orquídeas',
-  'Cerejeiras / Jacomo Tatto',
-  'Sabiás',
-];
+import { UNIDADES } from '@/lib/mockData';
 
 const OPCOES_NIVEL = [
   { value: 'suporte', label: 'Suporte' },
@@ -32,7 +17,7 @@ const OPCOES_NIVEL = [
   { value: 'credenciador', label: 'Credenciador' },
 ];
 
-const OPCOES_UNIDADE = UNIDADES_SOBEI.map((u) => ({
+const OPCOES_UNIDADE = UNIDADES.map((u) => ({
   value: u,
   label: u,
 }));
