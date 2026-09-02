@@ -187,22 +187,6 @@ export default function InscritosCongressoPage() {
     }, 8000);
   };
 
-  const handleSalvarOficinas = async (id, data) => {
-    const res = await atualizarOficinasInscrito(id, data);
-    if (res.success) {
-      setInscritos((prev) =>
-        prev.map((i) => (i.id === id ? { ...i, ...res.inscricao } : i))
-      );
-      setToastFeedback({
-        type: 'success',
-        message: 'Oficina do participante atualizada com sucesso!',
-      });
-      setSelectedInscritoOficinas(null);
-    } else {
-      throw new Error(res.message || 'Erro ao salvar oficina');
-    }
-  };
-
   const handleConfirmarExclusao = async () => {
     if (!inscritoParaExcluir) return;
     setDeletandoId(inscritoParaExcluir.id);
