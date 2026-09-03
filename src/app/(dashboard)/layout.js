@@ -16,7 +16,7 @@ export default function DashboardLayout({ children }) {
       router.push('/');
     } else if (!loading && isAuthenticated && user) {
       const nivel = user.nivel?.toUpperCase();
-      if (nivel === 'DIRETORA' && !['/vagas', '/banco-talentos', '/mensagens'].includes(pathname)) {
+      if (nivel === 'DIRETORA' && !['/vagas', '/banco-talentos', '/mensagens', '/inscritos-congresso'].includes(pathname)) {
         router.push('/vagas');
       } else if (nivel === 'COORDENADORA' && !['/inscritos-congresso', '/mensagens'].includes(pathname)) {
         router.push('/inscritos-congresso');

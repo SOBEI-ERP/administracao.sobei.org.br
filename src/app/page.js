@@ -15,8 +15,11 @@ export default function AdminLoginPage() {
 
   useEffect(() => {
     if (!loading && isAuthenticated && user) {
-      if (user.nivel?.toUpperCase() === 'DIRETORA') {
+      const nivel = user.nivel?.toUpperCase();
+      if (nivel === 'DIRETORA') {
         router.push('/vagas');
+      } else if (nivel === 'COORDENADORA' || nivel === 'CREDENCIADOR' || nivel === 'COORDENADORA_EVENTO') {
+        router.push('/inscritos-congresso');
       } else {
         router.push('/dashboard');
       }
@@ -37,8 +40,11 @@ export default function AdminLoginPage() {
     const result = await login(data);
     if (result.success) {
       const storedUser = JSON.parse(sessionStorage.getItem('sobei_user') || '{}');
-      if (storedUser.nivel?.toUpperCase() === 'DIRETORA') {
+      const nivel = storedUser.nivel?.toUpperCase();
+      if (nivel === 'DIRETORA') {
         router.push('/vagas');
+      } else if (nivel === 'COORDENADORA' || nivel === 'CREDENCIADOR' || nivel === 'COORDENADORA_EVENTO') {
+        router.push('/inscritos-congresso');
       } else {
         router.push('/dashboard');
       }
