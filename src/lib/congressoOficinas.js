@@ -291,11 +291,11 @@ export const OFICINAS_CONGRESSO = [
     },
   },
   {
-    id: 'shirley-santos',
-    ministrante: 'Shirley da Silva Santos',
-    tema: 'Práticas Pedagógicas na Educação Infantil (Shirley Santos)',
-    categoria: 'Pedagogia da Infância',
-    vagasSala: 35,
+    id: 'shirley-silva',
+    ministrante: 'Shirley da Silva',
+    tema: 'Motricidade Livre',
+    categoria: 'Desenvolvimento Motor & Psicomotricidade',
+    vagasSala: 30,
     totalUnidades: 19,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
