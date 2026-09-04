@@ -33,7 +33,7 @@ export const OFICINAS_CONGRESSO = [
   {
     id: 'cristiano-santos',
     ministrante: 'Cristiano dos Santos Araujo',
-    tema: 'Entre contos, brincadeiras e canções',
+    tema: 'Entre contos, brincadeiras e canções.',
     categoria: 'Música & Tradição Oral',
     vagasSala: 20,
     totalUnidades: 19,
@@ -59,7 +59,7 @@ export const OFICINAS_CONGRESSO = [
   {
     id: 'ana-gilda',
     ministrante: 'Ana Gilda Leocadio',
-    tema: 'Contando Histórias Para Criar Memórias',
+    tema: 'Contando Histórias Para Criar Memórias.',
     categoria: 'Contação de Histórias',
     vagasSala: 20,
     totalUnidades: 27,
@@ -72,7 +72,7 @@ export const OFICINAS_CONGRESSO = [
   {
     id: 'jaqueline-gomes',
     ministrante: 'Jaqueline Gomes Silva Veleda',
-    tema: 'Inclusão na Primeira Infância, Além do Diagnóstico',
+    tema: 'Inclusão na Primeira Infância, Além do Diagnóstico.',
     categoria: 'Educação Inclusiva',
     vagasSala: 30,
     totalUnidades: 19,
@@ -85,7 +85,7 @@ export const OFICINAS_CONGRESSO = [
   {
     id: 'marcia-curti',
     ministrante: 'Márcia Curti de Mello',
-    tema: 'Inclusão no lúdico, como o brincar pode ajudar a superar barreiras',
+    tema: 'Inclusão no lúdico, como o brincar pode ajudar a superar barreiras.',
     categoria: 'Lúdico & Acessibilidade',
     vagasSala: 15,
     totalUnidades: 19,
@@ -111,7 +111,7 @@ export const OFICINAS_CONGRESSO = [
   {
     id: 'erika-silva',
     ministrante: 'Erika Aparecida da Silva',
-    tema: 'Brincar, Criar e Pertencer: experiências antirracistas por meio das múltiplas linguagens da infância',
+    tema: 'Brincar, Criar e Pertencer: experiências antirracistas por meio das múltiplas linguagens da infância.',
     categoria: 'Educação Antirracista',
     vagasSala: 50,
     totalUnidades: 27,
@@ -124,7 +124,7 @@ export const OFICINAS_CONGRESSO = [
   {
     id: 'regiane-lays',
     ministrante: 'Regiane Lays Jacinto de Brito',
-    tema: 'Saberes que alimentam: cuidado, memória e pertencimento na experiência de quem atua na cozinha',
+    tema: 'Saberes que alimentam: cuidado, memória e pertencimento na experiência de quem atua na cozinha.',
     categoria: 'Cuidado & Terapia Integrativa',
     vagasSala: 30,
     totalUnidades: 70,
@@ -150,7 +150,7 @@ export const OFICINAS_CONGRESSO = [
   {
     id: 'talita-marques',
     ministrante: 'Talita Regina Lopes de Oliveira Marques',
-    tema: 'A importância do Brincar com Areia na Educação Infantil',
+    tema: 'A importância do Brincar com Areia na Educação Infantil.',
     categoria: 'Brincar Sensorial',
     vagasSala: 30,
     totalUnidades: 27,
@@ -176,7 +176,7 @@ export const OFICINAS_CONGRESSO = [
   {
     id: 'patricia-couto',
     ministrante: 'Patrícia Couto Gimael',
-    tema: 'Cuidados, linguagem e inclusão',
+    tema: 'Cuidados, linguagem e inclusão.',
     categoria: 'Linguagem & Cuidados',
     vagasSala: 25,
     totalUnidades: 19,
@@ -189,7 +189,7 @@ export const OFICINAS_CONGRESSO = [
   {
     id: 'raissa-cintra',
     ministrante: 'Raissa Cintra',
-    tema: 'Corpo e Movimento',
+    tema: 'Corpo e Movimento.',
     categoria: 'Psicomotricidade & Movimento',
     vagasSala: 25,
     totalUnidades: 19,
@@ -228,7 +228,7 @@ export const OFICINAS_CONGRESSO = [
   {
     id: 'rose-brito',
     ministrante: 'Rose Brito',
-    tema: 'Entre Cantos, Contos e Batucadas',
+    tema: 'Entre Cantos, Contos e Batucadas.',
     categoria: 'Musicalidade & Contos',
     vagasSala: 20,
     totalUnidades: 19,
@@ -241,7 +241,7 @@ export const OFICINAS_CONGRESSO = [
   {
     id: 'ivani-magalhaes',
     ministrante: 'Ivani Magalhães',
-    tema: 'Rodas e brincadeiras cantadas',
+    tema: 'Rodas e brincadeiras cantadas.',
     categoria: 'Música & Tradição Popular',
     vagasSala: 20,
     totalUnidades: 13,
@@ -254,7 +254,7 @@ export const OFICINAS_CONGRESSO = [
   {
     id: 'marcia-polacchini',
     ministrante: 'Márcia Polacchini',
-    tema: 'Jogos Teatrais',
+    tema: 'Jogos Teatrais.',
     categoria: 'Teatro & Expressão Artística',
     vagasSala: 20,
     totalUnidades: 19,
@@ -267,7 +267,7 @@ export const OFICINAS_CONGRESSO = [
   {
     id: 'leticia-oliveira',
     ministrante: 'Leticia de Almeida Oliveira',
-    tema: 'Alimentação segura e pedagógica na escola: manejo clínico e comportamental (0 a 4 anos)',
+    tema: 'Alimentação segura e pedagógica na escola: manejo clínico e comportamental (0 a 4 anos).',
     categoria: 'Nutrição & Manejo Clínico',
     vagasSala: 20,
     totalUnidades: 26,
@@ -280,7 +280,7 @@ export const OFICINAS_CONGRESSO = [
   {
     id: 'juliana-leticia',
     ministrante: 'Juliana Neves & Leticia Alves',
-    tema: 'Escuta Ativa: A Fonoaudiologia no Cotidiano da Pedagogia da Infância',
+    tema: 'Escuta Ativa: A Fonoaudiologia no Cotidiano da Pedagogia da Infância.',
     categoria: 'Fonoaudiologia & Escuta Ativa',
     vagasSala: 20,
     totalUnidades: 19,
@@ -293,7 +293,7 @@ export const OFICINAS_CONGRESSO = [
   {
     id: 'shirley-silva',
     ministrante: 'Shirley da Silva',
-    tema: 'Motricidade Livre',
+    tema: 'Motricidade Livre.',
     categoria: 'Desenvolvimento Motor & Psicomotricidade',
     vagasSala: 30,
     totalUnidades: 19,
@@ -345,27 +345,44 @@ export function normalizarNomeUnidade(unidade) {
 }
 
 /**
+ * Normaliza strings de tema ou ministrante para comparação resiliente a pontuação e acentos.
+ */
+export function normalizarTextoOficina(texto) {
+  if (!texto) return '';
+  return String(texto)
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[.,;:!?]+$/, '')
+    .trim();
+}
+
+/**
  * Retorna o objeto da oficina correspondente pelo tema ou pelo id.
  */
 export function encontrarOficina(temaOuId) {
   if (!temaOuId) return null;
-  const termo = String(temaOuId).trim().toLowerCase();
+  const termo = normalizarTextoOficina(temaOuId);
+  if (!termo) return null;
   
   // 1. Busca exata
   const exata = OFICINAS_CONGRESSO.find(
-    (o) => o.tema.trim().toLowerCase() === termo ||
+    (o) => normalizarTextoOficina(o.tema) === termo ||
            o.id.toLowerCase() === termo ||
-           o.ministrante.trim().toLowerCase() === termo
+           normalizarTextoOficina(o.ministrante) === termo
   );
   if (exata) return exata;
 
   // 2. Busca flexível / parcial
-  return OFICINAS_CONGRESSO.find(
-    (o) => o.tema.toLowerCase().includes(termo) ||
-           termo.includes(o.tema.toLowerCase()) ||
-           o.ministrante.toLowerCase().includes(termo) ||
-           termo.includes(o.ministrante.toLowerCase())
-  ) || null;
+  return OFICINAS_CONGRESSO.find((o) => {
+    const oTema = normalizarTextoOficina(o.tema);
+    const oMin = normalizarTextoOficina(o.ministrante);
+    return oTema.includes(termo) ||
+           termo.includes(oTema) ||
+           oMin.includes(termo) ||
+           termo.includes(oMin);
+  }) || null;
 }
 
 /**
@@ -406,7 +423,8 @@ export function calcularOcupacaoUnidade(oficinaTema, unidade, todosInscritos = [
     };
   }
 
-  const temaAlvo = ofObj ? ofObj.tema.toLowerCase() : String(oficinaTema).toLowerCase();
+  const normTemaAlvo = normalizarTextoOficina(ofObj ? ofObj.tema : oficinaTema);
+  const normMin = ofObj ? normalizarTextoOficina(ofObj.ministrante) : '';
 
   const ocupadas = todosInscritos.filter((i) => {
     if (excludeInscritoId && i.id === excludeInscritoId) return false;
@@ -415,10 +433,13 @@ export function calcularOcupacaoUnidade(oficinaTema, unidade, todosInscritos = [
     const iUnidNorm = normalizarNomeUnidade(i.unidade);
     if (iUnidNorm !== unidNorm) return false;
 
-    const iOficina = (i.oficina || i.oficinaManha || i.oficinaTarde || '').trim().toLowerCase();
+    const iOficina = (i.oficina || i.oficinaManha || i.oficinaTarde || '');
     if (!iOficina) return false;
 
-    return iOficina === temaAlvo || (ofObj && iOficina.includes(ofObj.ministrante.toLowerCase()));
+    const normIOficina = normalizarTextoOficina(iOficina);
+    return normIOficina === normTemaAlvo ||
+           (normMin && normIOficina.includes(normMin)) ||
+           (normTemaAlvo && (normIOficina.includes(normTemaAlvo) || normTemaAlvo.includes(normIOficina)));
   }).length;
 
   const disponiveis = Math.max(0, limite - ocupadas);
