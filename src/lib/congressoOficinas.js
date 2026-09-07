@@ -279,7 +279,7 @@ export const OFICINAS_CONGRESSO = [
   },
   {
     id: 'juliana-leticia',
-    ministrante: 'Juliana Neves & Leticia Alves',
+    ministrante: 'Leticia Alves',
     tema: 'Escuta Ativa: A Fonoaudiologia no Cotidiano da Pedagogia da Infância.',
     categoria: 'Fonoaudiologia & Escuta Ativa',
     vagasSala: 20,
