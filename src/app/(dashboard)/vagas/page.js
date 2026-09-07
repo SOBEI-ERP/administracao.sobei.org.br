@@ -144,10 +144,18 @@ function VagasContent() {
 
   // Sync query param tab if changed
   useEffect(() => {
-    const tabParam = searchParams.get('tab');
-    if (tabParam === 'banco-talentos') {
-      setMainTab('banco-talentos');
-    }
+    let active = true;
+    Promise.resolve().then(() => {
+      if (active) {
+        const tabParam = searchParams.get('tab');
+        if (tabParam === 'banco-talentos') {
+          setMainTab('banco-talentos');
+        }
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, [searchParams]);
 
   // Load Vagas
@@ -946,7 +954,7 @@ function VagasContent() {
               <IconWarning size={42} style={{ color: '#f59e0b' }} />
               <h2 style={{ fontSize: '20px', color: '#111827', marginTop: '8px', marginBottom: '4px' }}>Excluir Vaga?</h2>
               <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>
-                Tem certeza que deseja excluir a vaga <strong>"{selectedVaga.titulo}"</strong>?
+                Tem certeza que deseja excluir a vaga <strong>&ldquo;{selectedVaga.titulo}&rdquo;</strong>?
               </p>
             </div>
 

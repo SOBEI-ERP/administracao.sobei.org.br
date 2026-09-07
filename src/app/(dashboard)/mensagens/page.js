@@ -126,18 +126,10 @@ export default function MensagensPage() {
           <button
             className={`vagas-admin__filter-btn ${apenasNaoLidas ? 'vagas-admin__filter-btn--active' : ''}`}
             onClick={() => setApenasNaoLidas(true)}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
           >
             <span>Não Lidas</span>
             {naoLidasCount > 0 && (
-              <span style={{ 
-                backgroundColor: 'var(--color-primary, #1b1464)', 
-                color: '#fff', 
-                borderRadius: '10px', 
-                padding: '2px 6px', 
-                fontSize: '11px',
-                fontWeight: 'bold' 
-              }}>
+              <span className="vagas-admin__filter-badge">
                 {naoLidasCount}
               </span>
             )}
@@ -174,7 +166,7 @@ export default function MensagensPage() {
               style={{
                 backgroundColor: '#fff',
                 borderRadius: '12px',
-                border: msg.lida ? '1px solid var(--color-gray-200, #e2e8f0)' : '2px solid var(--color-primary, #1b1464)',
+                border: '1px solid var(--color-gray-200, #e2e8f0)',
                 padding: '20px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',

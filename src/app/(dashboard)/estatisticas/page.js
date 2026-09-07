@@ -16,6 +16,7 @@ import {
   Cell,
   Legend,
 } from 'recharts';
+import { useAuth } from '@/contexts/AuthContext';
 import { useEstatisticas, useTodasDenuncias } from '@/hooks/useDenuncias';
 import { UNIDADES } from '@/lib/mockData';
 import ConfirmModal from '@/components/admin/ConfirmModal';
@@ -122,6 +123,7 @@ const buildEvolucaoReal = (denuncias = [], dataFim = null) => {
 };
 
 export default function EstatisticasPage() {
+  const { user } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [filtros, setFiltros] = useState({
     tipo: '',
@@ -141,460 +143,6 @@ export default function EstatisticasPage() {
   const { data: todasDenuncias, isLoading: isDenunciasLoading } = useTodasDenuncias(filtros);
   const isLoading = isStatsLoading || isDenunciasLoading;
   const [showPopupBlockedAlert, setShowPopupBlockedAlert] = useState(false);
-
-  if (!mounted) {
-    return (
-      <div>
-        <h1 className="statistics-page__title">Estatísticas</h1>
-        <p style={{ color: 'var(--color-gray-500)', padding: '24px 0' }}>Carregando...</p>
-      </div>
-    );
-  }
-
-  function handleAplicar() {
-    if (filtros.unidade && !tags.includes(filtros.unidade)) {
-      setTags([...tags, filtros.unidade]);
-    }
-  }
-
-  function handleLimpar() {
-    setFiltros({ tipo: '', unidade: '', dataInicio: '', dataFim: '' });
-    setTags([]);
-  }
-
-  function handleRemoveTag(tag) {
-    setTags(tags.filter((t) => t !== tag));
-  }
-
-  function handleExportRelatorio() {
-    if (isLoading || !stats) return;
-
-    const maxUnidade = barData.length > 0
-      ? barData.reduce((prev, current) => (prev.total > current.total ? prev : current))
-      : null;
-
-    const minUnidade = barData.length > 0
-      ? barData.reduce((prev, current) => (prev.total < current.total ? prev : current))
-      : null;
-
-    const sortedBarData = [...barData].sort((a, b) => b.total - a.total);
-
-    const anonimas = tiposData.find(t => t.name === 'Anônima')?.value || 0;
-    const identificadas = tiposData.find(t => t.name === 'Identificada')?.value || 0;
-    const taxaAnonimato = totalDenuncias > 0 ? ((anonimas / totalDenuncias) * 100).toFixed(1) : '0.0';
-
-    const fila = statusData.find(s => s.name === 'Aguardando Análise')?.value || 0;
-    const emAndamento = statusData.find(s => s.name === 'Em Andamento')?.value || 0;
-    const resolvidos = statusData.find(s => s.name === 'Protocolo Fechado')?.value || 0;
-    const arquivados = statusData.find(s => s.name === 'Arquivada')?.value || 0;
-
-    const filtroTipoText = filtros.tipo === 'anonima' ? 'Anônimas' : filtros.tipo === 'identificada' ? 'Identificadas' : 'Todos';
-    const filtroUnidadeText = filtros.unidade || 'Todas unidades';
-    const filtroPeriodoText = (filtros.dataInicio || filtros.dataFim)
-      ? `${filtros.dataInicio || 'Início'} até ${filtros.dataFim || 'Fim'}`
-      : 'Todo o histórico';
-
-    const logoUrl = window.location.origin + '/images/LOGO AZUL.png';
-
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      setShowPopupBlockedAlert(true);
-      return;
-    }
-
-    const dataEmissao = new Date().toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html lang="pt-BR">
-      <head>
-        <meta charset="UTF-8">
-        <title>Relatório Estatístico Executivo - SOBEI</title>
-        <style>
-          @page {
-            size: A4;
-            margin: 15mm;
-          }
-          body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: #2D3748;
-            margin: 0;
-            padding: 20px;
-            background-color: #fff;
-            line-height: 1.5;
-          }
-          .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 3px solid #1B1464;
-            padding-bottom: 16px;
-            margin-bottom: 24px;
-          }
-          .logo-title img {
-            height: 50px;
-            width: auto;
-            display: block;
-            margin-bottom: 6px;
-          }
-          .logo-title p {
-            margin: 4px 0 0 0;
-            color: #4A5568;
-            font-size: 13px;
-            font-weight: 500;
-          }
-          .meta-info {
-            text-align: right;
-            font-size: 12px;
-            color: #718096;
-          }
-          .section-title {
-            color: #1B1464;
-            border-bottom: 2px solid #E2E8F0;
-            padding-bottom: 6px;
-            margin-top: 28px;
-            margin-bottom: 16px;
-            font-size: 16px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: bold;
-            page-break-after: avoid;
-          }
-          .filters-summary {
-            background-color: #F7FAFC;
-            border: 1px solid #E2E8F0;
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin-bottom: 24px;
-            font-size: 13px;
-          }
-          .filters-summary table {
-            width: 100%;
-            border-collapse: collapse;
-          }
-          .filters-summary td {
-            padding: 4px 8px;
-          }
-          .filters-summary td strong {
-            color: #1B1464;
-          }
-          .kpi-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 16px;
-            page-break-inside: avoid;
-          }
-          .kpi-card {
-            border: 1px solid #E2E8F0;
-            border-radius: 8px;
-            padding: 12px 14px;
-            background-color: #fff;
-          }
-          .kpi-card__title {
-            font-size: 10px;
-            color: #718096;
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-bottom: 4px;
-            letter-spacing: 0.5px;
-          }
-          .kpi-card__value {
-            font-size: 22px;
-            font-weight: bold;
-            color: #1A202C;
-          }
-          .kpi-card__desc {
-            font-size: 11px;
-            color: #718096;
-            margin-top: 2px;
-          }
-          table.data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 12px;
-            margin-bottom: 20px;
-            page-break-inside: avoid;
-          }
-          table.data-table th, table.data-table td {
-            border: 1px solid #E2E8F0;
-            padding: 8px 12px;
-            text-align: left;
-          }
-          table.data-table th {
-            background-color: #EDF2F7;
-            color: #2D3748;
-            font-weight: bold;
-            font-size: 12px;
-            text-transform: uppercase;
-          }
-          table.data-table td {
-            font-size: 12px;
-          }
-          table.data-table tr:nth-child(even) td {
-            background-color: #F7FAFC;
-          }
-          .highlight-box {
-            background-color: #EBF8FF;
-            border: 1px solid #BEE3F8;
-            border-radius: 8px;
-            padding: 14px;
-            margin-bottom: 24px;
-            display: flex;
-            justify-content: space-between;
-            page-break-inside: avoid;
-          }
-          .highlight-item {
-            flex: 1;
-            text-align: center;
-          }
-          .highlight-item:not(:last-child) {
-            border-right: 1px solid #BEE3F8;
-          }
-          .highlight-item__title {
-            font-size: 11px;
-            color: #2B6CB0;
-            text-transform: uppercase;
-            font-weight: bold;
-          }
-          .highlight-item__value {
-            font-size: 16px;
-            font-weight: bold;
-            color: #2C5282;
-            margin-top: 4px;
-          }
-          .flex-tables {
-            display: flex;
-            gap: 20px;
-            page-break-inside: avoid;
-          }
-          .flex-tables > div {
-            flex: 1;
-          }
-          .footer {
-            margin-top: 40px;
-            border-top: 1px solid #E2E8F0;
-            padding-top: 12px;
-            text-align: center;
-            font-size: 10px;
-            color: #A0AEC0;
-            page-break-inside: avoid;
-          }
-          @media print {
-            body {
-              padding: 0;
-            }
-            .no-print {
-              display: none;
-            }
-          }
-          .print-btn-container {
-            text-align: right;
-            margin-bottom: 16px;
-          }
-          .btn-print {
-            background-color: #1B1464;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 13px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          }
-          .btn-print:hover {
-            background-color: #2A1F8A;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="print-btn-container no-print">
-          <button class="btn-print" onclick="window.print()">Imprimir / Salvar como PDF</button>
-        </div>
-
-        <div class="header">
-          <div class="logo-title">
-            <img src="${logoUrl}" alt="SOBEI Logo" />
-            <p>Canal de Denúncias — Relatório Estatístico Executivo de Compliance</p>
-          </div>
-          <div class="meta-info">
-            <p><strong>Emitido em:</strong> ${dataEmissao}</p>
-            <p><strong>Emissor:</strong> Painel Administrativo SOBEI</p>
-          </div>
-        </div>
-
-        <div class="filters-summary">
-          <table>
-            <tr>
-              <td><strong>Unidade:</strong> ${filtroUnidadeText}</td>
-              <td><strong>Tipo de Manifestação:</strong> ${filtroTipoText}</td>
-            </tr>
-            <tr>
-              <td colspan="2"><strong>Período de Análise:</strong> ${filtroPeriodoText}</td>
-            </tr>
-          </table>
-        </div>
-
-        <div class="section-title">Indicadores Globais de Desempenho</div>
-        <div class="kpi-container">
-          <div class="kpi-card">
-            <div class="kpi-card__title">Total de Manifestações</div>
-            <div class="kpi-card__value">${totalDenuncias}</div>
-            <div class="kpi-card__desc">Registros no período</div>
-          </div>
-          <div class="kpi-card accent">
-            <div class="kpi-card__title">Taxa de Anonimato</div>
-            <div class="kpi-card__value">${taxaAnonimato}%</div>
-            <div class="kpi-card__desc">${anonimas} anônimas, ${identificadas} identificadas</div>
-          </div>
-          <div class="kpi-card accent">
-            <div class="kpi-card__title">Tempo Médio de Apuração</div>
-            <div class="kpi-card__value">${mediaDiasResolucao ? `${mediaDiasResolucao} dias` : '—'}</div>
-            <div class="kpi-card__desc">Média até fechamento</div>
-          </div>
-        </div>
-
-        <div class="kpi-container">
-          <div class="kpi-card orange">
-            <div class="kpi-card__title">Em Triagem (Fila)</div>
-            <div class="kpi-card__value">${fila}</div>
-            <div class="kpi-card__desc">Aguardando análise inicial</div>
-          </div>
-          <div class="kpi-card orange">
-            <div class="kpi-card__title">Em Resolução</div>
-            <div class="kpi-card__value">${emAndamento}</div>
-            <div class="kpi-card__desc">Investigação ativa</div>
-          </div>
-          <div class="kpi-card green">
-            <div class="kpi-card__title">Resolutividade Operacional</div>
-            <div class="kpi-card__value">${taxaResolutividade}%</div>
-            <div class="kpi-card__desc">${resolvidos} resolvidos vs ${arquivados} arquivados</div>
-          </div>
-        </div>
-
-        <div class="section-title">Destaques por Unidade</div>
-        <div class="highlight-box">
-          <div class="highlight-item">
-            <div class="highlight-item__title">Unidade com Maior Incidência</div>
-            <div class="highlight-item__value">${maxUnidade ? `${maxUnidade.unidade} (${maxUnidade.total})` : 'Nenhuma'}</div>
-          </div>
-          <div class="highlight-item">
-            <div class="highlight-item__title">Unidade com Menor Incidência</div>
-            <div class="highlight-item__value">${minUnidade ? `${minUnidade.unidade} (${minUnidade.total})` : 'Nenhuma'}</div>
-          </div>
-        </div>
-
-        <div class="flex-tables">
-          <div>
-            <div class="section-title" style="margin-top:0;">Tipo de Manifestação</div>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Tipo</th>
-                  <th>Quantidade</th>
-                  <th>Proporção</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Anônima</td>
-                  <td>${anonimas}</td>
-                  <td>${totalDenuncias > 0 ? ((anonimas / totalDenuncias) * 100).toFixed(1) : '0.0'}%</td>
-                </tr>
-                <tr>
-                  <td>Identificada</td>
-                  <td>${identificadas}</td>
-                  <td>${totalDenuncias > 0 ? ((identificadas / totalDenuncias) * 100).toFixed(1) : '0.0'}%</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div>
-            <div class="section-title" style="margin-top:0;">Gravidade / Prioridades</div>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Prioridade</th>
-                  <th>Quantidade</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${prioridadesData.map(p => `
-                  <tr>
-                    <td>${p.name}</td>
-                    <td>${p.value}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="section-title">Detalhamento Completo por Unidade</div>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Posição</th>
-              <th>Unidade Escolar / Setor</th>
-              <th>Total de Manifestações</th>
-              <th>Participação (%)</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${sortedBarData.map((item, index) => {
-              const part = totalDenuncias > 0 ? ((item.total / totalDenuncias) * 100).toFixed(1) : '0.0';
-              return `
-                <tr>
-                  <td><strong>${index + 1}º</strong></td>
-                  <td>${item.unidade}</td>
-                  <td>${item.total}</td>
-                  <td>${part}%</td>
-                </tr>
-              `;
-            }).join('')}
-            ${sortedBarData.length === 0 ? `<tr><td colspan="4" style="text-align: center;">Nenhum dado registrado para o período.</td></tr>` : ''}
-          </tbody>
-        </table>
-
-        ${evolucaoData.length > 0 ? `
-          <div class="section-title">Histórico de Evolução Temporal</div>
-          <table class="data-table" style="max-width: 450px;">
-            <thead>
-              <tr>
-                <th>Período</th>
-                <th>Manifestações Registradas</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${evolucaoData.map(item => `
-                <tr>
-                  <td>${item.data}</td>
-                  <td>${item.total}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        ` : ''}
-
-        <div class="footer">
-          <p>© SOBEI — Relatório Oficial de Compliance e Ouvidoria gerado automaticamente para fins de gestão interna.</p>
-        </div>
-      </body>
-      </html>
-    `;
-
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
-  }
-
 
   const barData = stats?.porUnidade
     ? Object.entries(stats.porUnidade).map(([unidade, total]) => ({ unidade, total }))
@@ -654,19 +202,6 @@ export default function EstatisticasPage() {
       })
     : [];
 
-  // Custom label for pie chart
-  const renderCustomLabel = ({ unidade, percentual, x, y }) => (
-    <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={12} fill="#333">
-      {`${percentual}%`}
-    </text>
-  );
-
-  const renderPriorityLabel = ({ name, percent, x, y }) => (
-    <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={11} fill="#333">
-      {`${(percent * 100).toFixed(1)}%`}
-    </text>
-  );
-
   const evolucaoData = buildEvolucaoReal(todasDenuncias || [], filtros.dataFim);
 
   const fechadasCount = statusData.find(s => s.name === 'Protocolo Fechado')?.value || 0;
@@ -694,6 +229,859 @@ export default function EstatisticasPage() {
 
     return count > 0 ? (totalDias / count).toFixed(1) : null;
   })();
+
+  function handleAplicar() {
+    if (filtros.unidade && !tags.includes(filtros.unidade)) {
+      setTags([...tags, filtros.unidade]);
+    }
+  }
+
+  function handleLimpar() {
+    setFiltros({ tipo: '', unidade: '', dataInicio: '', dataFim: '' });
+    setTags([]);
+  }
+
+  function handleRemoveTag(tag) {
+    setTags(tags.filter((t) => t !== tag));
+  }
+
+  function handleExportRelatorio() {
+    if (isLoading || !stats) return;
+
+    const maxUnidade = barData.length > 0
+      ? barData.reduce((prev, current) => (prev.total > current.total ? prev : current))
+      : null;
+
+    const minUnidade = barData.length > 0
+      ? barData.reduce((prev, current) => (prev.total < current.total ? prev : current))
+      : null;
+
+    const sortedBarData = [...barData].sort((a, b) => b.total - a.total);
+
+    const anonimas = tiposData.find(t => t.name === 'Anônima')?.value || 0;
+    const identificadas = tiposData.find(t => t.name === 'Identificada')?.value || 0;
+    const taxaAnonimato = totalDenuncias > 0 ? ((anonimas / totalDenuncias) * 100).toFixed(1) : '0.0';
+    const taxaIdentificadas = totalDenuncias > 0 ? ((identificadas / totalDenuncias) * 100).toFixed(1) : '0.0';
+
+    const fila = statusData.find(s => s.name === 'Aguardando Análise')?.value || 0;
+    const emAndamento = statusData.find(s => s.name === 'Em Andamento')?.value || 0;
+    const resolvidos = statusData.find(s => s.name === 'Protocolo Fechado')?.value || 0;
+    const arquivados = statusData.find(s => s.name === 'Arquivada')?.value || 0;
+    const emAtendimentoTotal = fila + emAndamento;
+
+    let filtroUnidadeText = 'Todas as unidades (19 Unidades)';
+    if (filtros.unidade) {
+      filtroUnidadeText = filtros.unidade;
+    } else if (tags.length > 0) {
+      filtroUnidadeText = tags.join(', ');
+    }
+
+    const filtroTipoText =
+      filtros.tipo === 'anonima'
+        ? 'Apenas Anônimas'
+        : filtros.tipo === 'identificada'
+        ? 'Apenas Identificadas'
+        : 'Todos os tipos (Anônimas e Identificadas)';
+
+    const filtroPeriodoText =
+      filtros.dataInicio || filtros.dataFim
+        ? `${filtros.dataInicio ? `De ${filtros.dataInicio}` : 'Desde o início'} ${filtros.dataFim ? `até ${filtros.dataFim}` : ''}`.trim()
+        : 'Todo o histórico de registros';
+
+    const emissorNome = user?.nome || user?.email || 'Painel Administrativo SOBEI';
+    const logoUrl = window.location.origin + '/images/LOGO AZUL.png';
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      setShowPopupBlockedAlert(true);
+      return;
+    }
+
+    const dataEmissao = new Date().toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
+    const formatDenunciaData = (dataStr) => {
+      if (!dataStr) return '—';
+      const d = parseDate(dataStr);
+      if (!d) return dataStr;
+      return d.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+    };
+
+    const denunciasFiltradas = todasDenuncias || [];
+
+    const getStatusBadge = (st) => {
+      const s = (st || '').toLowerCase();
+      if (s === 'fechada' || s === 'concluido' || s === 'concluida') {
+        return `<span style="background-color: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 700;">Fechada</span>`;
+      }
+      if (s === 'em_andamento') {
+        return `<span style="background-color: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 700;">Em Resolução</span>`;
+      }
+      if (s === 'arquivada') {
+        return `<span style="background-color: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 700;">Arquivada</span>`;
+      }
+      return `<span style="background-color: #EFF6FF; color: #1E40AF; border: 1px solid #BFDBFE; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 700;">Aguardando Análise</span>`;
+    };
+
+    const getPriorityBadge = (pr) => {
+      const p = (pr || 'NEUTRA').toUpperCase();
+      if (p === 'ALTA' || p === 'URGENTE') {
+        return `<span style="color: #DC2626; font-weight: 700; font-size: 11px;">● Alta</span>`;
+      }
+      if (p === 'MEDIA') {
+        return `<span style="color: #D97706; font-weight: 700; font-size: 11px;">● Média</span>`;
+      }
+      if (p === 'BAIXA') {
+        return `<span style="color: #16A34A; font-weight: 700; font-size: 11px;">● Baixa</span>`;
+      }
+      return `<span style="color: #64748B; font-weight: 700; font-size: 11px;">● Neutra</span>`;
+    };
+
+    const maxEvolucao = Math.max(...evolucaoData.map((e) => e.total), 1);
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Relatório Estatístico de Compliance — SOBEI</title>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@600;700;800;900&display=swap');
+
+          @page {
+            size: A4 portrait;
+            margin: 12mm 14mm 14mm 14mm;
+          }
+
+          * {
+            box-sizing: border-box;
+          }
+
+          body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #0F172A;
+            background-color: #FFFFFF;
+            margin: 0;
+            padding: 24px;
+            font-size: 13px;
+            line-height: 1.5;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+
+          /* Barra Superior no Visualizador Web */
+          .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #0F172A;
+            color: #FFFFFF;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          }
+
+          .toolbar-title {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+
+          .btn-print {
+            background-color: #2563EB;
+            color: #FFFFFF;
+            border: none;
+            padding: 9px 18px;
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.15s ease;
+          }
+
+          .btn-print:hover {
+            background-color: #1D4ED8;
+          }
+
+          /* Cabeçalho Institucional */
+          .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #1B1464;
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+          }
+
+          .report-logo-area {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+          }
+
+          .report-logo {
+            height: 48px;
+            width: auto;
+            object-fit: contain;
+          }
+
+          .report-title-block h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: #1B1464;
+            margin: 0;
+            letter-spacing: -0.02em;
+          }
+
+          .report-title-block p {
+            font-size: 12px;
+            color: #64748B;
+            margin: 2px 0 0 0;
+            font-weight: 500;
+          }
+
+          .report-meta-box {
+            text-align: right;
+            font-size: 11px;
+            color: #475569;
+            background: #F8FAFC;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #E2E8F0;
+          }
+
+          .report-meta-box strong {
+            color: #1E293B;
+          }
+
+          /* Seção de Parâmetros e Filtros */
+          .params-card {
+            background-color: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+          }
+
+          .params-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #1B1464;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+          }
+
+          .params-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+          }
+
+          .param-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+          }
+
+          .param-label {
+            font-size: 10px;
+            color: #64748B;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+          }
+
+          .param-value {
+            font-size: 12px;
+            font-weight: 700;
+            color: #0F172A;
+            white-space: normal;
+            word-break: break-word;
+          }
+
+          /* Títulos de Seção */
+          .section-heading {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            color: #1B1464;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin: 22px 0 10px 0;
+            padding-left: 8px;
+            border-left: 3.5px solid #1B1464;
+            page-break-after: avoid;
+          }
+
+          /* KPIs Executivos */
+          .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+            page-break-inside: avoid;
+          }
+
+          .kpi-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 12px 14px;
+            border-top: 3px solid #1B1464;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+          }
+
+          .kpi-card--accent {
+            border-top-color: #2563EB;
+          }
+
+          .kpi-card--orange {
+            border-top-color: #D97706;
+          }
+
+          .kpi-card--green {
+            border-top-color: #16A34A;
+          }
+
+          .kpi-label {
+            font-size: 10px;
+            color: #64748B;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-bottom: 4px;
+          }
+
+          .kpi-number {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            color: #0F172A;
+            line-height: 1.1;
+          }
+
+          .kpi-sub {
+            font-size: 10.5px;
+            color: #64748B;
+            margin-top: 4px;
+            font-weight: 500;
+          }
+
+          /* Destaques de Incidência */
+          .highlights-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 18px;
+            page-break-inside: avoid;
+          }
+
+          .highlight-card {
+            background-color: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          }
+
+          .highlight-card__info {
+            display: flex;
+            flex-direction: column;
+          }
+
+          .highlight-card__label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+          }
+
+          .highlight-card__name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1E293B;
+            margin-top: 2px;
+          }
+
+          .highlight-card__badge {
+            background-color: #1B1464;
+            color: #FFFFFF;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 9999px;
+          }
+
+          /* Grid de Duas Colunas para Tabelas */
+          .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 18px;
+            page-break-inside: avoid;
+          }
+
+          /* Tabelas Executivas */
+          table.report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            border: 1px solid #E2E8F0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            page-break-inside: avoid;
+          }
+
+          table.report-table th {
+            background-color: #F1F5F9;
+            color: #334155;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 10.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid #CBD5E1;
+          }
+
+          table.report-table td {
+            padding: 7px 10px;
+            border-bottom: 1px solid #E2E8F0;
+            color: #1E293B;
+            vertical-align: middle;
+          }
+
+          table.report-table tr:nth-child(even) td {
+            background-color: #F8FAFC;
+          }
+
+          table.report-table tr:last-child td {
+            border-bottom: none;
+          }
+
+          /* Barra Gráfica Visual nas Tabelas */
+          .progress-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+          }
+
+          .progress-track {
+            flex: 1;
+            height: 7px;
+            background-color: #E2E8F0;
+            border-radius: 9999px;
+            overflow: hidden;
+          }
+
+          .progress-fill {
+            height: 100%;
+            border-radius: 9999px;
+          }
+
+          .progress-fill--navy { background-color: #1B1464; }
+          .progress-fill--blue { background-color: #2563EB; }
+          .progress-fill--red { background-color: #DC2626; }
+          .progress-fill--orange { background-color: #D97706; }
+          .progress-fill--green { background-color: #16A34A; }
+          .progress-fill--gray { background-color: #64748B; }
+
+          .progress-text {
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            min-width: 38px;
+            text-align: right;
+          }
+
+          /* Rodapé do Relatório */
+          .report-footer {
+            margin-top: 32px;
+            padding-top: 14px;
+            border-top: 1.5px solid #E2E8F0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            color: #64748B;
+            page-break-inside: avoid;
+          }
+
+          .report-footer strong {
+            color: #1E293B;
+          }
+
+          @media print {
+            body {
+              padding: 0;
+            }
+            .no-print {
+              display: none !important;
+            }
+            .report-header {
+              margin-top: 0;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <!-- Botão de Impressão -->
+        <div class="toolbar no-print">
+          <div class="toolbar-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Relatório Estatístico Executivo de Compliance
+          </div>
+          <button class="btn-print" onclick="window.print()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Imprimir / Salvar como PDF
+          </button>
+        </div>
+
+        <!-- Cabeçalho Institucional SOBEI -->
+        <div class="report-header">
+          <div class="report-logo-area">
+            <img class="report-logo" src="${logoUrl}" alt="SOBEI" onerror="this.style.display='none'" />
+            <div class="report-title-block">
+              <h1>SOBEI — Canal de Denúncias</h1>
+              <p>Relatório Executivo e Estatístico de Compliance & Ouvidoria</p>
+            </div>
+          </div>
+          <div class="report-meta-box">
+            <div><strong>Emissão:</strong> ${dataEmissao}</div>
+            <div><strong>Emissor:</strong> ${emissorNome}</div>
+            <div><strong>Ambiente:</strong> Painel Administrativo Oficial</div>
+          </div>
+        </div>
+
+        <!-- Resumo dos Filtros e Parâmetros Aplicados -->
+        <div class="params-card">
+          <div class="params-title">Parâmetros de Análise do Relatório</div>
+          <div class="params-grid">
+            <div class="param-item">
+              <span class="param-label">Unidade(s)</span>
+              <span class="param-value">${filtroUnidadeText}</span>
+            </div>
+            <div class="param-item">
+              <span class="param-label">Tipo de Manifestação</span>
+              <span class="param-value">${filtroTipoText}</span>
+            </div>
+            <div class="param-item">
+              <span class="param-label">Período Selecionado</span>
+              <span class="param-value">${filtroPeriodoText}</span>
+            </div>
+            <div class="param-item">
+              <span class="param-label">Volume Filtrado</span>
+              <span class="param-value">${totalDenuncias} manifestação(ões)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Indicadores Globais de Desempenho (KPIs) -->
+        <div class="section-heading">Indicadores Globais de Desempenho</div>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Total de Manifestações</div>
+            <div class="kpi-number">${totalDenuncias}</div>
+            <div class="kpi-sub">Registros no período filtrado</div>
+          </div>
+          <div class="kpi-card kpi-card--accent">
+            <div class="kpi-label">Taxa de Anonimato</div>
+            <div class="kpi-number">${taxaAnonimato}%</div>
+            <div class="kpi-sub">${anonimas} anônimas • ${identificadas} identificadas</div>
+          </div>
+          <div class="kpi-card kpi-card--orange">
+            <div class="kpi-label">Casos em Atendimento</div>
+            <div class="kpi-number">${emAtendimentoTotal}</div>
+            <div class="kpi-sub">${fila} em triagem • ${emAndamento} em resolução</div>
+          </div>
+          <div class="kpi-card kpi-card--green">
+            <div class="kpi-label">Resolutividade Operacional</div>
+            <div class="kpi-number">${taxaResolutividade}%</div>
+            <div class="kpi-sub">${resolvidos} resolvidos • ${arquivados} arquivados</div>
+          </div>
+        </div>
+
+        <!-- Destaques de Incidência -->
+        <div class="highlights-box">
+          <div class="highlight-card">
+            <div class="highlight-card__info">
+              <span class="highlight-card__label">Unidade com Maior Incidência</span>
+              <span class="highlight-card__name">${maxUnidade ? maxUnidade.unidade : 'Nenhuma unidade registrada'}</span>
+            </div>
+            <span class="highlight-card__badge">${maxUnidade ? `${maxUnidade.total} caso(s)` : '0'}</span>
+          </div>
+          <div class="highlight-card">
+            <div class="highlight-card__info">
+              <span class="highlight-card__label">Unidade com Menor Incidência</span>
+              <span class="highlight-card__name">${minUnidade ? minUnidade.unidade : 'Nenhuma unidade registrada'}</span>
+            </div>
+            <span class="highlight-card__badge" style="background-color: #2563EB;">${minUnidade ? `${minUnidade.total} caso(s)` : '0'}</span>
+          </div>
+        </div>
+
+        <!-- Tabelas de Distribuição Lado a Lado -->
+        <div class="two-col-grid">
+          <!-- Distribuição por Tipo -->
+          <div>
+            <div class="section-heading" style="margin-top:0;">Distribuição por Tipo</div>
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th style="width: 50px; text-align: center;">Qtd</th>
+                  <th>Proporção</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Anônima</strong></td>
+                  <td style="text-align: center;">${anonimas}</td>
+                  <td>
+                    <div class="progress-bar-wrap">
+                      <div class="progress-track">
+                        <div class="progress-fill progress-fill--navy" style="width: ${taxaAnonimato}%;"></div>
+                      </div>
+                      <span class="progress-text">${taxaAnonimato}%</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Identificada</strong></td>
+                  <td style="text-align: center;">${identificadas}</td>
+                  <td>
+                    <div class="progress-bar-wrap">
+                      <div class="progress-track">
+                        <div class="progress-fill progress-fill--blue" style="width: ${taxaIdentificadas}%;"></div>
+                      </div>
+                      <span class="progress-text">${taxaIdentificadas}%</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Distribuição por Prioridade -->
+          <div>
+            <div class="section-heading" style="margin-top:0;">Distribuição por Prioridade</div>
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>Prioridade</th>
+                  <th style="width: 50px; text-align: center;">Qtd</th>
+                  <th>Proporção</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${prioridadesData.map(p => {
+                  const pct = totalDenuncias > 0 ? ((p.value / totalDenuncias) * 100).toFixed(1) : '0.0';
+                  const fillClass = p.name === 'Alta' ? 'progress-fill--red' : p.name === 'Média' ? 'progress-fill--orange' : p.name === 'Baixa' ? 'progress-fill--green' : 'progress-fill--gray';
+                  return `
+                    <tr>
+                      <td>${getPriorityBadge(p.name)}</td>
+                      <td style="text-align: center;">${p.value}</td>
+                      <td>
+                        <div class="progress-bar-wrap">
+                          <div class="progress-track">
+                            <div class="progress-fill ${fillClass}" style="width: ${pct}%;"></div>
+                          </div>
+                          <span class="progress-text">${pct}%</span>
+                        </div>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Ciclo de Atendimento / Status -->
+        <div class="section-heading">Ciclo de Atendimento e Status dos Casos</div>
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>Status do Processo</th>
+              <th style="width: 70px; text-align: center;">Quantidade</th>
+              <th style="width: 80px; text-align: center;">Percentual</th>
+              <th>Representatividade Visual</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${statusData.map(s => {
+              const pct = totalDenuncias > 0 ? ((s.value / totalDenuncias) * 100).toFixed(1) : '0.0';
+              return `
+                <tr>
+                  <td><strong>${s.name}</strong></td>
+                  <td style="text-align: center; font-weight: 700;">${s.value}</td>
+                  <td style="text-align: center; color: #475569;">${pct}%</td>
+                  <td>
+                    <div class="progress-bar-wrap">
+                      <div class="progress-track">
+                        <div class="progress-fill progress-fill--navy" style="width: ${pct}%;"></div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+
+        <!-- Detalhamento Completo por Unidade -->
+        <div class="section-heading">Incidência por Unidade Escolar / Setor</div>
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th style="width: 45px; text-align: center;">Rank</th>
+              <th>Unidade Escolar / Setor</th>
+              <th style="width: 70px; text-align: center;">Total</th>
+              <th style="width: 80px; text-align: center;">Participação</th>
+              <th style="width: 160px;">Proporção Gráfica</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sortedBarData.map((item, index) => {
+              const part = totalDenuncias > 0 ? ((item.total / totalDenuncias) * 100).toFixed(1) : '0.0';
+              return `
+                <tr>
+                  <td style="text-align: center; font-weight: 700; color: #1B1464;">${index + 1}º</td>
+                  <td><strong>${item.unidade}</strong></td>
+                  <td style="text-align: center; font-weight: 700;">${item.total}</td>
+                  <td style="text-align: center; color: #475569;">${part}%</td>
+                  <td>
+                    <div class="progress-bar-wrap">
+                      <div class="progress-track">
+                        <div class="progress-fill progress-fill--navy" style="width: ${part}%;"></div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+            ${sortedBarData.length === 0 ? `<tr><td colspan="5" style="text-align: center; padding: 16px; color: #64748B;">Nenhum registro encontrado para os filtros selecionados.</td></tr>` : ''}
+          </tbody>
+        </table>
+
+        <!-- Histórico de Evolução Temporal -->
+        ${evolucaoData.length > 0 ? `
+          <div class="section-heading">Histórico de Evolução Temporal</div>
+          <table class="report-table" style="max-width: 550px;">
+            <thead>
+              <tr>
+                <th style="width: 120px;">Período</th>
+                <th style="width: 80px; text-align: center;">Manifestações</th>
+                <th>Volume Gráfico</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${evolucaoData.map(item => {
+                const barWidth = ((item.total / maxEvolucao) * 100).toFixed(1);
+                return `
+                  <tr>
+                    <td><strong>${item.data}</strong></td>
+                    <td style="text-align: center; font-weight: 700;">${item.total}</td>
+                    <td>
+                      <div class="progress-bar-wrap">
+                        <div class="progress-track">
+                          <div class="progress-fill progress-fill--blue" style="width: ${barWidth}%;"></div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        ` : ''}
+
+        <!-- Relação das Manifestações Filtradas -->
+        ${denunciasFiltradas.length > 0 ? `
+          <div class="section-heading">Relação Sintética de Manifestações Filtradas (${denunciasFiltradas.length})</div>
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th style="width: 110px;">Protocolo</th>
+                <th style="width: 85px;">Data</th>
+                <th>Unidade</th>
+                <th style="width: 90px;">Tipo</th>
+                <th style="width: 75px;">Prioridade</th>
+                <th style="width: 125px;">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${denunciasFiltradas.map(d => `
+                <tr>
+                  <td><strong style="color: #1B1464; font-family: monospace; font-size: 11px;">${d.protocolo || '—'}</strong></td>
+                  <td style="color: #475569; font-size: 11px;">${formatDenunciaData(d.dataEnvio || d.dataAbertura)}</td>
+                  <td><strong>${d.unidade || '—'}</strong></td>
+                  <td style="font-size: 11px;">${d.tipo === 'ANONIMA' || d.tipo === 'anonima' ? 'Anônima' : 'Identificada'}</td>
+                  <td>${getPriorityBadge(d.prioridade)}</td>
+                  <td>${getStatusBadge(d.status)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        ` : ''}
+
+        <!-- Rodapé Oficial de Compliance -->
+        <div class="report-footer">
+          <div>
+            <strong>SOBEI — Sociedade Beneficente Equilíbrio de Infância</strong><br>
+            Relatório de Gestão e Compliance emitido confidencialmente para controle interno.
+          </div>
+          <div style="text-align: right;">
+            Página 1 • ${dataEmissao}
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  }
+
+  // Custom label for pie chart
+  const renderCustomLabel = ({ unidade, percentual, x, y }) => (
+    <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={12} fill="#333">
+      {`${percentual}%`}
+    </text>
+  );
+
+  const renderPriorityLabel = ({ name, percent, x, y }) => (
+    <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={11} fill="#333">
+      {`${(percent * 100).toFixed(1)}%`}
+    </text>
+  );
 
   return (
     <div className="statistics-container">

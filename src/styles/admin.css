@@ -134,47 +134,68 @@
 
 @media (max-width: 900px) {
   .filter-bar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--spacing-base);
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--spacing-sm) !important;
+    width: 100% !important;
+  }
+
+  .filter-bar__group {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+
+  .filter-bar__group .custom-select-container,
+  .filter-bar__group .custom-datepicker-container,
+  .filter-bar__group input {
+    width: 100% !important;
   }
 
   .filter-bar__actions {
-    margin-left: 0;
-    justify-content: flex-end;
+    margin-left: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    gap: var(--spacing-sm) !important;
+    margin-top: var(--spacing-xs) !important;
+  }
+
+  .filter-bar__actions .btn {
+    flex: 1 !important;
+    justify-content: center !important;
   }
 }
 
 @media (max-width: 768px) {
+  .admin-content {
+    padding: var(--spacing-md) !important;
+    padding-top: calc(var(--header-height, 70px) + var(--spacing-md)) !important;
+  }
+
+  .dashboard-home {
+    min-height: calc(100vh - var(--header-height, 70px) - 2 * var(--spacing-md));
+  }
+
   .dashboard-home__content {
     gap: var(--spacing-lg);
+    padding: var(--spacing-md);
   }
 
   .dashboard-home__logo {
-    max-width: 260px;
+    max-width: 240px;
   }
 
   .dashboard-home__title {
     font-size: 1.15rem;
   }
 
-
-
   .admin-page__title {
     font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-sm);
   }
 
   .admin-page__description {
     font-size: var(--font-size-sm);
-  }
-
-  .filter-bar__actions {
-    flex-direction: row;
-    width: 100%;
-  }
-
-  .filter-bar__actions .btn {
-    flex: 1;
+    margin-bottom: var(--spacing-md);
   }
 }
 
@@ -186,3 +207,143 @@
 .recharts-surface {
   outline: none !important;
 }
+
+/* ---- Congresso: Ações em Lote e Métricas Responsivas ---- */
+.congresso-actions-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  width: 100%;
+}
+
+.congresso-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  border: none;
+  transition: all 0.2s ease;
+  box-shadow: none !important;
+  color: #FFFFFF;
+}
+
+.congresso-btn.btn-certificados {
+  background-color: #1E40AF;
+}
+
+.congresso-btn.btn-certificados:hover:not(:disabled) {
+  background-color: #1D4ED8;
+}
+
+.congresso-btn.btn-crachas {
+  background-color: #0c1b33;
+}
+
+.congresso-btn.btn-crachas:hover:not(:disabled) {
+  background-color: #1a2e4c;
+}
+
+.congresso-metrics-card {
+  background-color: var(--color-white);
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-gray-200);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-bottom: 14px;
+  width: 100%;
+}
+
+.congresso-metric-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.congresso-metric-label {
+  font-size: 0.70rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.congresso-metric-value {
+  font-size: 0.82rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-800);
+}
+
+.congresso-metric-sublabel {
+  font-size: 0.70rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-500);
+}
+
+.congresso-metric-divider-v {
+  display: block;
+  width: 1px;
+  height: 14px;
+  background-color: var(--color-gray-200);
+}
+
+.congresso-metric-divider-h {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .congresso-actions-bar {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .congresso-btn {
+    width: 100%;
+    padding: 12px 18px;
+  }
+
+  .congresso-metrics-card {
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 18px;
+  }
+
+  .congresso-metric-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .congresso-metric-label {
+    font-size: 0.72rem;
+  }
+
+  .congresso-metric-value {
+    font-size: 0.88rem;
+  }
+
+  .congresso-metric-divider-v {
+    display: none;
+  }
+
+  .congresso-metric-divider-h {
+    display: block;
+    height: 1px;
+    background-color: var(--color-gray-100);
+    width: 100%;
+  }
+}
+

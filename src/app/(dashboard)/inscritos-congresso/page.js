@@ -428,33 +428,16 @@ export default function InscritosCongressoPage() {
       </div>
 
       {/* Botões de Ação em Lote (Abaixo dos Dropdowns de Filtro) */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        flexWrap: 'wrap',
-        marginBottom: '14px',
-      }}>
+      <div className="congresso-actions-bar">
         {/* Botão de Ação em Lote: Enviar Certificados para Presentes em Ambos os Dias */}
         <button
           type="button"
           onClick={() => setShowConfirmModalCertificados(true)}
           disabled={enviandoLoteCertificados || presentesAmbosDias === 0}
+          className="congresso-btn btn-certificados"
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '10px 18px',
-            borderRadius: '10px',
-            backgroundColor: '#1E40AF',
-            color: '#FFFFFF',
-            fontWeight: '600',
-            fontSize: '0.88rem',
-            border: 'none',
             cursor: (enviandoLoteCertificados || presentesAmbosDias === 0) ? 'not-allowed' : 'pointer',
-            transition: 'all 0.2s ease',
             opacity: (enviandoLoteCertificados || presentesAmbosDias === 0) ? 0.6 : 1,
-            boxShadow: '0 2px 4px rgba(30, 64, 175, 0.25)',
           }}
           title={
             presentesAmbosDias === 0
@@ -474,21 +457,10 @@ export default function InscritosCongressoPage() {
           type="button"
           onClick={handleBaixarCrachasLote}
           disabled={gerandoLoteCrachas || inscritosFiltrados.length === 0}
+          className="congresso-btn btn-crachas"
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '10px 18px',
-            borderRadius: '10px',
-            backgroundColor: '#0c1b33',
-            color: '#FFFFFF',
-            fontWeight: '600',
-            fontSize: '0.88rem',
-            border: 'none',
             cursor: (gerandoLoteCrachas || inscritosFiltrados.length === 0) ? 'not-allowed' : 'pointer',
-            transition: 'all 0.2s ease',
             opacity: (gerandoLoteCrachas || inscritosFiltrados.length === 0) ? 0.6 : 1,
-            boxShadow: '0 2px 4px rgba(12, 27, 51, 0.25)',
           }}
           title="Gerar PDF com grade de 14 etiquetas por folha (2 colunas x 7 linhas - 33,9 x 101,6 mm no padrão Tilibra TB182 A4)"
         >
@@ -501,54 +473,47 @@ export default function InscritosCongressoPage() {
         </button>
       </div>
 
-      {/* Card Único com Informações e Métricas na Horizontal (Acima da Tabela) */}
-      <div style={{
-        backgroundColor: 'var(--color-white)',
-        padding: '10px 18px',
-        borderRadius: 'var(--radius-md)',
-        border: '1px solid var(--color-gray-200)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '8px 16px',
-        marginBottom: '14px',
-      }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Total Inscritos:</span>
-          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>{total}</span>
+      {/* Card Único com Informações e Métricas */}
+      <div className="congresso-metrics-card">
+        <div className="congresso-metric-item">
+          <span className="congresso-metric-label">Total Inscritos:</span>
+          <span className="congresso-metric-value">{total}</span>
         </div>
 
-        <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+        <div className="congresso-metric-divider-v" />
+        <div className="congresso-metric-divider-h" />
 
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Check-in Dia 11 (Sexta):</span>
-          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>{presentesDia11}</span>
+        <div className="congresso-metric-item">
+          <span className="congresso-metric-label">Check-in Dia 11 (Sexta):</span>
+          <span className="congresso-metric-value">{presentesDia11}</span>
         </div>
 
-        <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+        <div className="congresso-metric-divider-v" />
+        <div className="congresso-metric-divider-h" />
 
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Check-in Dia 12 (Sábado):</span>
-          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>{presentesDia12}</span>
+        <div className="congresso-metric-item">
+          <span className="congresso-metric-label">Check-in Dia 12 (Sábado):</span>
+          <span className="congresso-metric-value">{presentesDia12}</span>
         </div>
 
-        <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+        <div className="congresso-metric-divider-v" />
+        <div className="congresso-metric-divider-h" />
 
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Check-in Ambos os Dias:</span>
-          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>{presentesAmbosDias}</span>
+        <div className="congresso-metric-item">
+          <span className="congresso-metric-label">Check-in Ambos os Dias:</span>
+          <span className="congresso-metric-value">{presentesAmbosDias}</span>
         </div>
 
         {!isCoordenadora && (
           <>
-            <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-              <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>SOBEI vs OSC:</span>
-              <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>
-                {sobeiCount} <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-medium)', color: 'var(--color-gray-500)' }}>SOBEI</span>{' '}
+            <div className="congresso-metric-divider-v" />
+            <div className="congresso-metric-divider-h" />
+            <div className="congresso-metric-item">
+              <span className="congresso-metric-label">SOBEI vs OSC:</span>
+              <span className="congresso-metric-value">
+                {sobeiCount} <span className="congresso-metric-sublabel">SOBEI</span>{' '}
                 <span style={{ color: 'var(--color-gray-300)', margin: '0 2px' }}>/</span>{' '}
-                {total - sobeiCount} <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-medium)', color: 'var(--color-gray-500)' }}>OSC</span>
+                {total - sobeiCount} <span className="congresso-metric-sublabel">OSC</span>
               </span>
             </div>
           </>

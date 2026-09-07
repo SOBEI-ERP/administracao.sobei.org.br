@@ -65,26 +65,70 @@
 }
 
 .vagas-admin__filter-btn {
-  padding: var(--spacing-sm) var(--spacing-base);
-  border: 1px solid var(--color-gray-300);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  height: 38px;
+  padding: 0 var(--spacing-base);
+  border: 1.5px solid var(--color-gray-300, #CBD5E1);
   border-radius: var(--radius-full);
-  background: var(--color-white);
-  color: var(--color-gray-700);
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
+  background-color: var(--color-white);
+  color: var(--color-gray-700, #475569);
+  font-family: var(--font-montserrat);
+  font-size: var(--font-size-xs, 12px);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all var(--transition-fast, 0.15s ease);
+  line-height: 1;
 }
 
 .vagas-admin__filter-btn:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
+  background-color: var(--color-gray-50, #F8FAFC);
 }
 
 .vagas-admin__filter-btn--active {
-  background: var(--color-primary);
-  color: var(--color-white);
-  border-color: var(--color-primary);
+  background-color: var(--color-primary) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-primary) !important;
+}
+
+.vagas-admin__filter-btn--active:hover {
+  background-color: var(--color-primary-dark, #0C1B33) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-primary-dark, #0C1B33) !important;
+}
+
+.vagas-admin__filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  transition: all var(--transition-fast, 0.15s ease);
+}
+
+.vagas-admin__filter-btn--active .vagas-admin__filter-badge {
+  background-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.vagas-admin__filter-btn:not(.vagas-admin__filter-btn--active):hover .vagas-admin__filter-badge {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.vagas-admin__filter-btn--active:hover .vagas-admin__filter-badge {
+  background-color: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
 }
 
 /* ---- Loading / Empty ---- */
@@ -596,7 +640,7 @@
 /* ---- Responsivo ---- */
 @media (max-width: 768px) {
   .vagas-admin {
-    padding: var(--spacing-base);
+    padding: 0;
   }
 
   .vagas-admin__header {
