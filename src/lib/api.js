@@ -70,12 +70,31 @@ function normalizeDenuncia(raw) {
   };
 }
 
-function normalizeDenunciasList(raw) {
+const PRIORIDADE_WEIGHT = {
+  ALTA: 4,
+  MEDIA: 3,
+  BAIXA: 2,
+  NEUTRA: 1,
+};
+
+function normalizeDenunciasList(raw, ordem = 'antigos') {
   const list = Array.isArray(raw)
     ? raw
     : raw?.content || raw?.items || raw?.denuncias || raw?.data || [];
 
-  return Array.isArray(list) ? list.map(normalizeDenuncia) : [];
+  const normalized = Array.isArray(list) ? list.map(normalizeDenuncia) : [];
+
+  // Ordenação prioritária automática: maior prioridade sempre no topo
+  return normalized.sort((a, b) => {
+    const wA = PRIORIDADE_WEIGHT[a.prioridade] || 1;
+    const wB = PRIORIDADE_WEIGHT[b.prioridade] || 1;
+    if (wA !== wB) {
+      return wB - wA; // maior prioridade primeiro
+    }
+    const dateA = new Date(a.dataAbertura || a.dataEnvio || 0).getTime();
+    const dateB = new Date(b.dataAbertura || b.dataEnvio || 0).getTime();
+    return ordem === 'antigos' ? dateA - dateB : dateB - dateA;
+  });
 }
 
 function getAuthHeaders() {
