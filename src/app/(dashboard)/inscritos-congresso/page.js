@@ -256,102 +256,17 @@ export default function InscritosCongressoPage() {
 
   return (
     <div className="admin-page">
-      {/* Header */}
-      <div style={{
-        marginBottom: 'var(--spacing-xl)',
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '16px',
-      }}>
-        <div>
-          <h1 className="admin-page__title" style={{ margin: 0 }}>
-            Congresso de Educação Infantil SOBEI 2026
-          </h1>
-          <p className="admin-page__description" style={{ marginTop: '6px', marginBottom: 0 }}>
-            {isCoordenadora ? (
-              <span>Inscritos da unidade <strong>{user?.unidade}</strong> — Defina as oficinas das suas colaboradoras e emita os crachás padronizados</span>
-            ) : (
-              <span>Gestão de inscritos, credenciamento, oficinas e emissão de crachás e certificados</span>
-            )}
-          </p>
-        </div>
-
-        {/* Botões de Ação no Topo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          {/* Botão de Ação em Lote: Enviar Certificados para Presentes em Ambos os Dias */}
-          <button
-            type="button"
-            onClick={() => setShowConfirmModalCertificados(true)}
-            disabled={enviandoLoteCertificados || presentesAmbosDias === 0}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '10px 18px',
-              borderRadius: '10px',
-              backgroundColor: '#1E40AF',
-              color: '#ffffff',
-              fontWeight: '600',
-              fontSize: '0.88rem',
-              border: 'none',
-              cursor: (enviandoLoteCertificados || presentesAmbosDias === 0) ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease',
-              opacity: (enviandoLoteCertificados || presentesAmbosDias === 0) ? 0.6 : 1,
-              boxShadow: '0 2px 4px rgba(30, 64, 175, 0.25)',
-            }}
-            title={
-              presentesAmbosDias === 0
-                ? 'Nenhum participante possui check-in em ambos os dias (11 e 12/Set)'
-                : `Disparar certificados por e-mail para ${presentesAmbosDias} participantes com presença em ambos os dias`
-            }
-          >
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="8" r="6" />
-              <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
-            </svg>
-            {enviandoLoteCertificados ? 'Enviando Certificados...' : `Enviar Certificados (Ambos os Dias: ${presentesAmbosDias})`}
-          </button>
-
-          {/* Botão de Ação em Lote: Imprimir Folha de Crachás */}
-          <button
-            type="button"
-            onClick={handleBaixarCrachasLote}
-            disabled={gerandoLoteCrachas || inscritosFiltrados.length === 0}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '10px 18px',
-              borderRadius: '10px',
-              backgroundColor: '#0c1b33',
-              color: '#ffffff',
-              fontWeight: '600',
-              fontSize: '0.88rem',
-              border: 'none',
-              cursor: (gerandoLoteCrachas || inscritosFiltrados.length === 0) ? 'not-allowed' : 'pointer',
-              transition: 'all 0.2s ease',
-              opacity: (gerandoLoteCrachas || inscritosFiltrados.length === 0) ? 0.6 : 1,
-            }}
-            title="Gerar PDF com grade de 14 etiquetas por folha (2 colunas x 7 linhas - 33,9 x 101,6 mm no padrão Tilibra TB182 A4)"
-          >
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="6 9 6 2 18 2 18 9" />
-              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
-              <rect x="6" y="14" width="12" height="8" />
-            </svg>
-            {gerandoLoteCrachas ? 'Gerando Folha de Etiquetas...' : 'Imprimir Folha de Etiquetas (Tilibra TB182)'}
-          </button>
-        </div>
-      </div>
+      {/* Título da Página */}
+      <h1 className="admin-page__title" style={{ margin: '0 0 var(--spacing-md) 0' }}>
+        Congresso
+      </h1>
 
       {/* Toast Feedback Banner */}
       {toastFeedback && (
         <div style={{
           padding: '12px 18px',
           borderRadius: '8px',
-          marginBottom: 'var(--spacing-lg)',
+          marginBottom: 'var(--spacing-md)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -394,91 +309,21 @@ export default function InscritosCongressoPage() {
         </div>
       )}
 
-      {/* Cards de Métricas */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-        gap: '10px',
-        marginBottom: 'var(--spacing-md)'
-      }}>
-        <div style={{
-          backgroundColor: 'var(--color-white)',
-          padding: '8px 14px',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--color-gray-200)',
-          boxShadow: 'var(--shadow-card)'
-        }}>
-          <span style={{ fontSize: '0.68rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Total Inscritos</span>
-          <p style={{ fontSize: '1.35rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-900)', margin: '2px 0 0 0' }}>{total}</p>
-        </div>
-
-        <div style={{
-          backgroundColor: 'var(--color-white)',
-          padding: '8px 14px',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--color-gray-200)',
-          boxShadow: 'var(--shadow-card)'
-        }}>
-          <span style={{ fontSize: '0.68rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Check-in Dia 11 (Sexta)</span>
-          <p style={{ fontSize: '1.35rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', margin: '2px 0 0 0' }}>{presentesDia11}</p>
-        </div>
-
-        <div style={{
-          backgroundColor: 'var(--color-white)',
-          padding: '8px 14px',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--color-gray-200)',
-          boxShadow: 'var(--shadow-card)'
-        }}>
-          <span style={{ fontSize: '0.68rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Check-in Dia 12 (Sábado)</span>
-          <p style={{ fontSize: '1.35rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', margin: '2px 0 0 0' }}>{presentesDia12}</p>
-        </div>
-
-        <div style={{
-          backgroundColor: 'var(--color-white)',
-          padding: '8px 14px',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--color-gray-200)',
-          boxShadow: 'var(--shadow-card)'
-        }}>
-          <span style={{ fontSize: '0.68rem', fontWeight: 'var(--font-weight-bold)', color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Check-in Ambos os Dias</span>
-          <p style={{ fontSize: '1.35rem', fontWeight: 'var(--font-weight-bold)', color: '#0284C7', margin: '2px 0 0 0' }}>{presentesAmbosDias}</p>
-        </div>
-
-        {!isCoordenadora && (
-          <div style={{
-            backgroundColor: 'var(--color-white)',
-            padding: '8px 14px',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--color-gray-200)',
-            boxShadow: 'var(--shadow-card)'
-          }}>
-            <span style={{ fontSize: '0.68rem', fontWeight: 'var(--font-weight-bold)', color: '#0284C7', textTransform: 'uppercase', letterSpacing: '0.04em' }}>SOBEI vs Outras</span>
-            <p style={{ fontSize: '1.35rem', fontWeight: 'var(--font-weight-bold)', color: '#0284C7', margin: '2px 0 0 0' }}>
-              {sobeiCount} <span style={{ fontSize: '0.72rem', fontWeight: 'var(--font-weight-medium)', color: 'var(--color-gray-500)' }}>SOBEI</span>{' '}
-              <span style={{ color: 'var(--color-gray-300)', margin: '0 3px' }}>/</span>{' '}
-              {total - sobeiCount} <span style={{ fontSize: '0.72rem', fontWeight: 'var(--font-weight-medium)', color: 'var(--color-gray-500)' }}>Outras</span>
-            </p>
-          </div>
-        )}
-      </div>
-
       {/* Barra de Filtros e Busca Padrão SOBEI */}
-      <div className="filter-bar" style={{ display: 'flex', width: '100%', gap: '14px', flexWrap: 'wrap', alignItems: 'flex-end', padding: 'var(--spacing-md) 0', marginBottom: 'var(--spacing-lg)' }}>
+      <div className="filter-bar" style={{ display: 'flex', width: '100%', gap: '14px', flexWrap: 'wrap', alignItems: 'flex-end', padding: '0 0 var(--spacing-sm) 0', marginBottom: '12px' }}>
         {/* Input de Busca */}
         <div className="filter-bar__group" style={{ flex: '1.8', minWidth: '200px' }}>
           <span className="filter-bar__label">Buscar participante:</span>
           <div style={{ position: 'relative', width: '100%' }}>
             <input
               type="text"
-              className="form-input"
+              className="form-input filter-bar__input"
               style={{
                 minHeight: '38px',
                 height: '38px',
                 padding: '0 34px 0 36px',
                 borderRadius: 'var(--radius-full)',
-                border: '1px solid var(--color-gray-300)',
-                backgroundColor: 'var(--color-gray-100)',
+                backgroundColor: 'var(--color-white)',
                 fontSize: '13.5px',
                 width: '100%'
               }}
@@ -582,6 +427,134 @@ export default function InscritosCongressoPage() {
         )}
       </div>
 
+      {/* Botões de Ação em Lote (Abaixo dos Dropdowns de Filtro) */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        flexWrap: 'wrap',
+        marginBottom: '14px',
+      }}>
+        {/* Botão de Ação em Lote: Enviar Certificados para Presentes em Ambos os Dias */}
+        <button
+          type="button"
+          onClick={() => setShowConfirmModalCertificados(true)}
+          disabled={enviandoLoteCertificados || presentesAmbosDias === 0}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 18px',
+            borderRadius: '10px',
+            backgroundColor: '#1E40AF',
+            color: '#FFFFFF',
+            fontWeight: '600',
+            fontSize: '0.88rem',
+            border: 'none',
+            cursor: (enviandoLoteCertificados || presentesAmbosDias === 0) ? 'not-allowed' : 'pointer',
+            transition: 'all 0.2s ease',
+            opacity: (enviandoLoteCertificados || presentesAmbosDias === 0) ? 0.6 : 1,
+            boxShadow: '0 2px 4px rgba(30, 64, 175, 0.25)',
+          }}
+          title={
+            presentesAmbosDias === 0
+              ? 'Nenhum participante possui check-in em ambos os dias (11 e 12/Set)'
+              : `Disparar certificados por e-mail para ${presentesAmbosDias} participantes com presença em ambos os dias`
+          }
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="8" r="6" />
+            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+          </svg>
+          {enviandoLoteCertificados ? 'Enviando Certificados...' : `Enviar Certificados (Ambos os Dias: ${presentesAmbosDias})`}
+        </button>
+
+        {/* Botão de Ação em Lote: Imprimir Folha de Crachás */}
+        <button
+          type="button"
+          onClick={handleBaixarCrachasLote}
+          disabled={gerandoLoteCrachas || inscritosFiltrados.length === 0}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 18px',
+            borderRadius: '10px',
+            backgroundColor: '#0c1b33',
+            color: '#FFFFFF',
+            fontWeight: '600',
+            fontSize: '0.88rem',
+            border: 'none',
+            cursor: (gerandoLoteCrachas || inscritosFiltrados.length === 0) ? 'not-allowed' : 'pointer',
+            transition: 'all 0.2s ease',
+            opacity: (gerandoLoteCrachas || inscritosFiltrados.length === 0) ? 0.6 : 1,
+            boxShadow: '0 2px 4px rgba(12, 27, 51, 0.25)',
+          }}
+          title="Gerar PDF com grade de 14 etiquetas por folha (2 colunas x 7 linhas - 33,9 x 101,6 mm no padrão Tilibra TB182 A4)"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9" />
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+            <rect x="6" y="14" width="12" height="8" />
+          </svg>
+          {gerandoLoteCrachas ? 'Gerando Folha de Etiquetas...' : 'Imprimir Folha de Etiquetas (Tilibra TB182)'}
+        </button>
+      </div>
+
+      {/* Card Único com Informações e Métricas na Horizontal (Acima da Tabela) */}
+      <div style={{
+        backgroundColor: 'var(--color-white)',
+        padding: '10px 18px',
+        borderRadius: 'var(--radius-md)',
+        border: '1px solid var(--color-gray-200)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '8px 16px',
+        marginBottom: '14px',
+      }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Total Inscritos:</span>
+          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>{total}</span>
+        </div>
+
+        <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Check-in Dia 11 (Sexta):</span>
+          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>{presentesDia11}</span>
+        </div>
+
+        <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Check-in Dia 12 (Sábado):</span>
+          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>{presentesDia12}</span>
+        </div>
+
+        <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Check-in Ambos os Dias:</span>
+          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>{presentesAmbosDias}</span>
+        </div>
+
+        {!isCoordenadora && (
+          <>
+            <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+              <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>SOBEI vs OSC:</span>
+              <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>
+                {sobeiCount} <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-medium)', color: 'var(--color-gray-500)' }}>SOBEI</span>{' '}
+                <span style={{ color: 'var(--color-gray-300)', margin: '0 2px' }}>/</span>{' '}
+                {total - sobeiCount} <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-medium)', color: 'var(--color-gray-500)' }}>OSC</span>
+              </span>
+            </div>
+          </>
+        )}
+      </div>
+
       {/* Lista / Tabela de Inscritos */}
       <div style={{
         backgroundColor: 'var(--color-white)',
@@ -651,30 +624,32 @@ export default function InscritosCongressoPage() {
                     {/* OSC / Unidade */}
                     <td style={{ padding: '12px 8px', textAlign: 'center' }}>
                       {inscrito.tipoOsc === 'SOBEI' ? (
-                        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
                           <span style={{
                             display: 'inline-block',
                             background: '#1B1464',
                             color: '#FFFFFF',
-                            fontSize: '0.72rem',
+                            fontSize: '0.70rem',
                             fontWeight: '700',
                             padding: '2px 6px',
-                            borderRadius: '4px'
+                            borderRadius: '4px',
+                            lineHeight: '1.2'
                           }}>SOBEI</span>
-                          <span style={{ color: '#1f2937', fontWeight: '500', fontSize: '0.82rem' }}>{inscrito.unidade}</span>
+                          <span style={{ color: '#1f2937', fontWeight: '500', fontSize: '0.82rem', wordBreak: 'break-word', maxWidth: '140px', lineHeight: '1.2' }}>{inscrito.unidade}</span>
                         </div>
                       ) : (
-                        <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
                           <span style={{
                             display: 'inline-block',
                             background: '#D97706',
                             color: '#FFFFFF',
-                            fontSize: '0.72rem',
+                            fontSize: '0.70rem',
                             fontWeight: '700',
                             padding: '2px 6px',
-                            borderRadius: '4px'
-                          }}>OUTRA</span>
-                          <span style={{ color: '#1f2937', fontSize: '0.82rem' }}>{inscrito.outraOsc}</span>
+                            borderRadius: '4px',
+                            lineHeight: '1.2'
+                          }}>OSC</span>
+                          <span style={{ color: '#1f2937', fontSize: '0.82rem', wordBreak: 'break-word', maxWidth: '140px', lineHeight: '1.2' }}>{inscrito.outraOsc}</span>
                         </div>
                       )}
                     </td>
@@ -959,18 +934,21 @@ export default function InscritosCongressoPage() {
                               alignItems: 'center',
                               justifyContent: 'center',
                               gap: '4px',
-                              padding: '3px 8px',
+                              padding: '4px 8px',
                               borderRadius: '6px',
                               fontSize: '0.70rem',
                               fontWeight: '700',
-                              cursor: 'pointer',
-                              border: '1px solid #FECACA',
-                              backgroundColor: '#FEF2F2',
-                              color: '#DC2626',
+                              cursor: deletandoId === inscrito.id ? 'not-allowed' : 'pointer',
+                              border: 'none',
+                              backgroundColor: '#DC2626',
+                              color: '#FFFFFF',
                               transition: 'all 0.2s ease',
                               width: '100%',
                               marginTop: '2px',
+                              opacity: deletandoId === inscrito.id ? 0.6 : 1,
                             }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#B91C1C'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#DC2626'}
                             title="Excluir permanentemente esta inscrição (Acesso exclusivo Suporte)"
                           >
                             <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">

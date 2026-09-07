@@ -253,10 +253,7 @@ export default function ChamadosPage() {
       {/* Header */}
       <div className="vagas-admin__header">
         <div>
-          <h1 className="vagas-admin__title">Chamados de Suporte</h1>
-          <p className="vagas-admin__subtitle">
-            Gestão interna de solicitações técnicas, prazos e soluções <strong>(Exclusivo Suporte)</strong>
-          </p>
+          <h1 className="vagas-admin__title" style={{ margin: 0 }}>Chamados de Suporte</h1>
         </div>
         <button
           type="button"
@@ -267,23 +264,43 @@ export default function ChamadosPage() {
         </button>
       </div>
 
-      {/* Cards de Resumo */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--spacing-base)', marginBottom: 'var(--spacing-xl)' }}>
-        <div style={{ backgroundColor: 'var(--color-white)', padding: 'var(--spacing-md) var(--spacing-lg)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-gray-200)', boxShadow: 'var(--shadow-card)' }}>
-          <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total de Chamados</span>
-          <p style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-900)', margin: 'var(--spacing-xs) 0 0 0' }}>{totalCount}</p>
+      {/* Resumo de Chamados em Card Único Horizontal */}
+      <div style={{
+        backgroundColor: 'var(--color-white)',
+        padding: '10px 18px',
+        borderRadius: 'var(--radius-md)',
+        border: '1px solid var(--color-gray-200)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '8px 16px',
+        marginBottom: 'var(--spacing-md)',
+      }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Total de Chamados:</span>
+          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>{totalCount}</span>
         </div>
-        <div style={{ backgroundColor: 'var(--color-white)', padding: 'var(--spacing-md) var(--spacing-lg)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-gray-200)', boxShadow: 'var(--shadow-card)' }}>
-          <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Abertos</span>
-          <p style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-primary)', margin: 'var(--spacing-xs) 0 0 0' }}>{abertosCount}</p>
+
+        <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Abertos:</span>
+          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>{abertosCount}</span>
         </div>
-        <div style={{ backgroundColor: 'var(--color-white)', padding: 'var(--spacing-md) var(--spacing-lg)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-gray-200)', boxShadow: 'var(--shadow-card)' }}>
-          <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-purple)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Em Andamento</span>
-          <p style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-purple)', margin: 'var(--spacing-xs) 0 0 0' }}>{emAndamentoCount}</p>
+
+        <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Em Andamento:</span>
+          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>{emAndamentoCount}</span>
         </div>
-        <div style={{ backgroundColor: 'var(--color-white)', padding: 'var(--spacing-md) var(--spacing-lg)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-gray-200)', boxShadow: 'var(--shadow-card)' }}>
-          <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Concluídos</span>
-          <p style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-green)', margin: 'var(--spacing-xs) 0 0 0' }}>{concluidosCount}</p>
+
+        <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Concluídos:</span>
+          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>{concluidosCount}</span>
         </div>
       </div>
 
@@ -361,7 +378,6 @@ export default function ChamadosPage() {
                       className="btn btn--limpar btn--sm"
                       onClick={(e) => handleOpenDelete(e, c.id)}
                       title="Excluir Chamado"
-                      style={{ padding: 'var(--spacing-xs) var(--spacing-sm)', minHeight: '32px' }}
                     >
                       <IconTrash size={14} /> Excluir
                     </button>

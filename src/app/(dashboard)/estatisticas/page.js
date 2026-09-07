@@ -712,60 +712,59 @@ export default function EstatisticasPage() {
       </div>
 
       {/* Filters */}
-      <div className="statistics-filters-glass">
-        <div className="statistics-filters">
-          <div className="statistics-filters__group">
-            <span className="statistics-filters__label">Tipo de denúncia:</span>
-            <CustomSelect
-              style={{ minWidth: '220px' }}
-              value={filtros.tipo}
-              onChange={(val) => setFiltros({ ...filtros, tipo: val })}
-              defaultOption="Todos"
-              options={[
-                { value: 'anonima', label: 'Denúncia anônima' },
-                { value: 'identificada', label: 'Denúncia identificada' }
-              ]}
-            />
-          </div>
+      <div className="statistics-filters" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-end', padding: '6px 0', marginBottom: 'var(--spacing-lg)' }}>
+        <div className="statistics-filters__group" style={{ flex: '0 0 auto', width: '155px' }}>
+          <span className="statistics-filters__label">Tipo de denúncia:</span>
+          <CustomSelect
+            style={{ width: '100%' }}
+            value={filtros.tipo}
+            onChange={(val) => setFiltros({ ...filtros, tipo: val })}
+            defaultOption="Todos os tipos"
+            options={[
+              { value: 'anonima', label: 'Denúncia anônima' },
+              { value: 'identificada', label: 'Denúncia identificada' }
+            ]}
+          />
+        </div>
 
-          <div className="statistics-filters__group">
-            <span className="statistics-filters__label">Em qual unidade ocorreu?</span>
-            <CustomSelect
-              style={{ minWidth: '200px' }}
-              value={filtros.unidade}
-              onChange={(val) => setFiltros({ ...filtros, unidade: val })}
-              defaultOption="Todas unidades"
-              options={UNIDADES.map(u => ({ value: u, label: u }))}
-            />
-          </div>
+        <div className="statistics-filters__group" style={{ flex: '0 0 auto', width: '185px' }}>
+          <span className="statistics-filters__label">Em qual unidade ocorreu?</span>
+          <CustomSelect
+            style={{ width: '100%' }}
+            value={filtros.unidade}
+            onChange={(val) => setFiltros({ ...filtros, unidade: val })}
+            defaultOption="Todas as unidades"
+            options={UNIDADES.map(u => ({ value: u, label: u }))}
+          />
+        </div>
 
-          <div className="statistics-filters__group">
-            <span className="statistics-filters__label">Período</span>
-            <div className="statistics-filters__date-group">
-              <CustomDatePicker
-                style={{ minWidth: '160px' }}
-                value={filtros.dataInicio}
-                onChange={(val) => setFiltros({ ...filtros, dataInicio: val })}
-                placeholder="Data inicial"
-              />
-              <span className="statistics-filters__date-sep">Até:</span>
-              <CustomDatePicker
-                style={{ minWidth: '160px' }}
-                value={filtros.dataFim}
-                onChange={(val) => setFiltros({ ...filtros, dataFim: val })}
-                placeholder="Data final"
-              />
-            </div>
-          </div>
+        <div className="statistics-filters__group" style={{ flex: '0 0 auto', width: '145px' }}>
+          <span className="statistics-filters__label">Período de:</span>
+          <CustomDatePicker
+            style={{ width: '100%' }}
+            value={filtros.dataInicio}
+            onChange={(val) => setFiltros({ ...filtros, dataInicio: val })}
+            placeholder="Data inicial"
+          />
+        </div>
 
-          <div className="statistics-filters__actions">
-            <button className="btn btn--limpar" onClick={handleLimpar} type="button">
-              Limpar
-            </button>
-            <button className="btn btn--aplicar" onClick={handleAplicar} type="button">
-              Aplicar
-            </button>
-          </div>
+        <div className="statistics-filters__group" style={{ flex: '0 0 auto', width: '145px' }}>
+          <span className="statistics-filters__label">Até:</span>
+          <CustomDatePicker
+            style={{ width: '100%' }}
+            value={filtros.dataFim}
+            onChange={(val) => setFiltros({ ...filtros, dataFim: val })}
+            placeholder="Data final"
+          />
+        </div>
+
+        <div className="statistics-filters__actions" style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignSelf: 'flex-end', minHeight: '38px' }}>
+          <button className="btn btn--limpar" onClick={handleLimpar} type="button" style={{ minHeight: '38px', height: '38px', padding: '0 18px', borderRadius: 'var(--radius-full)', fontSize: '13px' }}>
+            Limpar
+          </button>
+          <button className="btn btn--aplicar" onClick={handleAplicar} type="button" style={{ minHeight: '38px', height: '38px', padding: '0 18px', borderRadius: 'var(--radius-full)', fontSize: '13px' }}>
+            Aplicar
+          </button>
         </div>
       </div>
 
@@ -788,72 +787,60 @@ export default function EstatisticasPage() {
         </div>
       )}
 
-      {/* KPI Cards Grid */}
+      {/* KPI Metrics em Card Único Horizontal */}
       {!isLoading && (
-        <div className="statistics-kpis">
-          {/* Card 1: Taxa de Anonimato */}
-          <div className="kpi-card">
-            <div className="kpi-card__header">
-              <span className="kpi-card__title" style={{ textTransform: 'uppercase' }}>Taxa de Anonimato</span>
-            </div>
-            <span className="kpi-card__value">
+        <div style={{
+          backgroundColor: 'var(--color-white)',
+          padding: '10px 18px',
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid var(--color-gray-200)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '8px 16px',
+          marginBottom: 'var(--spacing-md, 16px)',
+        }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Taxa de Anonimato:</span>
+            <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>
               {totalDenuncias > 0
                 ? `${((tiposData.find(t => t.name === 'Anônima')?.value || 0) / totalDenuncias * 100).toFixed(1)}%`
                 : '0.0%'
               }
             </span>
-            <span className="kpi-card__desc">Feitas de forma anônima</span>
           </div>
 
-          {/* Card 2: Total de Manifestações */}
-          <div className="kpi-card">
-            <div className="kpi-card__header">
-              <span className="kpi-card__title" style={{ textTransform: 'uppercase' }}>Total de Manifestações</span>
-            </div>
-            <span className="kpi-card__value">{totalDenuncias}</span>
-            <span className="kpi-card__desc">Manifestações no período</span>
+          <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Total de Manifestações:</span>
+            <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>{totalDenuncias}</span>
           </div>
 
-          {/* Card 3: Tempo Médio de Apuração */}
-          <div className="kpi-card">
-            <div className="kpi-card__header">
-              <span className="kpi-card__title" style={{ textTransform: 'uppercase' }}>Tempo Médio de Apuração</span>
-            </div>
-            <span className="kpi-card__value">
-              {mediaDiasResolucao ? `${mediaDiasResolucao} dias` : '—'}
-            </span>
-            <span className="kpi-card__desc">Tempo médio até conclusão</span>
-          </div>
+          <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
 
-          {/* Card 4: Casos em Resolução */}
-          <div className="kpi-card">
-            <div className="kpi-card__header">
-              <span className="kpi-card__title" style={{ textTransform: 'uppercase' }}>Casos em Resolução</span>
-            </div>
-            <span className="kpi-card__value">
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Casos em Resolução:</span>
+            <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>
               {statusData.find(s => s.name === 'Em Andamento')?.value || 0}
             </span>
-            <span className="kpi-card__desc">Sendo apurados</span>
           </div>
 
-          {/* Card 5: Casos Resolvidos */}
-          <div className="kpi-card">
-            <div className="kpi-card__header">
-              <span className="kpi-card__title" style={{ textTransform: 'uppercase' }}>Casos Resolvidos</span>
-            </div>
-            <span className="kpi-card__value">
+          <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Casos Resolvidos:</span>
+            <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>
               {statusData.find(s => s.name === 'Protocolo Fechado')?.value || 0}
             </span>
-            <span className="kpi-card__desc">Protocolos finalizados</span>
           </div>
 
-          {/* Card 6: Taxa de Resolutividade */}
-          <div className="kpi-card">
-            <div className="kpi-card__header">
-              <span className="kpi-card__title" style={{ textTransform: 'uppercase' }}>Resolutividade</span>
-            </div>
-            <span className="kpi-card__value">{taxaResolutividade}%</span>
-            <span className="kpi-card__desc">Casos encerrados com solução</span>
+          <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+            <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Resolutividade:</span>
+            <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>{taxaResolutividade}%</span>
           </div>
         </div>
       )}

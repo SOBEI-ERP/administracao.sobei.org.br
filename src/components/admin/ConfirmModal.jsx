@@ -152,9 +152,11 @@ export default function ConfirmModal({
               disabled={loading}
               style={{
                 flex: 1,
-                padding: '10px 16px',
-                borderRadius: '8px',
-                fontWeight: 600,
+                minHeight: '38px',
+                height: '38px',
+                padding: '0 16px',
+                borderRadius: 'var(--radius-full)',
+                fontWeight: 'var(--font-weight-bold)',
                 fontSize: '14px',
               }}
             >
@@ -164,22 +166,20 @@ export default function ConfirmModal({
 
           <button
             type="button"
-            className="btn"
+            className={`btn ${type === 'danger' ? 'btn--danger' : type === 'success' ? 'btn--success' : 'btn--secondary'}`}
             onClick={isAlertOnly ? onClose : onConfirm}
             disabled={loading}
             style={{
               flex: isAlertOnly ? 'none' : 1,
               minWidth: isAlertOnly ? '120px' : 'auto',
-              backgroundColor: config.confirmBtnBg,
-              color: '#ffffff',
-              border: 'none',
-              padding: '10px 16px',
-              borderRadius: '8px',
-              fontWeight: 600,
+              minHeight: '38px',
+              height: '38px',
+              padding: '0 16px',
+              borderRadius: 'var(--radius-full)',
+              fontWeight: 'var(--font-weight-bold)',
               fontSize: '14px',
               cursor: loading ? 'not-allowed' : 'pointer',
               opacity: loading ? 0.7 : 1,
-              transition: 'background-color 0.2s',
             }}
           >
             {loading ? 'Aguarde...' : isAlertOnly ? (confirmText || 'Entendido') : confirmText}

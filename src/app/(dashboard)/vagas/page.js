@@ -330,24 +330,9 @@ function VagasContent() {
       {/* Header com Seletor de Abas Principais */}
       <div className="vagas-admin__header" style={{ flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
         <div>
-          <h1 className="vagas-admin__title">
+          <h1 className="vagas-admin__title" style={{ margin: 0 }}>
             {mainTab === 'vagas' ? 'Gestão de Vagas' : 'Banco de Talentos'}
           </h1>
-          <p className="vagas-admin__subtitle">
-            {mainTab === 'vagas' ? (
-              user?.nivel === 'suporte' ? (
-                <span>Visualizando as vagas de <strong>todas as unidades</strong></span>
-              ) : (
-                <span>Gerencie as vagas da unidade <strong>{user?.unidade || '—'}</strong></span>
-              )
-            ) : (
-              user?.nivel === 'suporte' ? (
-                <span>Candidatos arquivados ao fechar vagas de <strong>todas as unidades</strong></span>
-              ) : (
-                <span>Histórico de candidatos arquivados da unidade <strong>{user?.unidade || '—'}</strong></span>
-              )
-            )}
-          </p>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
@@ -833,21 +818,20 @@ function VagasContent() {
 
                 {(user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
                   <div className="vagas-detail__actions" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-                    <button className="vagas-form__btn-submit" onClick={() => handleOpenEdit(selectedVaga)}>
+                    <button className="btn btn--secondary btn--sm" onClick={() => handleOpenEdit(selectedVaga)}>
                       Editar Vaga
                     </button>
 
                     {selectedVaga.status === 'ativo' && (
                       <>
                         <button
-                          className="vagas-form__btn-cancel"
+                          className="btn btn--warning btn--sm"
                           onClick={() => handleChangeStatus(selectedVaga, 'em_selecao')}
-                          style={{ borderColor: 'var(--color-warning, #f59e0b)', color: 'var(--color-warning, #f59e0b)' }}
                         >
                           Iniciar Seleção
                         </button>
                         <button
-                          className="vagas-detail__btn-close"
+                          className="btn btn--danger btn--sm"
                           onClick={() => handleChangeStatus(selectedVaga, 'fechado')}
                         >
                           Fechar Vaga
@@ -858,14 +842,13 @@ function VagasContent() {
                     {selectedVaga.status === 'em_selecao' && (
                       <>
                         <button
-                          className="vagas-form__btn-submit"
+                          className="btn btn--success btn--sm"
                           onClick={() => handleChangeStatus(selectedVaga, 'ativo')}
-                          style={{ backgroundColor: 'var(--color-success, #22c55e)' }}
                         >
                           Reabrir Vaga
                         </button>
                         <button
-                          className="vagas-detail__btn-close"
+                          className="btn btn--danger btn--sm"
                           onClick={() => handleChangeStatus(selectedVaga, 'fechado')}
                         >
                           Fechar Vaga
@@ -876,16 +859,14 @@ function VagasContent() {
                     {selectedVaga.status === 'fechado' && (
                       <>
                         <button
-                          className="vagas-form__btn-submit"
+                          className="btn btn--success btn--sm"
                           onClick={() => handleChangeStatus(selectedVaga, 'ativo')}
-                          style={{ backgroundColor: 'var(--color-success, #22c55e)' }}
                         >
                           Reabrir Vaga
                         </button>
                         <button
-                          className="vagas-form__btn-cancel"
+                          className="btn btn--warning btn--sm"
                           onClick={() => handleChangeStatus(selectedVaga, 'em_selecao')}
-                          style={{ borderColor: 'var(--color-warning, #f59e0b)', color: 'var(--color-warning, #f59e0b)' }}
                         >
                           Mover para Em Seleção
                         </button>
@@ -895,24 +876,9 @@ function VagasContent() {
                     {/* Botão de Excluir Vaga */}
                     <button
                       type="button"
+                      className="btn btn--danger btn--sm"
+                      style={{ marginLeft: 'auto' }}
                       onClick={() => setShowDeleteConfirm(true)}
-                      style={{
-                        marginLeft: 'auto',
-                        backgroundColor: '#ef4444',
-                        color: '#fff',
-                        border: 'none',
-                        padding: '10px 16px',
-                        borderRadius: '6px',
-                        fontWeight: 'bold',
-                        fontSize: '13px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        transition: 'background-color 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
                     >
                       <IconTrash size={14} /> Excluir Vaga
                     </button>
@@ -1003,7 +969,7 @@ function VagasContent() {
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
               <button
                 type="button"
-                className="vagas-form__btn-cancel"
+                className="btn btn--outline btn--sm"
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={deletingVaga}
               >
@@ -1011,19 +977,9 @@ function VagasContent() {
               </button>
               <button
                 type="button"
+                className="btn btn--danger btn--sm"
                 onClick={handleConfirmDelete}
                 disabled={deletingVaga}
-                style={{
-                  backgroundColor: '#dc2626',
-                  color: '#fff',
-                  border: 'none',
-                  padding: '10px 18px',
-                  borderRadius: '6px',
-                  fontWeight: 'bold',
-                  fontSize: '14px',
-                  cursor: deletingVaga ? 'not-allowed' : 'pointer',
-                  opacity: deletingVaga ? 0.7 : 1
-                }}
               >
                 {deletingVaga ? 'Excluindo...' : 'Sim, Excluir Vaga'}
               </button>

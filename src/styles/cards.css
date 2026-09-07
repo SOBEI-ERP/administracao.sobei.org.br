@@ -230,8 +230,13 @@
   transition: border-color 0.15s ease;
 }
 
+.denuncia-card__textarea:hover {
+  border-color: var(--color-primary);
+}
+
 .denuncia-card__textarea:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(27, 20, 100, 0.15);
+  box-shadow: none !important;
+  outline: none !important;
 }
 

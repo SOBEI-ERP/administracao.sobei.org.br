@@ -73,31 +73,63 @@
 /* ---- Filter Bar ---- */
 .filter-bar {
   display: flex;
-  align-items: stretch;
-  gap: var(--spacing-xl);
+  align-items: flex-end;
+  gap: 10px;
   flex-wrap: wrap;
-  padding: var(--spacing-lg) 0;
-  margin-bottom: var(--spacing-lg);
+  padding: 6px 0;
+  margin-bottom: var(--spacing-md);
 }
 
 .filter-bar__group {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: 6px;
+  flex: 0 0 auto;
 }
 
 .filter-bar__label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-size: 13px;
+  font-weight: 500;
   color: var(--color-gray-700);
-  margin-bottom: auto;
+  white-space: nowrap;
+  line-height: 1.2;
 }
 
 .filter-bar__actions {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: 8px;
   margin-left: auto;
   align-self: flex-end;
+  min-height: 38px;
+}
+
+.filter-bar__input,
+.filter-bar input,
+.filter-bar input.form-input {
+  border: 1px solid var(--color-gray-300) !important;
+  border-radius: var(--radius-full) !important;
+  background-color: var(--color-white) !important;
+  transition: border-color var(--transition-fast) !important;
+}
+
+.filter-bar__input:hover,
+.filter-bar input:hover,
+.filter-bar input.form-input:hover,
+.filter-bar .form-input:hover {
+  border-color: var(--color-primary) !important;
+}
+
+.filter-bar__input:focus,
+.filter-bar__input:focus-visible,
+.filter-bar input:focus,
+.filter-bar input:focus-visible,
+.filter-bar input.form-input:focus,
+.filter-bar input.form-input:focus-visible,
+.filter-bar .form-input:focus,
+.filter-bar .form-input:focus-visible {
+  border-color: var(--color-primary) !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 @media (max-width: 900px) {

@@ -176,10 +176,7 @@ export default function UsuariosPage() {
     <div>
       <div className="statistics-header" style={{ marginBottom: 'var(--spacing-xl)' }}>
         <div>
-          <h1 className="admin-page__title" style={{ marginBottom: 'var(--spacing-xs)' }}>Gestão de Usuários</h1>
-          <p className="admin-page__description" style={{ marginBottom: 0 }}>
-            Gerencie as credenciais e níveis de acesso dos administradores e analistas de suporte do portal.
-          </p>
+          <h1 className="admin-page__title" style={{ margin: 0 }}>Gestão de Usuários</h1>
         </div>
         <button className="btn btn--secondary" onClick={() => setIsModalOpen(true)}>
           Novo Usuário
@@ -235,7 +232,7 @@ export default function UsuariosPage() {
               )}
               <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
                 <button
-                  className="btn btn--outline btn--sm"
+                  className="btn btn--secondary btn--sm"
                   onClick={() => handleAbrirAlterarSenha(u)}
                   type="button"
                 >
@@ -243,7 +240,7 @@ export default function UsuariosPage() {
                 </button>
                 {user?.usuario !== u.usuario && (
                   <button
-                    className="btn btn--danger btn--sm"
+                    className="btn btn--limpar btn--sm"
                     onClick={() => handleAbrirConfirmarDeletar(u)}
                     type="button"
                   >

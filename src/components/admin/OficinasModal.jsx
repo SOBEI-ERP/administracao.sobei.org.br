@@ -185,11 +185,11 @@ export default function OficinasModal({ inscrito, inscritos = [], onClose, onSav
                     value={busca}
                     onChange={(e) => setBusca(e.target.value)}
                     placeholder="Buscar oficineiro ou tema..."
+                    className="form-input"
                     style={{
                       width: '100%',
                       padding: '9px 12px 9px 36px',
                       borderRadius: '8px',
-                      border: '1px solid #CBD5E1',
                       fontSize: '0.86rem',
                       outline: 'none',
                       boxSizing: 'border-box',
@@ -679,56 +679,25 @@ export default function OficinasModal({ inscrito, inscritos = [], onClose, onSav
             <div style={{ display: 'flex', gap: '10px' }}>
               <button
                 type="button"
+                className="btn btn--outline"
                 onClick={onClose}
                 disabled={salvando}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '10px 20px',
-                  borderRadius: '35px',
-                  border: '1.5px solid #CBD5E1',
-                  backgroundColor: '#FFFFFF',
-                  color: '#475569',
-                  fontSize: '0.90rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                  minHeight: '42px',
-                }}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
+                className="btn btn--secondary"
                 disabled={salvando}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  padding: '10px 24px',
-                  borderRadius: '35px',
-                  border: 'none',
-                  outline: 'none',
-                  backgroundColor: '#0C1B33',
-                  color: '#FFFFFF',
-                  fontSize: '0.92rem',
-                  fontWeight: '700',
-                  cursor: salvando ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.15s ease',
-                  minHeight: '42px',
-                  boxShadow: '0 2px 8px rgba(12, 27, 51, 0.25)',
-                }}
               >
                 {salvando ? (
-                  <span style={{ color: '#FFFFFF' }}>Salvando...</span>
+                  <span>Salvando...</span>
                 ) : (
                   <>
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
-                    <span style={{ color: '#FFFFFF' }}>Salvar Oficina</span>
+                    <span>Salvar Oficina</span>
                   </>
                 )}
               </button>

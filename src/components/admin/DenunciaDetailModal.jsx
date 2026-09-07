@@ -349,19 +349,20 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
 
                   {/* LADO DIREITO: Funcionalidades de Gestão, Medidas e Ações */}
                   <div className="modal__col-actions">
-                    <h3 className="modal__section-title" style={{ fontSize: '15px', color: 'var(--color-primary)', margin: 0 }}>
+                    <h3 className="modal__section-title" style={{ fontSize: '15px', color: 'var(--color-primary)', marginBottom: 'var(--spacing-md)' }}>
                       Gestão e Ações
                     </h3>
 
                     {/* Seletor de Prioridade */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: 'var(--color-white)', padding: '10px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-gray-200)' }}>
-                      <strong style={{ fontSize: '13px', color: 'var(--color-gray-800)' }}>Prioridade:</strong>
-                      <div style={{ width: '140px' }}>
+                    <div className="modal__section" style={{ marginBottom: 'var(--spacing-md)' }}>
+                      <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-gray-800)', margin: '0 0 6px 0' }}>
+                        Prioridade da denúncia:
+                      </h4>
+                      <div style={{ width: '150px' }}>
                         <CustomSelect
                           value={prioridadeLocal}
                           onChange={setPrioridadeLocal}
                           allowEmpty={false}
-                          className={`priority-select priority-badge--${prioridadeLocal.toLowerCase()}`}
                           options={[
                             { value: 'NEUTRA', label: 'Neutra' },
                             { value: 'BAIXA', label: 'Baixa' },
@@ -373,8 +374,8 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
                     </div>
 
                     {/* Lista de Medidas Adotadas */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-gray-800)', margin: 0 }}>
+                    <div className="modal__section" style={{ marginBottom: 'var(--spacing-md)' }}>
+                      <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-gray-800)', margin: '0 0 8px 0' }}>
                         Medidas adotadas até o momento ({medidasList.filter(m => m.descricao).length}):
                       </h4>
 
@@ -468,8 +469,8 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
                     </div>
 
                     {/* Campo para Adicionar Nova Medida */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' }}>
-                      <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-gray-800)', margin: 0 }}>
+                    <div className="modal__section" style={{ marginBottom: 0 }}>
+                      <h4 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-gray-800)', margin: '0 0 6px 0' }}>
                         Adicionar nova ação ou medida:
                       </h4>
                       <textarea
@@ -482,7 +483,7 @@ export default function DenunciaDetailModal({ denuncia, status, onClose, onActio
                       <button
                         type="button"
                         className="btn btn--blue btn--sm"
-                        style={{ alignSelf: 'flex-start', padding: '6px 14px', fontSize: '12px' }}
+                        style={{ alignSelf: 'flex-start', marginTop: '6px' }}
                         onClick={() => {
                           if (novaMedida.trim()) {
                             setMedidasList([...medidasList, { id: `medida-${Date.now()}`, descricao: novaMedida.trim() }]);

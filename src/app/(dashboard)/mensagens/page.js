@@ -110,14 +110,7 @@ export default function MensagensPage() {
       {/* Header */}
       <div className="vagas-admin__header" style={{ flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
         <div>
-          <h1 className="vagas-admin__title">Mensagens da Unidade</h1>
-          <p className="vagas-admin__subtitle">
-            {user?.nivel === 'suporte' ? (
-              <span>Visualizando mensagens enviadas para <strong>todas as unidades</strong></span>
-            ) : (
-              <span>Mensagens enviadas para a unidade <strong>{user?.unidade || '—'}</strong></span>
-            )}
-          </p>
+          <h1 className="vagas-admin__title" style={{ margin: 0 }}>Mensagens da Unidade</h1>
         </div>
       </div>
 
@@ -246,18 +239,7 @@ export default function MensagensPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      style={{
-                        backgroundColor: '#25D366',
-                        color: '#fff',
-                        padding: '6px 12px',
-                        borderRadius: '6px',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        textDecoration: 'none',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                      }}
+                      className="btn--whatsapp btn--sm"
                     >
                       <IconWhatsApp size={16} /> WhatsApp
                     </a>
@@ -266,17 +248,8 @@ export default function MensagensPage() {
                   {!msg.lida && (
                     <button
                       type="button"
+                      className="btn btn--secondary btn--sm"
                       onClick={(e) => handleMarcarComoLida(e, msg.id)}
-                      style={{
-                        backgroundColor: 'var(--color-gray-100, #f1f5f9)',
-                        color: 'var(--color-gray-700, #334155)',
-                        border: '1px solid var(--color-gray-300, #cbd5e1)',
-                        padding: '6px 12px',
-                        borderRadius: '6px',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                      }}
                     >
                       <IconCheck size={14} /> Marcar Lida
                     </button>
@@ -284,19 +257,11 @@ export default function MensagensPage() {
 
                   <button
                     type="button"
+                    className="btn-icon-danger-outline btn-icon-danger-outline--sm"
                     onClick={(e) => handleOpenDelete(e, msg.id)}
-                    style={{
-                      backgroundColor: '#fef2f2',
-                      color: '#ef4444',
-                      border: '1px solid #fecaca',
-                      padding: '6px 10px',
-                      borderRadius: '6px',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      cursor: 'pointer'
-                    }}
+                    title="Excluir mensagem"
                   >
-                    <IconTrash size={14} />
+                    <IconTrash size={16} />
                   </button>
                 </div>
               </div>
@@ -323,55 +288,36 @@ export default function MensagensPage() {
       {/* Modal de Detalhes da Mensagem */}
       {showDetailModal && selectedMensagem && (
         <div className="vagas-modal__overlay" onClick={() => setShowDetailModal(false)}>
-          <div className="vagas-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '650px', width: '90%' }}>
+          <div className="vagas-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', width: '90%' }}>
             <div className="vagas-modal__header">
-              <h2>Mensagem — {selectedMensagem.unidade}</h2>
+              <div>
+                <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--color-primary)' }}>
+                  Detalhes da Mensagem
+                </h2>
+                <span style={{ fontSize: '12px', color: 'var(--color-gray-500)' }}>
+                  Recebida em {formatDate(selectedMensagem.dataEnvio)}
+                </span>
+              </div>
               <button className="vagas-modal__close" onClick={() => setShowDetailModal(false)}><IconClose size={18} /></button>
             </div>
 
-            <div style={{ padding: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', backgroundColor: 'var(--color-gray-50, #f8fafc)', padding: '14px', borderRadius: '8px' }}>
                 <div>
-                  <h3 style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--color-gray-900, #0f172a)', margin: '0 0 6px 0' }}>
-                    {selectedMensagem.nomeCompleto}
-                  </h3>
-                  <p style={{ fontSize: '14px', color: 'var(--color-gray-600, #475569)', margin: '0 0 4px 0' }}>
-                    <IconMail size={14} /> <strong>E-mail:</strong> {selectedMensagem.email}
-                  </p>
-                  <p style={{ fontSize: '14px', color: 'var(--color-gray-600, #475569)', margin: 0 }}>
-                    <IconPhone size={14} /> <strong>Telefone/WhatsApp:</strong> {selectedMensagem.telefone}
-                  </p>
+                  <span style={{ fontSize: '11px', color: 'var(--color-gray-500, #64748b)', display: 'block', fontWeight: 'bold', textTransform: 'uppercase' }}>Nome</span>
+                  <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'var(--color-gray-900, #0f172a)' }}>{selectedMensagem.nomeCompleto}</span>
                 </div>
-
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '12px', color: 'var(--color-gray-500, #64748b)', display: 'block', marginBottom: '8px' }}>
-                    {formatDate(selectedMensagem.dataEnvio)}
-                  </span>
-                  {selectedMensagem.telefone && (
-                    <a
-                      href={getWhatsappLink(selectedMensagem.telefone)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        backgroundColor: '#25D366',
-                        color: '#fff',
-                        padding: '8px 14px',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: 'bold',
-                        textDecoration: 'none',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                      }}
-                    >
-                      <IconWhatsApp size={16} /> Abrir WhatsApp
-                    </a>
-                  )}
+                <div>
+                  <span style={{ fontSize: '11px', color: 'var(--color-gray-500, #64748b)', display: 'block', fontWeight: 'bold', textTransform: 'uppercase' }}>E-mail</span>
+                  <span style={{ fontSize: '13px', color: 'var(--color-gray-700, #334155)' }}>{selectedMensagem.email}</span>
+                </div>
+                <div>
+                  <span style={{ fontSize: '11px', color: 'var(--color-gray-500, #64748b)', display: 'block', fontWeight: 'bold', textTransform: 'uppercase' }}>Telefone</span>
+                  <span style={{ fontSize: '13px', color: 'var(--color-gray-700, #334155)' }}>{selectedMensagem.telefone || 'Não informado'}</span>
                 </div>
               </div>
 
-              <div style={{ backgroundColor: '#f8fafc', border: '1px solid var(--color-gray-200, #e2e8f0)', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
+              <div>
                 <h4 style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--color-gray-500, #64748b)', textTransform: 'uppercase', marginBottom: '8px' }}>
                   Conteúdo da Mensagem
                 </h4>
@@ -383,24 +329,15 @@ export default function MensagensPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <button
                   type="button"
+                  className="btn btn--danger btn--sm"
                   onClick={(e) => handleOpenDelete(e, selectedMensagem.id)}
-                  style={{
-                    backgroundColor: '#fef2f2',
-                    color: '#ef4444',
-                    border: '1px solid #fecaca',
-                    padding: '8px 14px',
-                    borderRadius: '6px',
-                    fontSize: '13px',
-                    fontWeight: 'bold',
-                    cursor: 'pointer'
-                  }}
                 >
                   <IconTrash size={14} /> Excluir Mensagem
                 </button>
 
                 <button
                   type="button"
-                  className="vagas-form__btn-submit"
+                  className="btn btn--secondary btn--sm"
                   onClick={() => setShowDetailModal(false)}
                 >
                   Fechar
@@ -426,7 +363,7 @@ export default function MensagensPage() {
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '20px' }}>
               <button
                 type="button"
-                className="vagas-form__btn-cancel"
+                className="btn btn--outline"
                 onClick={() => setShowDeleteModal(false)}
                 disabled={deleting}
               >
@@ -434,21 +371,11 @@ export default function MensagensPage() {
               </button>
               <button
                 type="button"
+                className="btn btn--danger"
                 onClick={handleConfirmDelete}
                 disabled={deleting}
-                style={{
-                  backgroundColor: '#dc2626',
-                  color: '#fff',
-                  border: 'none',
-                  padding: '10px 18px',
-                  borderRadius: '6px',
-                  fontWeight: 'bold',
-                  fontSize: '14px',
-                  cursor: deleting ? 'not-allowed' : 'pointer',
-                  opacity: deleting ? 0.7 : 1
-                }}
               >
-                {deleting ? 'Excluindo...' : 'Sim, Excluir'}
+                {deleting ? 'Excluindo...' : 'Excluir'}
               </button>
             </div>
           </div>
