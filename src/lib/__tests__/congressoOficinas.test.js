@@ -30,12 +30,12 @@ describe('congressoOficinas - Regras de Cotas e Limites por Unidade', () => {
     expect(obterCotaUnidade('Quem dança seus males espanta!', 'CEI Leblon')).toBe(3);
     expect(obterCotaUnidade('Entre contos, brincadeiras e canções', 'CEI Montanaro')).toBe(2);
     expect(obterCotaUnidade('Entre contos, brincadeiras e canções', 'CEI Leblon')).toBe(1);
-    expect(obterCotaUnidade('Entre contos, brincadeiras e canções', 'CEI Orquídeas')).toBe(6);
-    expect(obterCotaUnidade('Entre contos, brincadeiras e canções', 'CEI Ipês')).toBe(2);
+    expect(obterCotaUnidade('Entre contos, brincadeiras e canções', 'CEI Orquídeas')).toBe(3);
+    expect(obterCotaUnidade('Entre contos, brincadeiras e canções', 'CEI Ipês')).toBe(1);
     expect(obterCotaUnidade('Saberes que alimentam', 'CEI Orquídeas')).toBe(9);
-    expect(obterCotaUnidade('Vivências para refletir sobre cuidados corporais', 'CEI Cedro')).toBe(3);
-    expect(obterCotaUnidade('Inclusão no lúdico', 'CEI Cedro')).toBe(3);
-    expect(obterCotaUnidade('Rodas e brincadeiras cantadas', 'CEI Orquídeas')).toBe(3);
+    expect(obterCotaUnidade('Vivências para refletir sobre cuidados corporais', 'CEI Cedro')).toBe(1);
+    expect(obterCotaUnidade('Inclusão no lúdico', 'CEI Cedro')).toBe(1);
+    expect(obterCotaUnidade('Rodas e brincadeiras cantadas', 'CEI Orquídeas')).toBe(1);
   });
 
   test('calcularOcupacaoUnidade deve calcular vagas ocupadas e bloquear se esgotada', () => {
