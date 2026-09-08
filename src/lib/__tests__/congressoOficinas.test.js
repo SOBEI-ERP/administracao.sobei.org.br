@@ -36,6 +36,8 @@ describe('congressoOficinas - Regras de Cotas e Limites por Unidade', () => {
     expect(obterCotaUnidade('Vivências para refletir sobre cuidados corporais', 'CEI Cedro')).toBe(3);
     expect(obterCotaUnidade('Inclusão no lúdico', 'CEI Cedro')).toBe(3);
     expect(obterCotaUnidade('Rodas e brincadeiras cantadas', 'CEI Orquídeas')).toBe(3);
+    expect(obterCotaUnidade('Jogos Teatrais', 'CEI Cedro')).toBe(3);
+    expect(obterCotaUnidade('Jogos Teatrais', 'CEI Ipês')).toBe(2);
   });
 
   test('calcularOcupacaoUnidade deve calcular vagas ocupadas e bloquear se esgotada', () => {

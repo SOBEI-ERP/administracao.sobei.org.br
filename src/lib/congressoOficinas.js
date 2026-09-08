@@ -257,11 +257,11 @@ export const OFICINAS_CONGRESSO = [
     tema: 'Jogos Teatrais.',
     categoria: 'Teatro & Expressão Artística',
     vagasSala: 20,
-    totalUnidades: 19,
+    totalUnidades: 22,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
-      'Acácias': 2, 'Orquídeas': 3, Cedro: 1, Oliveiras: 1, 'Macaúbas': 2,
-      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 1,
+      'Acácias': 2, 'Orquídeas': 3, Cedro: 3, Oliveiras: 1, 'Macaúbas': 2,
+      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 2,
     },
   },
   {

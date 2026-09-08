@@ -525,7 +525,6 @@ export default function InscritosCongressoPage() {
         backgroundColor: 'var(--color-white)',
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--color-gray-200)',
-        boxShadow: 'var(--shadow-card)',
         overflow: 'hidden',
         width: '100%'
       }}>
