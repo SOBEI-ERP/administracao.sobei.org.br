@@ -5,14 +5,37 @@
 /* ---- Form Container (Public) ---- */
 .form-page {
   min-height: 100vh;
-  background-color: var(--color-primary);
+  background: radial-gradient(circle at 80% 20%, rgba(42, 31, 138, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 10% 80%, rgba(255, 204, 0, 0.03) 0%, transparent 40%),
+              linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-deeper) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--spacing-xl) var(--spacing-base);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Fundo com grade sutil decorativa para profundidade contínua */
+.form-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center top;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .form-card {
+  position: relative;
+  z-index: 2;
   background-color: var(--color-white);
   border-radius: var(--radius-2xl);
   padding: var(--spacing-2xl) var(--spacing-xl);
@@ -140,14 +163,37 @@
 /* ---- Login Page ---- */
 .login-page {
   min-height: 100vh;
-  background-color: var(--color-primary);
+  background: radial-gradient(circle at 80% 20%, rgba(42, 31, 138, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 10% 80%, rgba(255, 204, 0, 0.03) 0%, transparent 40%),
+              linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary-deeper) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--spacing-xl) var(--spacing-base);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Fundo com grade sutil decorativa para profundidade contínua */
+.login-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center top;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .login-card {
+  position: relative;
+  z-index: 2;
   background-color: var(--color-white);
   border-radius: var(--radius-2xl);
   padding: var(--spacing-3xl) var(--spacing-2xl);
