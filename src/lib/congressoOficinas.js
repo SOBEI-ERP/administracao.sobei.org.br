@@ -10,11 +10,11 @@ export const OFICINAS_CONGRESSO = [
     tema: 'Quais os saberes e fazeres tão específicos para, de verdade, atendermos às necessidades dos nossos bebês e crianças pequenas no cotidiano das instituições?',
     categoria: 'Primeiríssima Infância',
     vagasSala: 30,
-    totalUnidades: 19,
+    totalUnidades: 20,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
       'Acácias': 2, 'Orquídeas': 3, Cedro: 1, Oliveiras: 1, 'Macaúbas': 2,
-      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 1,
+      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 2,
     },
   },
   {
@@ -36,11 +36,11 @@ export const OFICINAS_CONGRESSO = [
     tema: 'Entre contos, brincadeiras e canções.',
     categoria: 'Música & Tradição Oral',
     vagasSala: 20,
-    totalUnidades: 19,
+    totalUnidades: 23,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
-      'Acácias': 2, 'Orquídeas': 3, Cedro: 1, Oliveiras: 1, 'Macaúbas': 2,
-      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 1,
+      'Acácias': 2, 'Orquídeas': 6, Cedro: 1, Oliveiras: 1, 'Macaúbas': 2,
+      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 2,
     },
   },
   {
@@ -49,11 +49,11 @@ export const OFICINAS_CONGRESSO = [
     tema: 'Valorizando diferentes culturas através da arte narrativa.',
     categoria: 'Arte Narrativa & Culturas',
     vagasSala: 15,
-    totalUnidades: 19,
+    totalUnidades: 20,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
       'Acácias': 2, 'Orquídeas': 3, Cedro: 1, Oliveiras: 1, 'Macaúbas': 2,
-      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 1,
+      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 2,
     },
   },
   {
@@ -65,8 +65,8 @@ export const OFICINAS_CONGRESSO = [
     totalUnidades: 27,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 2, Imbuias: 2, 'Bela Vista': 2, 'Sabiás': 2,
-      'Acácias': 2, 'Orquídeas': 3, Cedro: 2, Oliveiras: 2, 'Macaúbas': 2,
-      Cerejeiras: 2, 'Araucárias': 2, 'Ipês': 2,
+      'Acácias': 2, 'Orquídeas': 4, Cedro: 2, Oliveiras: 2, 'Macaúbas': 2,
+      Cerejeiras: 1, 'Araucárias': 2, 'Ipês': 2,
     },
   },
   {
@@ -75,11 +75,11 @@ export const OFICINAS_CONGRESSO = [
     tema: 'Inclusão na Primeira Infância, Além do Diagnóstico.',
     categoria: 'Educação Inclusiva',
     vagasSala: 30,
-    totalUnidades: 19,
+    totalUnidades: 20,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
       'Acácias': 2, 'Orquídeas': 3, Cedro: 1, Oliveiras: 1, 'Macaúbas': 2,
-      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 1,
+      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 2,
     },
   },
   {
@@ -88,11 +88,11 @@ export const OFICINAS_CONGRESSO = [
     tema: 'Inclusão no lúdico, como o brincar pode ajudar a superar barreiras.',
     categoria: 'Lúdico & Acessibilidade',
     vagasSala: 15,
-    totalUnidades: 19,
+    totalUnidades: 22,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
-      'Acácias': 2, 'Orquídeas': 3, Cedro: 1, Oliveiras: 1, 'Macaúbas': 2,
-      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 1,
+      'Acácias': 2, 'Orquídeas': 3, Cedro: 3, Oliveiras: 1, 'Macaúbas': 2,
+      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 2,
     },
   },
   {
@@ -101,11 +101,11 @@ export const OFICINAS_CONGRESSO = [
     tema: 'Vivências para refletir sobre cuidados corporais de qualidade na creche inspirados na Abordagem Pikler.',
     categoria: 'Abordagem Pikler',
     vagasSala: 20,
-    totalUnidades: 19,
+    totalUnidades: 23,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
-      'Acácias': 2, 'Orquídeas': 3, Cedro: 1, Oliveiras: 1, 'Macaúbas': 2,
-      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 1,
+      'Acácias': 2, 'Orquídeas': 3, Cedro: 3, Oliveiras: 1, 'Macaúbas': 2,
+      Cerejeiras: 2, 'Araucárias': 1, 'Ipês': 2,
     },
   },
   {
@@ -117,8 +117,8 @@ export const OFICINAS_CONGRESSO = [
     totalUnidades: 27,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 2, Imbuias: 2, 'Bela Vista': 2, 'Sabiás': 2,
-      'Acácias': 2, 'Orquídeas': 3, Cedro: 2, Oliveiras: 2, 'Macaúbas': 2,
-      Cerejeiras: 2, 'Araucárias': 2, 'Ipês': 2,
+      'Acácias': 2, 'Orquídeas': 4, Cedro: 2, Oliveiras: 2, 'Macaúbas': 2,
+      Cerejeiras: 1, 'Araucárias': 2, 'Ipês': 2,
     },
   },
   {
@@ -140,11 +140,11 @@ export const OFICINAS_CONGRESSO = [
     tema: 'Jogo da Arquitetura Cerebral — Como as experiências na primeira infância moldam a arquitetura do cérebro.',
     categoria: 'Neurociência & Desenvolvimento',
     vagasSala: 25,
-    totalUnidades: 19,
+    totalUnidades: 21,
     limitesPorUnidade: {
-      Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
+      Montanaro: 2, Leblon: 1, Imbuias: 2, 'Bela Vista': 2, 'Sabiás': 1,
       'Acácias': 2, 'Orquídeas': 3, Cedro: 1, Oliveiras: 1, 'Macaúbas': 2,
-      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 1,
+      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 2,
     },
   },
   {
@@ -153,11 +153,11 @@ export const OFICINAS_CONGRESSO = [
     tema: 'A importância do Brincar com Areia na Educação Infantil.',
     categoria: 'Brincar Sensorial',
     vagasSala: 30,
-    totalUnidades: 27,
+    totalUnidades: 28,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 2, Imbuias: 2, 'Bela Vista': 2, 'Sabiás': 2,
-      'Acácias': 2, 'Orquídeas': 3, Cedro: 2, Oliveiras: 2, 'Macaúbas': 2,
-      Cerejeiras: 2, 'Araucárias': 2, 'Ipês': 2,
+      'Acácias': 2, 'Orquídeas': 5, Cedro: 2, Oliveiras: 2, 'Macaúbas': 2,
+      Cerejeiras: 1, 'Araucárias': 2, 'Ipês': 2,
     },
   },
   {
@@ -166,11 +166,11 @@ export const OFICINAS_CONGRESSO = [
     tema: 'A literatura infantil como ferramenta de educação antirracista dialogando com as relações étnico-raciais na pedagogia da infância.',
     categoria: 'Literatura & Relações Étnico-Raciais',
     vagasSala: 30,
-    totalUnidades: 27,
+    totalUnidades: 26,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 2, Imbuias: 2, 'Bela Vista': 2, 'Sabiás': 2,
       'Acácias': 2, 'Orquídeas': 3, Cedro: 2, Oliveiras: 2, 'Macaúbas': 2,
-      Cerejeiras: 2, 'Araucárias': 2, 'Ipês': 2,
+      Cerejeiras: 1, 'Araucárias': 2, 'Ipês': 2,
     },
   },
   {
@@ -179,11 +179,11 @@ export const OFICINAS_CONGRESSO = [
     tema: 'Cuidados, linguagem e inclusão.',
     categoria: 'Linguagem & Cuidados',
     vagasSala: 25,
-    totalUnidades: 19,
+    totalUnidades: 21,
     limitesPorUnidade: {
-      Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
+      Montanaro: 2, Leblon: 1, Imbuias: 2, 'Bela Vista': 2, 'Sabiás': 1,
       'Acácias': 2, 'Orquídeas': 3, Cedro: 1, Oliveiras: 1, 'Macaúbas': 2,
-      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 1,
+      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 2,
     },
   },
   {
@@ -192,11 +192,11 @@ export const OFICINAS_CONGRESSO = [
     tema: 'Corpo e Movimento.',
     categoria: 'Psicomotricidade & Movimento',
     vagasSala: 25,
-    totalUnidades: 19,
+    totalUnidades: 20,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
       'Acácias': 2, 'Orquídeas': 3, Cedro: 1, Oliveiras: 1, 'Macaúbas': 2,
-      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 1,
+      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 2,
     },
   },
   {
@@ -218,11 +218,11 @@ export const OFICINAS_CONGRESSO = [
     tema: 'Dos acalantos às rodas de verso: a música tradicional da infância embalando os brinquedos de criança. (Elaine Silva)',
     categoria: 'Música & Cultura Popular',
     vagasSala: 30,
-    totalUnidades: 27,
+    totalUnidades: 26,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 2, Imbuias: 2, 'Bela Vista': 2, 'Sabiás': 2,
       'Acácias': 2, 'Orquídeas': 3, Cedro: 2, Oliveiras: 2, 'Macaúbas': 2,
-      Cerejeiras: 2, 'Araucárias': 2, 'Ipês': 2,
+      Cerejeiras: 2, 'Araucárias': 1, 'Ipês': 2,
     },
   },
   {
@@ -231,11 +231,11 @@ export const OFICINAS_CONGRESSO = [
     tema: 'Entre Cantos, Contos e Batucadas.',
     categoria: 'Musicalidade & Contos',
     vagasSala: 20,
-    totalUnidades: 19,
+    totalUnidades: 20,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
       'Acácias': 2, 'Orquídeas': 3, Cedro: 1, Oliveiras: 1, 'Macaúbas': 2,
-      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 1,
+      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 2,
     },
   },
   {
@@ -244,10 +244,10 @@ export const OFICINAS_CONGRESSO = [
     tema: 'Rodas e brincadeiras cantadas.',
     categoria: 'Música & Tradição Popular',
     vagasSala: 20,
-    totalUnidades: 13,
+    totalUnidades: 18,
     limitesPorUnidade: {
       Montanaro: 1, Leblon: 1, Imbuias: 1, 'Bela Vista': 1, 'Sabiás': 1,
-      'Acácias': 1, 'Orquídeas': 1, Cedro: 1, Oliveiras: 1, 'Macaúbas': 1,
+      'Acácias': 2, 'Orquídeas': 3, Cedro: 3, Oliveiras: 1, 'Macaúbas': 1,
       Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 1,
     },
   },
@@ -270,10 +270,10 @@ export const OFICINAS_CONGRESSO = [
     tema: 'Alimentação segura e pedagógica na escola: manejo clínico e comportamental (0 a 4 anos).',
     categoria: 'Nutrição & Manejo Clínico',
     vagasSala: 20,
-    totalUnidades: 26,
+    totalUnidades: 27,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 2, Imbuias: 2, 'Bela Vista': 2, 'Sabiás': 2,
-      'Acácias': 2, 'Orquídeas': 2, Cedro: 2, Oliveiras: 2, 'Macaúbas': 2,
+      'Acácias': 2, 'Orquídeas': 3, Cedro: 2, Oliveiras: 2, 'Macaúbas': 2,
       Cerejeiras: 2, 'Araucárias': 2, 'Ipês': 2,
     },
   },
@@ -283,11 +283,11 @@ export const OFICINAS_CONGRESSO = [
     tema: 'Escuta Ativa: A Fonoaudiologia no Cotidiano da Pedagogia da Infância.',
     categoria: 'Fonoaudiologia & Escuta Ativa',
     vagasSala: 20,
-    totalUnidades: 19,
+    totalUnidades: 20,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
       'Acácias': 2, 'Orquídeas': 3, Cedro: 1, Oliveiras: 1, 'Macaúbas': 2,
-      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 1,
+      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 2,
     },
   },
   {
@@ -296,11 +296,11 @@ export const OFICINAS_CONGRESSO = [
     tema: 'Motricidade Livre.',
     categoria: 'Desenvolvimento Motor & Psicomotricidade',
     vagasSala: 35,
-    totalUnidades: 19,
+    totalUnidades: 20,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
       'Acácias': 2, 'Orquídeas': 3, Cedro: 1, Oliveiras: 1, 'Macaúbas': 2,
-      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 1,
+      Cerejeiras: 1, 'Araucárias': 1, 'Ipês': 2,
     },
   },
 ];
