@@ -22,7 +22,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Rodrigo Cândido',
     tema: 'Quem dança seus males espanta!',
     categoria: 'Expressão Corporal & Dança',
-    vagasSala: 30,
+    vagasSala: 70,
     totalUnidades: 59,
     limitesPorUnidade: {
       Montanaro: 8, Leblon: 3, Imbuias: 4, 'Bela Vista': 5, 'Sabiás': 3,
@@ -35,7 +35,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Cristiano dos Santos Araujo',
     tema: 'Entre contos, brincadeiras e canções.',
     categoria: 'Música & Tradição Oral',
-    vagasSala: 20,
+    vagasSala: 35,
     totalUnidades: 23,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
@@ -48,7 +48,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Maria Cecília Martin Ferri',
     tema: 'Valorizando diferentes culturas através da arte narrativa.',
     categoria: 'Arte Narrativa & Culturas',
-    vagasSala: 15,
+    vagasSala: 30,
     totalUnidades: 20,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
@@ -61,7 +61,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Ana Gilda Leocadio',
     tema: 'Contando Histórias Para Criar Memórias.',
     categoria: 'Contação de Histórias',
-    vagasSala: 20,
+    vagasSala: 40,
     totalUnidades: 27,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 2, Imbuias: 2, 'Bela Vista': 2, 'Sabiás': 2,
@@ -87,7 +87,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Márcia Curti de Mello',
     tema: 'Inclusão no lúdico, como o brincar pode ajudar a superar barreiras.',
     categoria: 'Lúdico & Acessibilidade',
-    vagasSala: 15,
+    vagasSala: 35,
     totalUnidades: 22,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
@@ -100,7 +100,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Leila Saita',
     tema: 'Vivências para refletir sobre cuidados corporais de qualidade na creche inspirados na Abordagem Pikler.',
     categoria: 'Abordagem Pikler',
-    vagasSala: 20,
+    vagasSala: 35,
     totalUnidades: 23,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
@@ -126,7 +126,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Regiane Lays Jacinto de Brito',
     tema: 'Saberes que alimentam: cuidado, memória e pertencimento na experiência de quem atua na cozinha.',
     categoria: 'Cuidado & Terapia Integrativa',
-    vagasSala: 30,
+    vagasSala: 80,
     totalUnidades: 70,
     limitesPorUnidade: {
       Montanaro: 7, Leblon: 4, Imbuias: 5, 'Bela Vista': 6, 'Sabiás': 4,
@@ -139,7 +139,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Liliane Laviano',
     tema: 'Jogo da Arquitetura Cerebral — Como as experiências na primeira infância moldam a arquitetura do cérebro.',
     categoria: 'Neurociência & Desenvolvimento',
-    vagasSala: 25,
+    vagasSala: 35,
     totalUnidades: 21,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 2, 'Bela Vista': 2, 'Sabiás': 1,
@@ -152,7 +152,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Talita Regina Lopes de Oliveira Marques',
     tema: 'A importância do Brincar com Areia na Educação Infantil.',
     categoria: 'Brincar Sensorial',
-    vagasSala: 30,
+    vagasSala: 40,
     totalUnidades: 28,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 2, Imbuias: 2, 'Bela Vista': 2, 'Sabiás': 2,
@@ -165,7 +165,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Irene Izilda da Silva',
     tema: 'A literatura infantil como ferramenta de educação antirracista dialogando com as relações étnico-raciais na pedagogia da infância.',
     categoria: 'Literatura & Relações Étnico-Raciais',
-    vagasSala: 30,
+    vagasSala: 40,
     totalUnidades: 26,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 2, Imbuias: 2, 'Bela Vista': 2, 'Sabiás': 2,
@@ -178,7 +178,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Patrícia Couto Gimael',
     tema: 'Cuidados, linguagem e inclusão.',
     categoria: 'Linguagem & Cuidados',
-    vagasSala: 25,
+    vagasSala: 35,
     totalUnidades: 21,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 2, 'Bela Vista': 2, 'Sabiás': 1,
@@ -191,7 +191,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Raissa Cintra',
     tema: 'Corpo e Movimento.',
     categoria: 'Psicomotricidade & Movimento',
-    vagasSala: 25,
+    vagasSala: 30,
     totalUnidades: 20,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
@@ -204,7 +204,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Shirley Maria de Oliveira',
     tema: 'Dos acalantos às rodas de verso: a música tradicional da infância embalando os brinquedos de criança. (Shirley Oliveira)',
     categoria: 'Música & Cultura Popular',
-    vagasSala: 30,
+    vagasSala: 40,
     totalUnidades: 27,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 2, Imbuias: 2, 'Bela Vista': 2, 'Sabiás': 2,
@@ -217,7 +217,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Elaine Maria da Silva',
     tema: 'Dos acalantos às rodas de verso: a música tradicional da infância embalando os brinquedos de criança. (Elaine Silva)',
     categoria: 'Música & Cultura Popular',
-    vagasSala: 30,
+    vagasSala: 40,
     totalUnidades: 26,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 2, Imbuias: 2, 'Bela Vista': 2, 'Sabiás': 2,
@@ -230,7 +230,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Rose Brito',
     tema: 'Entre Cantos, Contos e Batucadas.',
     categoria: 'Musicalidade & Contos',
-    vagasSala: 20,
+    vagasSala: 30,
     totalUnidades: 20,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
@@ -243,7 +243,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Ivani Magalhães',
     tema: 'Rodas e brincadeiras cantadas.',
     categoria: 'Música & Tradição Popular',
-    vagasSala: 20,
+    vagasSala: 30,
     totalUnidades: 18,
     limitesPorUnidade: {
       Montanaro: 1, Leblon: 1, Imbuias: 1, 'Bela Vista': 1, 'Sabiás': 1,
@@ -256,7 +256,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Márcia Polacchini',
     tema: 'Jogos Teatrais.',
     categoria: 'Teatro & Expressão Artística',
-    vagasSala: 20,
+    vagasSala: 35,
     totalUnidades: 22,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
@@ -269,7 +269,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Leticia de Almeida Oliveira',
     tema: 'Alimentação segura e pedagógica na escola: manejo clínico e comportamental (0 a 4 anos).',
     categoria: 'Nutrição & Manejo Clínico',
-    vagasSala: 20,
+    vagasSala: 40,
     totalUnidades: 27,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 2, Imbuias: 2, 'Bela Vista': 2, 'Sabiás': 2,
@@ -282,7 +282,7 @@ export const OFICINAS_CONGRESSO = [
     ministrante: 'Leticia Alves',
     tema: 'Escuta Ativa: A Fonoaudiologia no Cotidiano da Pedagogia da Infância.',
     categoria: 'Fonoaudiologia & Escuta Ativa',
-    vagasSala: 20,
+    vagasSala: 30,
     totalUnidades: 20,
     limitesPorUnidade: {
       Montanaro: 2, Leblon: 1, Imbuias: 1, 'Bela Vista': 2, 'Sabiás': 1,
