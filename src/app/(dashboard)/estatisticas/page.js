@@ -21,6 +21,7 @@ import { useEstatisticas, useTodasDenuncias } from '@/hooks/useDenuncias';
 import { UNIDADES } from '@/lib/mockData';
 import ConfirmModal from '@/components/admin/ConfirmModal';
 import DenunciasHeatmap from '@/components/admin/DenunciasHeatmap';
+import CongressoEstatisticas from '@/components/admin/CongressoEstatisticas';
 
 const CORES_AZUIS = [
   '#1B1464', // Azul institucional SOBEI primário
@@ -124,6 +125,8 @@ const buildEvolucaoReal = (denuncias = [], dataFim = null) => {
 
 export default function EstatisticasPage() {
   const { user } = useAuth();
+  const isSuporte = user?.nivel?.toUpperCase() === 'SUPORTE';
+  const [abaAtiva, setAbaAtiva] = useState('denuncias'); // 'denuncias' | 'congresso'
   const [mounted, setMounted] = useState(false);
   const [filtros, setFiltros] = useState({
     tipo: '',
@@ -1085,19 +1088,93 @@ export default function EstatisticasPage() {
 
   return (
     <div className="statistics-container">
-      {/* Header Actions */}
-      <div className="statistics-header">
-        <h1 className="statistics-page__title">Estatísticas</h1>
-        <button 
-          className="btn btn--secondary" 
-          type="button" 
-          id="btn-gerar-relatorio"
-          onClick={handleExportRelatorio}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-          Exportar relatório
-        </button>
-      </div>
+      {/* Seletor de Abas para Usuários de Nível Suporte */}
+      {isSuporte && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: '20px',
+          backgroundColor: '#F1F5F9',
+          padding: '4px',
+          borderRadius: '12px',
+          width: 'fit-content',
+        }}>
+          <button
+            type="button"
+            onClick={() => setAbaAtiva('denuncias')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 18px',
+              borderRadius: '8px',
+              border: 'none',
+              backgroundColor: abaAtiva === 'denuncias' ? '#FFFFFF' : 'transparent',
+              color: abaAtiva === 'denuncias' ? '#0F172A' : '#64748B',
+              fontWeight: '800',
+              fontSize: '0.86rem',
+              cursor: 'pointer',
+              boxShadow: abaAtiva === 'denuncias' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Canal de Denúncias
+          </button>
+          <button
+            type="button"
+            onClick={() => setAbaAtiva('congresso')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 18px',
+              borderRadius: '8px',
+              border: 'none',
+              backgroundColor: abaAtiva === 'congresso' ? '#0C1B33' : 'transparent',
+              color: abaAtiva === 'congresso' ? '#FFFFFF' : '#64748B',
+              fontWeight: '800',
+              fontSize: '0.86rem',
+              cursor: 'pointer',
+              boxShadow: abaAtiva === 'congresso' ? '0 2px 6px rgba(0,0,0,0.12)' : 'none',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg>
+            Congresso SOBEI 2026
+            <span style={{
+              fontSize: '0.66rem',
+              backgroundColor: abaAtiva === 'congresso' ? '#2563EB' : '#CBD5E1',
+              color: '#FFFFFF',
+              padding: '2px 7px',
+              borderRadius: '10px',
+              fontWeight: '800',
+              textTransform: 'uppercase',
+            }}>
+              Suporte
+            </span>
+          </button>
+        </div>
+      )}
+
+      {isSuporte && abaAtiva === 'congresso' ? (
+        <CongressoEstatisticas />
+      ) : (
+        <>
+          {/* Header Actions */}
+          <div className="statistics-header">
+            <h1 className="statistics-page__title">Estatísticas</h1>
+            <button 
+              className="btn btn--secondary" 
+              type="button" 
+              id="btn-gerar-relatorio"
+              onClick={handleExportRelatorio}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Exportar relatório
+            </button>
+          </div>
 
       {/* Filters */}
       <div className="statistics-filters" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-end', padding: '6px 0', marginBottom: 'var(--spacing-lg)' }}>
@@ -1389,6 +1466,8 @@ export default function EstatisticasPage() {
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
 
       <ConfirmModal

@@ -1156,4 +1156,26 @@ export async function deletarInscritoCongresso(id) {
   }
 }
 
+export async function fetchEstatisticasCongresso() {
+  try {
+    const url = `${API_BASE_URL}/admin/estatisticas/congresso`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      console.error('Erro ao buscar estatísticas do congresso: status', response.status);
+      return null;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Erro de rede ao buscar estatísticas do congresso:', error);
+    return null;
+  }
+}
+
+
 
