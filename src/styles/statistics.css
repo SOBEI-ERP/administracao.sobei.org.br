@@ -17,6 +17,53 @@
   gap: var(--spacing-base);
 }
 
+/* ---- Tabs Padronizadas da Plataforma ---- */
+.statistics-tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  border-bottom: 2px solid var(--color-gray-200);
+  margin-bottom: var(--spacing-xl);
+  width: 100%;
+}
+
+.statistics-tab {
+  background: none;
+  border: none;
+  padding: var(--spacing-xs) 0;
+  padding-bottom: 12px;
+  font-family: var(--font-montserrat);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-500);
+  cursor: pointer;
+  position: relative;
+  transition: color var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statistics-tab:hover {
+  color: var(--color-primary);
+}
+
+.statistics-tab--active {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+.statistics-tab--active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--color-primary);
+  border-radius: 3px 3px 0 0;
+}
+
 .statistics-page__title {
   font-family: var(--font-montserrat);
   font-size: var(--font-size-2xl);

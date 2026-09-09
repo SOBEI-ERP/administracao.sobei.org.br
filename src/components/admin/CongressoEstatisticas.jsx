@@ -18,6 +18,7 @@ import {
 } from 'recharts';
 import { fetchEstatisticasCongresso } from '@/lib/api';
 import { IconSearch } from '@/components/Icons';
+import CustomSelect from '@/components/admin/CustomSelect';
 
 const CORES_DONUT_OSC = ['#0C1B33', '#F97316'];
 const CORES_DONUT_OFICINA = ['#10B981', '#F59E0B'];
@@ -375,35 +376,22 @@ export default function CongressoEstatisticas() {
     setTimeout(() => {
       printWindow.print();
     }, 400);
-  }
+  }, [stats, outrasOscsUnificadas]);
+
+  useEffect(() => {
+    const onRecarregar = () => carregarDados();
+    const onExportar = () => handleExportarRelatorioCongresso();
+    window.addEventListener('recarregar-congresso-stats', onRecarregar);
+    window.addEventListener('exportar-relatorio-congresso', onExportar);
+    return () => {
+      window.removeEventListener('recarregar-congresso-stats', onRecarregar);
+      window.removeEventListener('exportar-relatorio-congresso', onExportar);
+    };
+  }, [carregarDados, handleExportarRelatorioCongresso]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg, 20px)' }}>
-      {/* 1. Header do Congresso no mesmo padrão oficial de Estatísticas */}
-      <div className="statistics-header">
-        <h1 className="statistics-page__title">Estatísticas do Congresso</h1>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <button
-            className="btn btn--limpar"
-            type="button"
-            onClick={carregarDados}
-            style={{ minHeight: '38px', height: '38px', padding: '0 18px', borderRadius: 'var(--radius-full)', fontSize: '13px' }}
-          >
-            Atualizar
-          </button>
-          <button 
-            className="btn btn--secondary" 
-            type="button" 
-            id="btn-gerar-relatorio-congresso"
-            onClick={handleExportarRelatorioCongresso}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            Exportar relatório
-          </button>
-        </div>
-      </div>
-
-      {/* 2. KPI Metrics em Card Único Horizontal */}
+      {/* 1. KPI Metrics em Card Único Horizontal */}
       <div style={{
         backgroundColor: 'var(--color-white)',
         padding: '10px 18px',
@@ -841,87 +829,47 @@ export default function CongressoEstatisticas() {
             </span>
           </div>
 
-          {/* Filtros e Busca */}
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', width: '220px' }}>
-              <input
-                type="text"
-                className="input"
-                placeholder="Buscar oficineiro/tema..."
-                value={buscaOficina}
-                onChange={(e) => setBuscaOficina(e.target.value)}
-                style={{ paddingLeft: '32px', height: '34px', fontSize: '0.82rem' }}
-              />
-              <span style={{ position: 'absolute', left: '10px', top: '9px', color: '#94A3B8' }}>
-                <IconSearch size={14} />
-              </span>
+          {/* Filtros Padronizados da Plataforma */}
+          <div className="statistics-filters" style={{ margin: 0, padding: 0, gap: '12px', alignItems: 'flex-end' }}>
+            <div className="statistics-filters__group" style={{ width: '230px' }}>
+              <span className="statistics-filters__label">Buscar na oficina:</span>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  className="form-input"
+                  style={{
+                    height: '38px',
+                    minHeight: '38px',
+                    borderRadius: 'var(--radius-full)',
+                    paddingLeft: '34px',
+                    fontSize: '13px',
+                    border: '1px solid var(--color-gray-300)',
+                    backgroundColor: 'var(--color-white)',
+                  }}
+                  placeholder="Tema ou ministrante..."
+                  value={buscaOficina}
+                  onChange={(e) => setBuscaOficina(e.target.value)}
+                />
+                <span style={{ position: 'absolute', left: '12px', top: '11px', color: 'var(--color-gray-400)' }}>
+                  <IconSearch size={14} />
+                </span>
+              </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '4px', backgroundColor: '#F1F5F9', padding: '3px', borderRadius: '8px' }}>
-              <button
-                type="button"
-                onClick={() => setFiltroStatusOficina('todas')}
-                style={{
-                  border: 'none',
-                  backgroundColor: filtroStatusOficina === 'todas' ? 'var(--color-primary, #1B1464)' : 'transparent',
-                  color: filtroStatusOficina === 'todas' ? '#FFFFFF' : '#475569',
-                  padding: '4px 10px',
-                  borderRadius: '6px',
-                  fontSize: '0.74rem',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                }}
-              >
-                Todas ({stats.porOficina?.length || 0})
-              </button>
-              <button
-                type="button"
-                onClick={() => setFiltroStatusOficina('esgotadas')}
-                style={{
-                  border: 'none',
-                  backgroundColor: filtroStatusOficina === 'esgotadas' ? '#DC2626' : 'transparent',
-                  color: filtroStatusOficina === 'esgotadas' ? '#FFFFFF' : '#475569',
-                  padding: '4px 10px',
-                  borderRadius: '6px',
-                  fontSize: '0.74rem',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                }}
-              >
-                Esgotadas ({stats.porOficina?.filter(o => o.status === 'ESGOTADA').length || 0})
-              </button>
-              <button
-                type="button"
-                onClick={() => setFiltroStatusOficina('quase_cheias')}
-                style={{
-                  border: 'none',
-                  backgroundColor: filtroStatusOficina === 'quase_cheias' ? '#D97706' : 'transparent',
-                  color: filtroStatusOficina === 'quase_cheias' ? '#FFFFFF' : '#475569',
-                  padding: '4px 10px',
-                  borderRadius: '6px',
-                  fontSize: '0.74rem',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                }}
-              >
-                Quase Cheias (≥80%)
-              </button>
-              <button
-                type="button"
-                onClick={() => setFiltroStatusOficina('disponiveis')}
-                style={{
-                  border: 'none',
-                  backgroundColor: filtroStatusOficina === 'disponiveis' ? '#059669' : 'transparent',
-                  color: filtroStatusOficina === 'disponiveis' ? '#FFFFFF' : '#475569',
-                  padding: '4px 10px',
-                  borderRadius: '6px',
-                  fontSize: '0.74rem',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                }}
-              >
-                Com Vagas
-              </button>
+            <div className="statistics-filters__group" style={{ width: '200px' }}>
+              <span className="statistics-filters__label">Status da sala:</span>
+              <CustomSelect
+                value={filtroStatusOficina}
+                onChange={setFiltroStatusOficina}
+                defaultOption="Todas as oficinas"
+                allowEmpty={false}
+                options={[
+                  { value: 'todas', label: `Todas (${stats.porOficina?.length || 0})` },
+                  { value: 'disponiveis', label: `Com vagas (${stats.porOficina?.filter(o => o.status === 'DISPONIVEL').length || 0})` },
+                  { value: 'quase_cheias', label: `Quase cheias (${stats.porOficina?.filter(o => o.status === 'QUASE_CHEIA').length || 0})` },
+                  { value: 'esgotadas', label: `Esgotadas (${stats.porOficina?.filter(o => o.status === 'ESGOTADA').length || 0})` },
+                ]}
+              />
             </div>
           </div>
         </div>
