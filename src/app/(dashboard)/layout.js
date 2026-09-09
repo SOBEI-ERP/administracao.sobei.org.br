@@ -18,9 +18,9 @@ export default function DashboardLayout({ children }) {
       const nivel = user.nivel?.toUpperCase();
       if (nivel === 'DIRETORA' && !['/vagas', '/banco-talentos', '/mensagens', '/inscritos-congresso'].includes(pathname)) {
         router.push('/vagas');
-      } else if (nivel === 'COORDENADORA' && !['/inscritos-congresso', '/mensagens'].includes(pathname)) {
+      } else if ((nivel === 'COORDENADORA' || nivel === 'COORDENADORA_EVENTO') && !['/inscritos-congresso', '/mensagens'].includes(pathname)) {
         router.push('/inscritos-congresso');
-      } else if ((nivel === 'CREDENCIADOR' || nivel === 'COORDENADORA_EVENTO') && !['/inscritos-congresso'].includes(pathname)) {
+      } else if (nivel === 'CREDENCIADOR' && !['/inscritos-congresso'].includes(pathname)) {
         router.push('/inscritos-congresso');
       }
     }

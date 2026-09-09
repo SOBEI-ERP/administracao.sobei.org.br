@@ -126,8 +126,8 @@ export default function Sidebar() {
           </>
         )}
 
-        {/* Mensagens: DIRETORA, COORDENADORA e SUPORTE */}
-        {(user?.nivel?.toUpperCase() === 'DIRETORA' || user?.nivel?.toUpperCase() === 'COORDENADORA' || user?.nivel?.toUpperCase() === 'SUPORTE') && (
+        {/* Mensagens: DIRETORA, COORDENADORA, COORDENADORA_EVENTO e SUPORTE */}
+        {(user?.nivel?.toUpperCase() === 'DIRETORA' || user?.nivel?.toUpperCase() === 'COORDENADORA' || user?.nivel?.toUpperCase() === 'COORDENADORA_EVENTO' || user?.nivel?.toUpperCase() === 'SUPORTE') && (
           <>
             <div className="sidebar__divider" />
             <Link

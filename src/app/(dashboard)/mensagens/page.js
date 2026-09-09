@@ -136,7 +136,7 @@ export default function MensagensPage() {
           </button>
         </div>
 
-        {user?.nivel === 'suporte' && (
+        {(user?.nivel?.toLowerCase() === 'suporte' || user?.nivel?.toLowerCase() === 'coordenadora_evento') && (
           <div className="vagas-admin__unit-filter" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--color-text-secondary)' }}>Filtrar por Unidade:</span>
             <CustomSelect

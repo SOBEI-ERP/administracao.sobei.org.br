@@ -189,8 +189,8 @@ export default function MobileHeader() {
             </>
           )}
 
-          {/* Mensagens: DIRETORA, COORDENADORA e SUPORTE */}
-          {(nivel === 'DIRETORA' || nivel === 'COORDENADORA' || nivel === 'SUPORTE') && (
+          {/* Mensagens: DIRETORA, COORDENADORA, COORDENADORA_EVENTO e SUPORTE */}
+          {(nivel === 'DIRETORA' || nivel === 'COORDENADORA' || nivel === 'COORDENADORA_EVENTO' || nivel === 'SUPORTE') && (
             <>
               <div className="mobile-header__divider" />
               <Link
