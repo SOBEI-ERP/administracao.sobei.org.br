@@ -939,6 +939,7 @@ export default function InscritosCongressoPage() {
         <OficinasModal
           inscrito={selectedInscritoOficinas}
           inscritos={inscritos}
+          isSuporte={isSuporte}
           onClose={() => setSelectedInscritoOficinas(null)}
           onSave={handleSalvarOficinas}
         />

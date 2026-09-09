@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { IconClose, IconCheck, IconSearch, IconWarning } from '@/components/Icons';
 import { OFICINAS_CONGRESSO, calcularOcupacaoUnidade, normalizarNomeUnidade, UNIDADES_COM_COTA } from '@/lib/congressoOficinas';
 
-export default function OficinasModal({ inscrito, inscritos = [], onClose, onSave }) {
+export default function OficinasModal({ inscrito, inscritos = [], isSuporte = false, onClose, onSave }) {
   const [oficina, setOficina] = useState(
     inscrito?.oficina || inscrito?.oficinaManha || inscrito?.oficinaTarde || ''
   );
@@ -24,8 +24,8 @@ export default function OficinasModal({ inscrito, inscritos = [], onClose, onSav
     setSalvando(true);
     setErro('');
 
-    // Validação de cota no frontend
-    if (isSobei && oficina) {
+    // Validação de cota no frontend (ignorada para usuários com perfil SUPORTE)
+    if (!isSuporte && isSobei && oficina) {
       const { esgotada, limite, ocupadas } = calcularOcupacaoUnidade(
         oficina,
         inscrito.unidade,
@@ -81,7 +81,7 @@ export default function OficinasModal({ inscrito, inscritos = [], onClose, onSav
 
     if (filtroDisponibilidade === 'disponiveis' && isSobei && unidadeNorm) {
       const ocup = calcularOcupacaoUnidade(item.tema, inscrito.unidade, inscritos, inscrito.id);
-      if (ocup.esgotada && oficina !== item.tema) return false;
+      if (!isSuporte && ocup.esgotada && oficina !== item.tema) return false;
     }
 
     return true;
@@ -117,9 +117,27 @@ export default function OficinasModal({ inscrito, inscritos = [], onClose, onSav
           }}
         >
           <div>
-            <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.01em' }}>
-              Definir Oficina do Participante
-            </h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.01em' }}>
+                Definir Oficina do Participante
+              </h3>
+              {isSuporte && (
+                <span
+                  style={{
+                    fontSize: '0.68rem',
+                    fontWeight: '800',
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    backgroundColor: '#2563EB',
+                    color: '#FFFFFF',
+                    letterSpacing: '0.03em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  Suporte • Vagas Ilimitadas
+                </span>
+              )}
+            </div>
             <p style={{ margin: '3px 0 0', fontSize: '0.86rem', color: 'rgba(255,255,255,0.8)' }}>
               Participante: <strong>{inscrito.nomeCompleto}</strong> — Unidade: <strong style={{ color: '#93C5FD' }}>{unidadeTexto}</strong>
             </p>
@@ -298,14 +316,14 @@ export default function OficinasModal({ inscrito, inscritos = [], onClose, onSav
 
                     if (isSobei && unidadeNorm) {
                       ocupStatus = calcularOcupacaoUnidade(item.tema, inscrito.unidade, inscritos, inscrito.id);
-                      isEsgotada = ocupStatus.esgotada && !isSelected;
+                      isEsgotada = !isSuporte && ocupStatus.esgotada && !isSelected;
                     }
 
                     return (
                       <div
                         key={item.id}
                         onClick={() => {
-                          if (!isEsgotada || isSelected) {
+                          if (!isEsgotada || isSelected || isSuporte) {
                             setOficina(item.tema);
                             setErro('');
                           }
@@ -341,16 +359,18 @@ export default function OficinasModal({ inscrito, inscritos = [], onClose, onSav
                                 padding: '2px 7px',
                                 borderRadius: '10px',
                                 backgroundColor: ocupStatus.esgotada
-                                  ? (isSelected ? '#1E293B' : '#FEE2E2')
+                                  ? (isSelected ? '#1E293B' : isSuporte ? '#FEF3C7' : '#FEE2E2')
                                   : '#DCFCE7',
                                 color: ocupStatus.esgotada
-                                  ? (isSelected ? '#FFFFFF' : '#991B1B')
+                                  ? (isSelected ? '#FFFFFF' : isSuporte ? '#92400E' : '#991B1B')
                                   : '#166534',
                                 whiteSpace: 'nowrap',
                               }}
                             >
                               {ocupStatus.esgotada
-                                ? `Esgotada (${ocupStatus.ocupadas}/${ocupStatus.limite})`
+                                ? (isSuporte
+                                    ? `Cota cheia (${ocupStatus.ocupadas}/${ocupStatus.limite}) • Liberado`
+                                    : `Esgotada (${ocupStatus.ocupadas}/${ocupStatus.limite})`)
                                 : `${ocupStatus.ocupadas}/${ocupStatus.limite} vagas`}
                             </span>
                           ) : (
@@ -439,10 +459,15 @@ export default function OficinasModal({ inscrito, inscritos = [], onClose, onSav
 
                     {/* Resumo de Vagas da Unidade — Apenas escrita limpa sem fundo colorido */}
                     {statusOcupacaoAtual?.temCota ? (
-                      <div style={{ marginTop: '2px', fontSize: '0.82rem', color: statusOcupacaoAtual.esgotada ? '#DC2626' : '#475569' }}>
+                      <div style={{ marginTop: '2px', fontSize: '0.82rem', color: statusOcupacaoAtual.esgotada ? (isSuporte ? '#B45309' : '#DC2626') : '#475569' }}>
                         {statusOcupacaoAtual.esgotada ? (
                           <span>
                             <strong>Vagas esgotadas para o CEI {unidadeNorm}:</strong> {statusOcupacaoAtual.ocupadas} de {statusOcupacaoAtual.limite} preenchidas
+                            {isSuporte && (
+                              <span style={{ display: 'block', marginTop: '4px', color: '#059669', fontWeight: '700' }}>
+                                ✓ Inscrição permitida sem restrição de limite (Perfil Suporte)
+                              </span>
+                            )}
                           </span>
                         ) : (
                           <span>
