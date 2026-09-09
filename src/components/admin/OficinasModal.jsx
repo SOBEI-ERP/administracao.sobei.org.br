@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { IconClose, IconCheck, IconSearch, IconWarning } from '@/components/Icons';
-import { OFICINAS_CONGRESSO, calcularOcupacaoUnidade, normalizarNomeUnidade, UNIDADES_COM_COTA } from '@/lib/congressoOficinas';
+import { OFICINAS_CONGRESSO, calcularOcupacaoUnidade, calcularOcupacaoOutrasOsc, normalizarNomeUnidade, UNIDADES_COM_COTA } from '@/lib/congressoOficinas';
 
 export default function OficinasModal({ inscrito, inscritos = [], isSuporte = false, onClose, onSave }) {
   const [oficina, setOficina] = useState(
@@ -25,17 +25,30 @@ export default function OficinasModal({ inscrito, inscritos = [], isSuporte = fa
     setErro('');
 
     // Validação de cota no frontend (ignorada para usuários com perfil SUPORTE)
-    if (!isSuporte && isSobei && oficina) {
-      const { esgotada, limite, ocupadas } = calcularOcupacaoUnidade(
-        oficina,
-        inscrito.unidade,
-        inscritos,
-        inscrito.id
-      );
+    if (!isSuporte && oficina) {
+      let ocupacao = null;
+      if (isSobei) {
+        ocupacao = calcularOcupacaoUnidade(
+          oficina,
+          inscrito.unidade,
+          inscritos,
+          inscrito.id
+        );
+      } else {
+        ocupacao = calcularOcupacaoOutrasOsc(
+          oficina,
+          inscritos,
+          inscrito.id
+        );
+      }
 
       const oficinaAnterior = (inscrito.oficina || inscrito.oficinaManha || inscrito.oficinaTarde || '').trim().toLowerCase();
-      if (esgotada && oficinaAnterior !== oficina.trim().toLowerCase()) {
-        setErro(`A cota desta oficina para o CEI ${unidadeNorm} já foi preenchida (${ocupadas}/${limite} vagas). Escolha outra oficina.`);
+      if (ocupacao && ocupacao.esgotada && oficinaAnterior !== oficina.trim().toLowerCase()) {
+        if (isSobei) {
+          setErro(`A cota desta oficina para o CEI ${unidadeNorm} já foi preenchida (${ocupacao.ocupadas}/${ocupacao.limite} vagas). Escolha outra oficina.`);
+        } else {
+          setErro(`A cota reservada para participantes de outras OSCs nesta oficina já foi preenchida (${ocupacao.ocupadas}/${ocupacao.limite} vagas). Escolha outra oficina.`);
+        }
         setSalvando(false);
         return;
       }
@@ -65,8 +78,10 @@ export default function OficinasModal({ inscrito, inscritos = [], isSuporte = fa
     : (inscrito.outraOsc ? inscrito.outraOsc.toUpperCase() : 'OSC / UNIDADE');
 
   const oficinaSelecionadaObj = OFICINAS_CONGRESSO.find((item) => item.tema === oficina);
-  const statusOcupacaoAtual = (isSobei && oficina)
-    ? calcularOcupacaoUnidade(oficina, inscrito.unidade, inscritos, inscrito.id)
+  const statusOcupacaoAtual = oficina
+    ? (isSobei
+        ? calcularOcupacaoUnidade(oficina, inscrito.unidade, inscritos, inscrito.id)
+        : calcularOcupacaoOutrasOsc(oficina, inscritos, inscrito.id))
     : null;
 
   // Filtragem das oficinas na coluna da esquerda
@@ -79,9 +94,11 @@ export default function OficinasModal({ inscrito, inscritos = [], isSuporte = fa
 
     if (!matchTexto) return false;
 
-    if (filtroDisponibilidade === 'disponiveis' && isSobei && unidadeNorm) {
-      const ocup = calcularOcupacaoUnidade(item.tema, inscrito.unidade, inscritos, inscrito.id);
-      if (!isSuporte && ocup.esgotada && oficina !== item.tema) return false;
+    if (filtroDisponibilidade === 'disponiveis') {
+      const ocup = isSobei
+        ? (unidadeNorm ? calcularOcupacaoUnidade(item.tema, inscrito.unidade, inscritos, inscrito.id) : null)
+        : calcularOcupacaoOutrasOsc(item.tema, inscritos, inscrito.id);
+      if (ocup && !isSuporte && ocup.esgotada && oficina !== item.tema) return false;
     }
 
     return true;
@@ -272,6 +289,23 @@ export default function OficinasModal({ inscrito, inscritos = [], isSuporte = fa
                         Com Vagas no CEI {unidadeNorm}
                       </button>
                     )}
+                    {!isSobei && (
+                      <button
+                        type="button"
+                        onClick={() => setFiltroDisponibilidade('disponiveis')}
+                        style={{
+                          padding: '3px 8px',
+                          borderRadius: '6px',
+                          border: 'none',
+                          backgroundColor: filtroDisponibilidade === 'disponiveis' ? '#059669' : '#F1F5F9',
+                          color: filtroDisponibilidade === 'disponiveis' ? '#FFFFFF' : '#475569',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Com Vagas para Outras OSCs
+                      </button>
+                    )}
                   </div>
 
                   {oficina && (
@@ -316,6 +350,9 @@ export default function OficinasModal({ inscrito, inscritos = [], isSuporte = fa
 
                     if (isSobei && unidadeNorm) {
                       ocupStatus = calcularOcupacaoUnidade(item.tema, inscrito.unidade, inscritos, inscrito.id);
+                      isEsgotada = !isSuporte && ocupStatus.esgotada && !isSelected;
+                    } else if (!isSobei) {
+                      ocupStatus = calcularOcupacaoOutrasOsc(item.tema, inscritos, inscrito.id);
                       isEsgotada = !isSuporte && ocupStatus.esgotada && !isSelected;
                     }
 
@@ -457,12 +494,15 @@ export default function OficinasModal({ inscrito, inscritos = [], isSuporte = fa
                       &ldquo;{oficinaSelecionadaObj.tema}&rdquo;
                     </p>
 
-                    {/* Resumo de Vagas da Unidade — Apenas escrita limpa sem fundo colorido */}
+                    {/* Resumo de Vagas da Unidade ou Outras OSCs */}
                     {statusOcupacaoAtual?.temCota ? (
                       <div style={{ marginTop: '2px', fontSize: '0.82rem', color: statusOcupacaoAtual.esgotada ? (isSuporte ? '#B45309' : '#DC2626') : '#475569' }}>
                         {statusOcupacaoAtual.esgotada ? (
                           <span>
-                            <strong>Vagas esgotadas para o CEI {unidadeNorm}:</strong> {statusOcupacaoAtual.ocupadas} de {statusOcupacaoAtual.limite} preenchidas
+                            <strong>
+                              {isSobei ? `Vagas esgotadas para o CEI ${unidadeNorm}:` : 'Vagas esgotadas para Outras OSCs:'}
+                            </strong>{' '}
+                            {statusOcupacaoAtual.ocupadas} de {statusOcupacaoAtual.limite} preenchidas
                             {isSuporte && (
                               <span style={{ display: 'block', marginTop: '4px', color: '#059669', fontWeight: '700' }}>
                                 ✓ Inscrição permitida sem restrição de limite (Perfil Suporte)
@@ -471,7 +511,10 @@ export default function OficinasModal({ inscrito, inscritos = [], isSuporte = fa
                           </span>
                         ) : (
                           <span>
-                            <strong>Vagas no CEI {unidadeNorm}:</strong> {statusOcupacaoAtual.ocupadas} de {statusOcupacaoAtual.limite} preenchidas ({statusOcupacaoAtual.disponiveis} restante{statusOcupacaoAtual.disponiveis === 1 ? '' : 's'})
+                            <strong>
+                              {isSobei ? `Vagas no CEI ${unidadeNorm}:` : 'Vagas reservadas para Outras OSCs:'}
+                            </strong>{' '}
+                            {statusOcupacaoAtual.ocupadas} de {statusOcupacaoAtual.limite} preenchidas ({statusOcupacaoAtual.disponiveis} restante{statusOcupacaoAtual.disponiveis === 1 ? '' : 's'})
                           </span>
                         )}
                       </div>

@@ -3,6 +3,8 @@ import {
   normalizarNomeUnidade,
   obterCotaUnidade,
   calcularOcupacaoUnidade,
+  calcularOcupacaoOutrasOsc,
+  COTA_OUTRAS_OSC_POR_OFICINA,
 } from '../congressoOficinas';
 
 describe('congressoOficinas - Regras de Cotas e Limites por Unidade', () => {
@@ -79,5 +81,40 @@ describe('congressoOficinas - Regras de Cotas e Limites por Unidade', () => {
     expect(ocupMontanaro.ocupadas).toBe(1);
     expect(ocupMontanaro.disponiveis).toBe(1);
     expect(ocupMontanaro.esgotada).toBe(false);
+  });
+
+  test('calcularOcupacaoOutrasOsc deve respeitar cota de 10 vagas para participantes de outras OSCs', () => {
+    expect(COTA_OUTRAS_OSC_POR_OFICINA).toBe(10);
+
+    const inscritosMock = [];
+    for (let i = 1; i <= 10; i++) {
+      inscritosMock.push({
+        id: i,
+        tipoOsc: 'OUTRA',
+        outraOsc: 'Instituto Esperança ' + i,
+        oficina: 'Quem dança seus males espanta!',
+      });
+    }
+
+    // Para nova participante de outra OSC quando já existem 10 alocadas: deve constar esgotada
+    const ocupOutraNova = calcularOcupacaoOutrasOsc(
+      'Quem dança seus males espanta!',
+      inscritosMock,
+      null
+    );
+    expect(ocupOutraNova.limite).toBe(10);
+    expect(ocupOutraNova.ocupadas).toBe(10);
+    expect(ocupOutraNova.disponiveis).toBe(0);
+    expect(ocupOutraNova.esgotada).toBe(true);
+
+    // Para a própria participante que já ocupa a vaga (id: 1): 9 restantes, não esgotada
+    const ocupOutraPropria = calcularOcupacaoOutrasOsc(
+      'Quem dança seus males espanta!',
+      inscritosMock,
+      1
+    );
+    expect(ocupOutraPropria.ocupadas).toBe(9);
+    expect(ocupOutraPropria.disponiveis).toBe(1);
+    expect(ocupOutraPropria.esgotada).toBe(false);
   });
 });

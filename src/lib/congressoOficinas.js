@@ -473,3 +473,63 @@ export function calcularOcupacaoUnidade(oficinaTema, unidade, todosInscritos = [
     vagasSala,
   };
 }
+
+export const COTA_OUTRAS_OSC_POR_OFICINA = 10;
+
+/**
+ * Calcula a ocupação e disponibilidade de uma oficina para participantes de Outras OSCs (fora SOBEI).
+ *
+ * @param {string} oficinaTema
+ * @param {Array} todosInscritos
+ * @param {number|null} excludeInscritoId - ID do participante atual para desconsiderar a própria vaga
+ * @returns {{ temCota: boolean, ocupadas: number, limite: number, disponiveis: number, esgotada: boolean, isOutraOsc: boolean }}
+ */
+export function calcularOcupacaoOutrasOsc(oficinaTema, todosInscritos = [], excludeInscritoId = null) {
+  const ofObj = encontrarOficina(oficinaTema);
+  const limite = COTA_OUTRAS_OSC_POR_OFICINA;
+  const normTemaAlvo = normalizarTextoOficina(ofObj ? ofObj.tema : oficinaTema);
+  const normMin = ofObj ? normalizarTextoOficina(ofObj.ministrante) : '';
+
+  const ocupadas = todosInscritos.filter((i) => {
+    if (excludeInscritoId && i.id === excludeInscritoId) return false;
+    // Apenas outras OSCs (fora SOBEI)
+    if (i.tipoOsc && i.tipoOsc.toUpperCase() === 'SOBEI') return false;
+
+    const iOficina = (i.oficina || i.oficinaManha || i.oficinaTarde || '');
+    if (!iOficina) return false;
+
+    const normIOficina = normalizarTextoOficina(iOficina);
+
+    // 1. Match exato pelo tema normalizado
+    if (normIOficina === normTemaAlvo) return true;
+
+    // 2. Match exato pelo ministrante
+    if (normMin && normIOficina === normMin) return true;
+
+    // 3. Match parcial seguro
+    if (normTemaAlvo.length > 15 && normIOficina.length > 15) {
+      const menorLen = Math.min(normTemaAlvo.length, normIOficina.length);
+      const maiorLen = Math.max(normTemaAlvo.length, normIOficina.length);
+      if (menorLen / maiorLen >= 0.6) {
+        if (normIOficina.includes(normTemaAlvo) || normTemaAlvo.includes(normIOficina)) return true;
+      }
+    }
+
+    // 4. Match pelo ministrante contido
+    if (normMin && normMin.length >= 8 && normIOficina.includes(normMin)) return true;
+
+    return false;
+  }).length;
+
+  const disponiveis = Math.max(0, limite - ocupadas);
+  const esgotada = ocupadas >= limite;
+
+  return {
+    temCota: true,
+    ocupadas,
+    limite,
+    disponiveis,
+    esgotada,
+    isOutraOsc: true,
+  };
+}

@@ -41,6 +41,7 @@ export default function InscritosCongressoPage() {
   const nivel = user?.nivel?.toUpperCase();
   const isCoordenadora = nivel === 'COORDENADORA';
   const isSuporte = nivel === 'SUPORTE';
+  const isCredenciador = nivel === 'CREDENCIADOR';
   const podeConfirmarPresenca = nivel === 'CREDENCIADOR' || nivel === 'COORDENADORA_EVENTO' || nivel === 'SUPORTE' || nivel === 'DP' || nivel === 'DIRETORA';
 
   const loadInscritos = useCallback(async () => {
@@ -76,6 +77,13 @@ export default function InscritosCongressoPage() {
   };
 
   const handleEnviarCertificado = async (inscrito) => {
+    if (isCredenciador && (!inscrito.presenteDia11 || !inscrito.presenteDia12)) {
+      setToastFeedback({
+        type: 'error',
+        message: 'Para usuários credenciadores, o envio de certificado só é permitido após check-in em ambos os dias (11 e 12/Set).',
+      });
+      return;
+    }
     setEnviandoCertId(inscrito.id);
     setToastFeedback(null);
     const res = await enviarCertificadoInscrito(inscrito.id);
@@ -97,6 +105,13 @@ export default function InscritosCongressoPage() {
   };
 
   const handleBaixarCertificado = async (inscrito) => {
+    if (isCredenciador && (!inscrito.presenteDia11 || !inscrito.presenteDia12)) {
+      setToastFeedback({
+        type: 'error',
+        message: 'Para usuários credenciadores, o download de certificado só é permitido após check-in em ambos os dias (11 e 12/Set).',
+      });
+      return;
+    }
     setBaixandoCertId(inscrito.id);
     const res = await downloadCertificadoInscrito(inscrito.id, inscrito.nomeCompleto);
     if (!res.success) {
@@ -565,7 +580,11 @@ export default function InscritosCongressoPage() {
                 </tr>
               </thead>
               <tbody>
-                {inscritosFiltrados.map((inscrito) => (
+                {inscritosFiltrados.map((inscrito) => {
+                  const temCheckinAmbosDias = Boolean(inscrito.presenteDia11 && inscrito.presenteDia12);
+                  const certificadoBloqueadoCredenciador = isCredenciador && !temCheckinAmbosDias;
+
+                  return (
                   <tr
                     key={inscrito.id}
                     style={{
@@ -828,7 +847,7 @@ export default function InscritosCongressoPage() {
                         <button
                           type="button"
                           onClick={() => handleEnviarCertificado(inscrito)}
-                          disabled={enviandoCertId === inscrito.id}
+                          disabled={enviandoCertId === inscrito.id || certificadoBloqueadoCredenciador}
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
@@ -838,15 +857,27 @@ export default function InscritosCongressoPage() {
                             borderRadius: '6px',
                             fontSize: '0.72rem',
                             fontWeight: '700',
-                            cursor: enviandoCertId === inscrito.id ? 'wait' : 'pointer',
+                            cursor: certificadoBloqueadoCredenciador
+                              ? 'not-allowed'
+                              : enviandoCertId === inscrito.id
+                              ? 'wait'
+                              : 'pointer',
                             border: 'none',
-                            backgroundColor: '#0284C7',
+                            backgroundColor: certificadoBloqueadoCredenciador ? '#94A3B8' : '#0284C7',
                             color: '#FFFFFF',
                             transition: 'all 0.2s ease',
                             width: '100%',
-                            opacity: enviandoCertId === inscrito.id ? 0.7 : 1,
+                            opacity: certificadoBloqueadoCredenciador
+                              ? 0.55
+                              : enviandoCertId === inscrito.id
+                              ? 0.7
+                              : 1,
                           }}
-                          title="Gerar Certificado com Nome e CPF e enviar diretamente no e-mail do participante"
+                          title={
+                            certificadoBloqueadoCredenciador
+                              ? 'Disponível apenas após confirmação de presença (check-in) em ambos os dias (11 e 12/Set)'
+                              : 'Gerar Certificado com Nome e CPF e enviar diretamente no e-mail do participante'
+                          }
                         >
                           <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                             <circle cx="12" cy="8" r="6" />
@@ -859,7 +890,7 @@ export default function InscritosCongressoPage() {
                         <button
                           type="button"
                           onClick={() => handleBaixarCertificado(inscrito)}
-                          disabled={baixandoCertId === inscrito.id}
+                          disabled={baixandoCertId === inscrito.id || certificadoBloqueadoCredenciador}
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
@@ -869,15 +900,27 @@ export default function InscritosCongressoPage() {
                             borderRadius: '6px',
                             fontSize: '0.70rem',
                             fontWeight: '700',
-                            cursor: baixandoCertId === inscrito.id ? 'wait' : 'pointer',
+                            cursor: certificadoBloqueadoCredenciador
+                              ? 'not-allowed'
+                              : baixandoCertId === inscrito.id
+                              ? 'wait'
+                              : 'pointer',
                             border: 'none',
-                            backgroundColor: '#4B5563',
+                            backgroundColor: certificadoBloqueadoCredenciador ? '#94A3B8' : '#4B5563',
                             color: '#FFFFFF',
                             transition: 'all 0.2s ease',
                             width: '100%',
-                            opacity: baixandoCertId === inscrito.id ? 0.7 : 1,
+                            opacity: certificadoBloqueadoCredenciador
+                              ? 0.55
+                              : baixandoCertId === inscrito.id
+                              ? 0.7
+                              : 1,
                           }}
-                          title="Baixar ou visualizar o arquivo PDF do Certificado"
+                          title={
+                            certificadoBloqueadoCredenciador
+                              ? 'Disponível apenas após confirmação de presença (check-in) em ambos os dias (11 e 12/Set)'
+                              : 'Baixar ou visualizar o arquivo PDF do Certificado'
+                          }
                         >
                           <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -927,7 +970,8 @@ export default function InscritosCongressoPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                );
+              })}
               </tbody>
             </table>
           </div>
