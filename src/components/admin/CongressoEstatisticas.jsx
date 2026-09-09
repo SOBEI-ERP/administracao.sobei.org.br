@@ -572,17 +572,13 @@ export default function CongressoEstatisticas() {
               Curva de Crescimento das Inscrições
             </h3>
             <span style={{ fontSize: '0.80rem', color: 'var(--color-gray-500)' }}>
-              Evolução temporal acumulada e novas adesões registradas por dia
+              Evolução temporal acumulada das inscrições registradas
             </span>
           </div>
           <div style={{ display: 'flex', gap: '16px', fontSize: '0.78rem', fontWeight: '700' }}>
             <span style={{ color: '#2563EB', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#2563EB', display: 'inline-block' }} />
               Total Acumulado
-            </span>
-            <span style={{ color: '#0D9488', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#0D9488', display: 'inline-block' }} />
-              Inscrições no Dia
             </span>
           </div>
         </div>
@@ -596,10 +592,6 @@ export default function CongressoEstatisticas() {
                     <stop offset="5%" stopColor="#2563EB" stopOpacity={0.25} />
                     <stop offset="95%" stopColor="#2563EB" stopOpacity={0.0} />
                   </linearGradient>
-                  <linearGradient id="corNoDia" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0D9488" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#0D9488" stopOpacity={0.02} />
-                  </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
                 <XAxis dataKey="data" tick={{ fontSize: 11, fill: '#64748B' }} />
@@ -611,17 +603,15 @@ export default function CongressoEstatisticas() {
                       return (
                         <div style={{ backgroundColor: '#0C1B33', color: '#FFFFFF', padding: '8px 12px', borderRadius: '8px', fontSize: '0.80rem' }}>
                           <div style={{ fontWeight: '800', marginBottom: '4px' }}>Data: {d.data} ({d.dataCompleta})</div>
-                          <div>Novas Inscrições no Dia: <strong>{d.noDia}</strong></div>
-                          <div>Acumulado até a data: <strong>{d.acumulado}</strong></div>
-                          <div style={{ fontSize: '0.72rem', color: '#94A3B8', marginTop: '2px' }}>SOBEI: {d.sobeiNoDia} • Outras: {d.outrasOscNoDia}</div>
+                          <div>Total Acumulado: <strong>{d.acumulado}</strong></div>
+                          <div style={{ fontSize: '0.72rem', color: '#94A3B8', marginTop: '2px' }}>+{d.noDia} no dia (SOBEI: {d.sobeiNoDia} • Outras: {d.outrasOscNoDia})</div>
                         </div>
                       );
                     }
                     return null;
                   }}
                 />
-                <Area type="monotone" dataKey="acumulado" stroke="#2563EB" strokeWidth={2.5} fillOpacity={1} fill="url(#corAcumulado)" name="Acumulado" />
-                <Area type="monotone" dataKey="noDia" stroke="#0D9488" strokeWidth={2} fillOpacity={1} fill="url(#corNoDia)" name="No Dia" />
+                <Area type="monotone" dataKey="acumulado" stroke="#2563EB" strokeWidth={2.5} fillOpacity={1} fill="url(#corAcumulado)" name="Total Acumulado" />
               </AreaChart>
             </ResponsiveContainer>
           ) : (
