@@ -1132,12 +1132,12 @@ export default function EstatisticasPage() {
               padding: '8px 18px',
               borderRadius: '8px',
               border: 'none',
-              backgroundColor: abaAtiva === 'congresso' ? '#0C1B33' : 'transparent',
-              color: abaAtiva === 'congresso' ? '#FFFFFF' : '#64748B',
+              backgroundColor: abaAtiva === 'congresso' ? '#FFFFFF' : 'transparent',
+              color: abaAtiva === 'congresso' ? '#0F172A' : '#64748B',
               fontWeight: '800',
               fontSize: '0.86rem',
               cursor: 'pointer',
-              boxShadow: abaAtiva === 'congresso' ? '0 2px 6px rgba(0,0,0,0.12)' : 'none',
+              boxShadow: abaAtiva === 'congresso' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
               transition: 'all 0.15s ease',
             }}
           >
@@ -1145,8 +1145,8 @@ export default function EstatisticasPage() {
             Congresso SOBEI 2026
             <span style={{
               fontSize: '0.66rem',
-              backgroundColor: abaAtiva === 'congresso' ? '#2563EB' : '#CBD5E1',
-              color: '#FFFFFF',
+              backgroundColor: abaAtiva === 'congresso' ? 'rgba(27, 20, 100, 0.08)' : '#E2E8F0',
+              color: abaAtiva === 'congresso' ? 'var(--color-primary, #1B1464)' : '#64748B',
               padding: '2px 7px',
               borderRadius: '10px',
               fontWeight: '800',

@@ -351,216 +351,102 @@ export default function CongressoEstatisticas() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {/* 1. Header do Congresso */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '12px',
-        backgroundColor: '#0C1B33',
-        color: '#FFFFFF',
-        padding: '20px 24px',
-        borderRadius: '16px',
-        boxShadow: '0 8px 24px -4px rgba(12, 27, 51, 0.25)',
-      }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '800', letterSpacing: '-0.02em' }}>
-              Painel Analítico do Congresso SOBEI 2026
-            </h2>
-            <span style={{
-              fontSize: '0.70rem',
-              fontWeight: '800',
-              textTransform: 'uppercase',
-              backgroundColor: '#2563EB',
-              color: '#FFFFFF',
-              padding: '3px 9px',
-              borderRadius: '999px',
-              letterSpacing: '0.04em',
-            }}>
-              Suporte Exclusivo
-            </span>
-          </div>
-          <p style={{ margin: '4px 0 0 0', fontSize: '0.86rem', color: '#94A3B8' }}>
-            Acompanhamento em tempo real de inscrições, adesão a oficinas, distribuição institucional e credenciamento.
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', gap: '10px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg, 20px)' }}>
+      {/* 1. Header do Congresso no mesmo padrão oficial de Estatísticas */}
+      <div className="statistics-header">
+        <h1 className="statistics-page__title">Estatísticas do Congresso</h1>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <button
+            className="btn btn--limpar"
             type="button"
-            className="btn btn--outline"
             onClick={carregarDados}
-            style={{
-              borderColor: 'rgba(255,255,255,0.25)',
-              color: '#FFFFFF',
-              fontSize: '0.84rem',
-              padding: '8px 16px',
-              borderRadius: '8px',
-            }}
+            style={{ minHeight: '38px', height: '38px', padding: '0 18px', borderRadius: 'var(--radius-full)', fontSize: '13px' }}
           >
-            ↻ Atualizar
+            Atualizar
           </button>
-          <button
-            type="button"
-            className="btn btn--secondary"
+          <button 
+            className="btn btn--secondary" 
+            type="button" 
+            id="btn-gerar-relatorio-congresso"
             onClick={handleExportarRelatorioCongresso}
-            style={{
-              fontSize: '0.84rem',
-              padding: '8px 18px',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            Exportar Relatório (PDF)
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px' }}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Exportar relatório
           </button>
         </div>
       </div>
 
-      {/* 2. Grid de KPIs Executivos */}
+      {/* 2. KPI Metrics em Card Único Horizontal */}
       <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
-        gap: '14px',
+        backgroundColor: 'var(--color-white)',
+        padding: '10px 18px',
+        borderRadius: 'var(--radius-md)',
+        border: '1px solid var(--color-gray-200)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '8px 16px',
+        marginBottom: 'var(--spacing-md, 16px)',
       }}>
-        {/* KPI 1: Total Inscritos / Meta */}
-        <div style={{
-          backgroundColor: '#FFFFFF',
-          border: '1px solid #E2E8F0',
-          borderRadius: '12px',
-          padding: '16px 18px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          borderTop: '4px solid #2563EB',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
-        }}>
-          <span style={{ fontSize: '0.72rem', fontWeight: '800', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            Inscrições Realizadas
-          </span>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', margin: '6px 0' }}>
-            <span style={{ fontSize: '1.9rem', fontWeight: '900', color: '#0F172A', lineHeight: '1.1' }}>
-              {stats.totalInscritos}
-            </span>
-            <span style={{ fontSize: '0.85rem', color: '#64748B', fontWeight: '700' }}>
-              / {stats.limiteVagas} vagas
-            </span>
-          </div>
-          {/* Barra de Progresso da Meta */}
-          <div style={{ width: '100%', height: '7px', backgroundColor: '#F1F5F9', borderRadius: '4px', overflow: 'hidden', margin: '4px 0' }}>
-            <div style={{
-              width: `${Math.min(100, stats.percentualPreenchimento)}%`,
-              height: '100%',
-              backgroundColor: '#2563EB',
-              borderRadius: '4px',
-            }} />
-          </div>
-          <span style={{ fontSize: '0.74rem', color: '#475569', fontWeight: '600' }}>
-            <strong>{stats.percentualPreenchimento}%</strong> da meta geral atingida
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Total de Inscritos:</span>
+          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>
+            {stats.totalInscritos} / {stats.limiteVagas} ({stats.percentualPreenchimento}%)
           </span>
         </div>
 
-        {/* KPI 2: SOBEI vs Outras OSCs */}
-        <div style={{
-          backgroundColor: '#FFFFFF',
-          border: '1px solid #E2E8F0',
-          borderRadius: '12px',
-          padding: '16px 18px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          borderTop: '4px solid #F97316',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
-        }}>
-          <span style={{ fontSize: '0.72rem', fontWeight: '800', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            Composição Institucional
-          </span>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', margin: '6px 0' }}>
-            <span style={{ fontSize: '1.8rem', fontWeight: '900', color: '#0C1B33', lineHeight: '1.1' }}>
-              {stats.totalSobei}
-            </span>
-            <span style={{ fontSize: '0.82rem', color: '#64748B', fontWeight: '600' }}>
-              SOBEI ({stats.percentualSobei}%)
-            </span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.76rem', color: '#475569' }}>
-            <span>Outras OSCs externas:</span>
-            <strong style={{ color: '#EA580C', fontWeight: '800' }}>{stats.totalOutrasOsc} ({stats.percentualOutrasOsc}%)</strong>
-          </div>
-          <span style={{ fontSize: '0.72rem', color: '#94A3B8', marginTop: '2px' }}>
-            Cota de 10 vagas por oficina ativa
+        <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>SOBEI:</span>
+          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>
+            {stats.totalSobei} ({stats.percentualSobei}%)
           </span>
         </div>
 
-        {/* KPI 3: Alocação em Oficinas */}
-        <div style={{
-          backgroundColor: '#FFFFFF',
-          border: '1px solid #E2E8F0',
-          borderRadius: '12px',
-          padding: '16px 18px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          borderTop: '4px solid #10B981',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
-        }}>
-          <span style={{ fontSize: '0.72rem', fontWeight: '800', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            Adesão a Oficinas
-          </span>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', margin: '6px 0' }}>
-            <span style={{ fontSize: '1.8rem', fontWeight: '900', color: '#059669', lineHeight: '1.1' }}>
-              {stats.totalComOficina}
-            </span>
-            <span style={{ fontSize: '0.82rem', color: '#64748B', fontWeight: '600' }}>
-              escolheram ({stats.percentualComOficina}%)
-            </span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.76rem' }}>
-            <span style={{ color: '#64748B' }}>Pendentes sem oficina:</span>
-            <strong style={{ color: stats.totalSemOficina > 0 ? '#D97706' : '#059669' }}>
-              {stats.totalSemOficina} ({stats.percentualSemOficina}%)
-            </strong>
-          </div>
-          <span style={{ fontSize: '0.72rem', color: '#94A3B8', marginTop: '2px' }}>
-            23 oficinas temáticas disponíveis
+        <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Outras OSCs:</span>
+          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>
+            {stats.totalOutrasOsc} ({stats.percentualOutrasOsc}%)
           </span>
         </div>
 
-        {/* KPI 4: Presença e Credenciamento */}
-        <div style={{
-          backgroundColor: '#FFFFFF',
-          border: '1px solid #E2E8F0',
-          borderRadius: '12px',
-          padding: '16px 18px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          borderTop: '4px solid #8B5CF6',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
-        }}>
-          <span style={{ fontSize: '0.72rem', fontWeight: '800', color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-            Credenciamento & Presença
+        <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Com Oficina:</span>
+          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>
+            {stats.totalComOficina} ({stats.percentualComOficina}%)
           </span>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', margin: '6px 0' }}>
-            <span style={{ fontSize: '1.8rem', fontWeight: '900', color: '#7C3AED', lineHeight: '1.1' }}>
-              {stats.presentesAmbosDias}
-            </span>
-            <span style={{ fontSize: '0.82rem', color: '#64748B', fontWeight: '600' }}>
-              ambos os dias
-            </span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.76rem', color: '#475569' }}>
-            <span>Dia 11: <strong>{stats.presentesDia11}</strong></span>
-            <span>Dia 12: <strong>{stats.presentesDia12}</strong></span>
-            <span>Geral: <strong>{stats.presentesGeral}</strong></span>
-          </div>
-          <span style={{ fontSize: '0.72rem', color: '#94A3B8', marginTop: '2px' }}>
-            Habilitação automática de certificados
+        </div>
+
+        <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Sem Oficina:</span>
+          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: stats.totalSemOficina > 0 ? '#D97706' : 'var(--color-gray-800)' }}>
+            {stats.totalSemOficina} ({stats.percentualSemOficina}%)
+          </span>
+        </div>
+
+        <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Presença Geral:</span>
+          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>
+            {stats.presentesGeral}
+          </span>
+        </div>
+
+        <div style={{ width: '1px', height: '14px', backgroundColor: 'var(--color-gray-200)' }} />
+
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '0.70rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-500)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>Ambos os Dias:</span>
+          <span style={{ fontSize: '0.82rem', fontWeight: 'var(--font-weight-bold)', color: 'var(--color-gray-800)' }}>
+            {stats.presentesAmbosDias}
           </span>
         </div>
       </div>
@@ -569,21 +455,15 @@ export default function CongressoEstatisticas() {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-        gap: '18px',
+        gap: 'var(--spacing-lg, 20px)',
       }}>
         {/* Gráfico A: Proporção SOBEI vs Outras OSCs */}
-        <div style={{
-          backgroundColor: '#FFFFFF',
-          border: '1px solid #E2E8F0',
-          borderRadius: '14px',
-          padding: '20px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <h3 style={{ margin: 0, fontSize: '0.98rem', fontWeight: '800', color: '#0F172A' }}>
+        <div className="statistics-page__chart-container" style={{ margin: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-md, 16px)' }}>
+            <h3 className="statistics-page__chart-title" style={{ margin: 0 }}>
               SOBEI vs Outras OSCs
             </h3>
-            <span style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: '600' }}>Participação Relativa</span>
+            <span style={{ fontSize: '0.74rem', color: 'var(--color-gray-500)', fontWeight: '600' }}>Participação Relativa</span>
           </div>
 
           <div style={{ height: '220px', width: '100%' }}>
@@ -632,18 +512,12 @@ export default function CongressoEstatisticas() {
         </div>
 
         {/* Gráfico B: Inscrição em Oficinas vs Sem Oficinas */}
-        <div style={{
-          backgroundColor: '#FFFFFF',
-          border: '1px solid #E2E8F0',
-          borderRadius: '14px',
-          padding: '20px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <h3 style={{ margin: 0, fontSize: '0.98rem', fontWeight: '800', color: '#0F172A' }}>
+        <div className="statistics-page__chart-container" style={{ margin: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-md, 16px)' }}>
+            <h3 className="statistics-page__chart-title" style={{ margin: 0 }}>
               Adesão às Oficinas Pedagógicas
             </h3>
-            <span style={{ fontSize: '0.74rem', color: '#64748B', fontWeight: '600' }}>Definidos vs Pendentes</span>
+            <span style={{ fontSize: '0.74rem', color: 'var(--color-gray-500)', fontWeight: '600' }}>Definidos vs Pendentes</span>
           </div>
 
           <div style={{ height: '220px', width: '100%' }}>
@@ -691,19 +565,13 @@ export default function CongressoEstatisticas() {
       </div>
 
       {/* 4. Gráfico de Crescimento nas Inscrições (Evolução Temporal) */}
-      <div style={{
-        backgroundColor: '#FFFFFF',
-        border: '1px solid #E2E8F0',
-        borderRadius: '14px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+      <div className="statistics-page__chart-container">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-md, 16px)', flexWrap: 'wrap', gap: '8px' }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '800', color: '#0F172A' }}>
+            <h3 className="statistics-page__chart-title" style={{ margin: 0 }}>
               Curva de Crescimento das Inscrições
             </h3>
-            <span style={{ fontSize: '0.80rem', color: '#64748B' }}>
+            <span style={{ fontSize: '0.80rem', color: 'var(--color-gray-500)' }}>
               Evolução temporal acumulada e novas adesões registradas por dia
             </span>
           </div>
@@ -765,23 +633,17 @@ export default function CongressoEstatisticas() {
       </div>
 
       {/* 5. Inscrições por Unidade Escolar SOBEI */}
-      <div style={{
-        backgroundColor: '#FFFFFF',
-        border: '1px solid #E2E8F0',
-        borderRadius: '14px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+      <div className="statistics-page__chart-container">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--spacing-md, 16px)' }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '800', color: '#0F172A' }}>
+            <h3 className="statistics-page__chart-title" style={{ margin: 0 }}>
               Inscrições por Unidade Escolar SOBEI
             </h3>
-            <span style={{ fontSize: '0.80rem', color: '#64748B' }}>
+            <span style={{ fontSize: '0.80rem', color: 'var(--color-gray-500)' }}>
               Distribuição de inscritos nos CEIs, CEDESPs e Unidades Conveniadas da rede
             </span>
           </div>
-          <span style={{ fontSize: '0.80rem', fontWeight: '700', color: '#2563EB' }}>
+          <span style={{ fontSize: '0.80rem', fontWeight: '700', color: 'var(--color-primary, #1B1464)' }}>
             Total SOBEI: {stats.totalSobei} inscritos
           </span>
         </div>
@@ -867,26 +729,20 @@ export default function CongressoEstatisticas() {
       </div>
 
       {/* 6. Seção Completa: Lotação das 23 Oficinas Pedagógicas */}
-      <div style={{
-        backgroundColor: '#FFFFFF',
-        border: '1px solid #E2E8F0',
-        borderRadius: '14px',
-        padding: '20px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-      }}>
+      <div className="statistics-page__chart-container">
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: '12px',
-          marginBottom: '16px',
+          marginBottom: 'var(--spacing-md, 16px)',
         }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '800', color: '#0F172A' }}>
+            <h3 className="statistics-page__chart-title" style={{ margin: 0 }}>
               Painel de Ocupação das 23 Oficinas Pedagógicas
             </h3>
-            <span style={{ fontSize: '0.80rem', color: '#64748B' }}>
+            <span style={{ fontSize: '0.80rem', color: 'var(--color-gray-500)' }}>
               Monitoramento de lotação das salas e limites de vagas para SOBEI e Outras OSCs (10 vagas)
             </span>
           </div>
@@ -913,7 +769,7 @@ export default function CongressoEstatisticas() {
                 onClick={() => setFiltroStatusOficina('todas')}
                 style={{
                   border: 'none',
-                  backgroundColor: filtroStatusOficina === 'todas' ? '#0C1B33' : 'transparent',
+                  backgroundColor: filtroStatusOficina === 'todas' ? 'var(--color-primary, #1B1464)' : 'transparent',
                   color: filtroStatusOficina === 'todas' ? '#FFFFFF' : '#475569',
                   padding: '4px 10px',
                   borderRadius: '6px',
