@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   ResponsiveContainer,
   BarChart,
@@ -61,66 +61,41 @@ export default function CongressoEstatisticas() {
 
   const carregarDados = useCallback(async () => {
     setLoading(true);
-    const data = await fetchEstatisticasCongresso();
-    setStats(data);
-    setLoading(false);
+    try {
+      const data = await fetchEstatisticasCongresso();
+      setStats(data);
+    } catch (err) {
+      console.error('Erro ao carregar estatísticas do congresso:', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    carregarDados();
-  }, [carregarDados]);
+    let ativo = true;
+    fetchEstatisticasCongresso()
+      .then((data) => {
+        if (ativo) {
+          setStats(data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error('Erro ao carregar estatísticas:', err);
+        if (ativo) setLoading(false);
+      });
+    return () => {
+      ativo = false;
+    };
+  }, []);
 
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '360px', gap: '12px' }}>
-        <div className="loading-spinner" style={{ width: '36px', height: '36px', borderWidth: '3px' }} />
-        <span style={{ fontSize: '0.90rem', color: '#64748B', fontWeight: '600' }}>Carregando estatísticas consolidadas do Congresso...</span>
-      </div>
-    );
-  }
+  const outrasOscsUnificadas = useMemo(() => {
+    return stats?.porOutraOsc ? unificarOscs(stats.porOutraOsc) : [];
+  }, [stats]);
 
-  if (!stats) {
-    return (
-      <div style={{ textAlign: 'center', padding: '60px 20px', backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-        <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#0F172A', marginBottom: '8px' }}>Não foi possível carregar as estatísticas</div>
-        <p style={{ color: '#64748B', fontSize: '0.90rem', marginBottom: '16px' }}>Verifique se o perfil de acesso possui permissão Suporte e tente novamente.</p>
-        <button type="button" className="btn btn--secondary" onClick={carregarDados}>Tentar Novamente</button>
-      </div>
-    );
-  }
-
-  // 1. Dados para Gráficos Donut
-  const donutOscData = [
-    { name: 'SOBEI (Internos)', value: stats.totalSobei, color: CORES_DONUT_OSC[0] },
-    { name: 'Outras OSCs (Parceiros)', value: stats.totalOutrasOsc, color: CORES_DONUT_OSC[1] },
-  ];
-
-  const donutOficinasData = [
-    { name: 'Com Oficina Escolhida', value: stats.totalComOficina, color: CORES_DONUT_OFICINA[0] },
-    { name: 'Sem Oficina (Pendente)', value: stats.totalSemOficina, color: CORES_DONUT_OFICINA[1] },
-  ];
-
-  const outrasOscsUnificadas = unificarOscs(stats.porOutraOsc);
-
-  // 2. Filtro de Oficinas
-  const oficinasFiltradas = (stats.porOficina || []).filter((of) => {
-    const termo = buscaOficina.trim().toLowerCase();
-    const matchBusca = !termo ||
-      of.tema.toLowerCase().includes(termo) ||
-      of.ministrante.toLowerCase().includes(termo) ||
-      of.categoria.toLowerCase().includes(termo);
-
-    if (!matchBusca) return false;
-
-    if (filtroStatusOficina === 'esgotadas') return of.status === 'ESGOTADA';
-    if (filtroStatusOficina === 'quase_cheias') return of.status === 'QUASE_CHEIA';
-    if (filtroStatusOficina === 'disponiveis') return of.status === 'DISPONIVEL';
-
-    return true;
-  });
-
-  // 3. Exportação do Relatório Oficial do Congresso (Impressão / PDF)
-  function handleExportarRelatorioCongresso() {
+  // Exportação do Relatório Oficial do Congresso (Impressão / PDF)
+  const handleExportarRelatorioCongresso = useCallback(() => {
+    if (!stats) return;
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
       alert('Por favor, autorize pop-ups para exportar o relatório do Congresso.');
@@ -388,6 +363,53 @@ export default function CongressoEstatisticas() {
       window.removeEventListener('exportar-relatorio-congresso', onExportar);
     };
   }, [carregarDados, handleExportarRelatorioCongresso]);
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '360px', gap: '12px' }}>
+        <div className="loading-spinner" style={{ width: '36px', height: '36px', borderWidth: '3px' }} />
+        <span style={{ fontSize: '0.90rem', color: '#64748B', fontWeight: '600' }}>Carregando estatísticas consolidadas do Congresso...</span>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div style={{ textAlign: 'center', padding: '60px 20px', backgroundColor: '#FFFFFF', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+        <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#0F172A', marginBottom: '8px' }}>Não foi possível carregar as estatísticas</div>
+        <p style={{ color: '#64748B', fontSize: '0.90rem', marginBottom: '16px' }}>Verifique se o perfil de acesso possui permissão Suporte e tente novamente.</p>
+        <button type="button" className="btn btn--secondary" onClick={carregarDados}>Tentar Novamente</button>
+      </div>
+    );
+  }
+
+  // 1. Dados para Gráficos Donut
+  const donutOscData = [
+    { name: 'SOBEI (Internos)', value: stats.totalSobei, color: CORES_DONUT_OSC[0] },
+    { name: 'Outras OSCs (Parceiros)', value: stats.totalOutrasOsc, color: CORES_DONUT_OSC[1] },
+  ];
+
+  const donutOficinasData = [
+    { name: 'Com Oficina Escolhida', value: stats.totalComOficina, color: CORES_DONUT_OFICINA[0] },
+    { name: 'Sem Oficina (Pendente)', value: stats.totalSemOficina, color: CORES_DONUT_OFICINA[1] },
+  ];
+
+  // 2. Filtro de Oficinas
+  const oficinasFiltradas = (stats.porOficina || []).filter((of) => {
+    const termo = buscaOficina.trim().toLowerCase();
+    const matchBusca = !termo ||
+      of.tema.toLowerCase().includes(termo) ||
+      of.ministrante.toLowerCase().includes(termo) ||
+      of.categoria.toLowerCase().includes(termo);
+
+    if (!matchBusca) return false;
+
+    if (filtroStatusOficina === 'esgotadas') return of.status === 'ESGOTADA';
+    if (filtroStatusOficina === 'quase_cheias') return of.status === 'QUASE_CHEIA';
+    if (filtroStatusOficina === 'disponiveis') return of.status === 'DISPONIVEL';
+
+    return true;
+  });
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg, 20px)' }}>
