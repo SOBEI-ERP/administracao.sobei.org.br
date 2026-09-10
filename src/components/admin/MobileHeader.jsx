@@ -4,16 +4,13 @@ import { useState, useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { DENUNCIA_LINKS } from '@/lib/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { IconChevronDown } from '@/components/Icons';
 
 export default function MobileHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [denunciasOpen, setDenunciasOpen] = useState(true);
   const headerRef = useRef(null);
 
   // Fecha o menu automaticamente ao navegar para outra rota
@@ -55,6 +52,13 @@ export default function MobileHeader() {
   };
 
   const nivel = user?.nivel?.toUpperCase();
+  const isDenunciasActive = 
+    pathname === '/fila' || 
+    pathname === '/andamento' || 
+    pathname === '/fechadas' || 
+    pathname === '/arquivadas' || 
+    pathname.startsWith('/denuncias');
+
   const defaultHome = 
     nivel === 'DIRETORA' ? '/vagas' : 
     (nivel === 'COORDENADORA' || nivel === 'CREDENCIADOR' || nivel === 'COORDENADORA_EVENTO') ? '/inscritos-congresso' : 
@@ -100,45 +104,25 @@ export default function MobileHeader() {
           {/* Denúncias e Estatísticas: DP e SUPORTE */}
           {(nivel === 'DP' || nivel === 'SUPORTE') && (
             <>
-              {/* Denúncias Section */}
-              <div className="mobile-header__section">
-                <button
-                  className="mobile-header__section-header"
-                  onClick={() => setDenunciasOpen(!denunciasOpen)}
-                  type="button"
-                >
-                  <div className="mobile-header__link-content">
-                    <Image
-                      src="/images/attention-stop.svg"
-                      alt=""
-                      width={20}
-                      height={20}
-                      className="mobile-header__icon"
-                    />
-                    <span>Denúncias</span>
-                  </div>
-                  <span className={`mobile-header__chevron ${denunciasOpen ? 'mobile-header__chevron--open' : ''}`}>
-                    <IconChevronDown size={14} />
-                  </span>
-                </button>
-
-                {denunciasOpen && (
-                  <div className="mobile-header__subitems">
-                    {DENUNCIA_LINKS.map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        className={`mobile-header__subitem ${
-                          pathname === link.href ? 'mobile-header__subitem--active' : ''
-                        }`}
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        {link.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {/* Denúncias */}
+              <Link
+                href="/fila"
+                className={`mobile-header__link ${
+                  isDenunciasActive ? 'mobile-header__link--active' : ''
+                }`}
+                onClick={() => setMenuOpen(false)}
+              >
+                <div className="mobile-header__link-content">
+                  <Image
+                    src="/images/attention-stop.svg"
+                    alt=""
+                    width={20}
+                    height={20}
+                    className="mobile-header__icon"
+                  />
+                  <span>Denúncias</span>
+                </div>
+              </Link>
 
               <div className="mobile-header__divider" />
 

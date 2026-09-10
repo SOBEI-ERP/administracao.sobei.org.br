@@ -9,8 +9,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useDenuncias, useAtualizarDenuncia, useDeletarDenuncia } from '@/hooks/useDenuncias';
-import { STATUS_CONFIG, FILTROS_INICIAIS } from '@/lib/navigation';
+import { STATUS_CONFIG, FILTROS_INICIAIS, DENUNCIA_LINKS } from '@/lib/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import dynamic from 'next/dynamic';
 import FilterBar from '@/components/admin/FilterBar';
@@ -80,7 +81,24 @@ export default function DenunciaListPage({ status }) {
 
   return (
     <div>
-      <h1 className="admin-page__title">{config.titulo}</h1>
+      <h1 className="statistics-page__title" style={{ marginBottom: 'var(--spacing-lg)' }}>
+        Denúncias
+      </h1>
+
+      {/* Tabs de Status Padronizadas (igual à página de Estatísticas) */}
+      <div className="statistics-tabs">
+        {DENUNCIA_LINKS.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={`statistics-tab ${
+              link.status === status ? 'statistics-tab--active' : ''
+            }`}
+          >
+            {link.label}
+          </Link>
+        ))}
+      </div>
 
       <FilterBar
         filtros={filtros}

@@ -1,23 +1,26 @@
 'use client';
 
-import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { DENUNCIA_LINKS } from '@/lib/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { IconChevronDown } from '@/components/Icons';
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
-  const [denunciasOpen, setDenunciasOpen] = useState(true);
 
   const handleLogout = () => {
     logout();
     router.push('/');
   };
+
+  const isDenunciasActive = 
+    pathname === '/fila' || 
+    pathname === '/andamento' || 
+    pathname === '/fechadas' || 
+    pathname === '/arquivadas' || 
+    pathname.startsWith('/denuncias');
 
   return (
     <aside className="sidebar">
@@ -44,44 +47,22 @@ export default function Sidebar() {
         {/* Denúncias e Estatísticas: DP e SUPORTE */}
         {(user?.nivel?.toUpperCase() === 'DP' || user?.nivel?.toUpperCase() === 'SUPORTE') && (
           <>
-            {/* Denúncias section */}
-            <div className="sidebar__section">
-              <button
-                className="sidebar__section-header"
-                onClick={() => setDenunciasOpen(!denunciasOpen)}
-                type="button"
-              >
-                <div className="sidebar__section-title">
-                  <Image 
-                    src="/images/attention-stop.svg" 
-                    alt="" 
-                    width={20} 
-                    height={20} 
-                    className="sidebar__icon" 
-                  />
-                  <span className="sidebar__text">Denúncias</span>
-                </div>
-                  <span className={`sidebar__chevron ${denunciasOpen ? 'sidebar__chevron--open' : ''}`}>
-                  <IconChevronDown size={12} />
-                </span>
-              </button>
-
-              {denunciasOpen && (
-                <div className="sidebar__subitems">
-                  {DENUNCIA_LINKS.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className={`sidebar__subitem ${
-                        pathname === link.href ? 'sidebar__subitem--active' : ''
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* Denúncias */}
+            <Link
+              href="/fila"
+              className={`sidebar__link ${
+                isDenunciasActive ? 'sidebar__link--active' : ''
+              }`}
+            >
+              <Image 
+                src="/images/attention-stop.svg" 
+                alt="" 
+                width={20} 
+                height={20} 
+                className="sidebar__icon" 
+              />
+              <span className="sidebar__text">Denúncias</span>
+            </Link>
 
             <div className="sidebar__divider" />
 

@@ -25,6 +25,13 @@
   border-bottom: 2px solid var(--color-gray-200);
   margin-bottom: var(--spacing-xl);
   width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.statistics-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .statistics-tab {
@@ -42,6 +49,9 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: none;
 }
 
 .statistics-tab:hover {
