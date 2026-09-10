@@ -419,7 +419,7 @@ export default function OficinasModal({ inscrito, inscritos = [], isSuporte = fa
                                 whiteSpace: 'nowrap',
                               }}
                             >
-                              {item.vagasSala || 30} vagas
+                              {item.vagasSala || 26} vagas
                             </span>
                           )}
                         </div>
@@ -520,7 +520,7 @@ export default function OficinasModal({ inscrito, inscritos = [], isSuporte = fa
                       </div>
                     ) : (
                       <div style={{ marginTop: '2px', fontSize: '0.82rem', color: '#64748B' }}>
-                        <strong>Capacidade total da sala:</strong> {oficinaSelecionadaObj.vagasSala || 30} vagas
+                        <strong>Capacidade total da sala:</strong> {oficinaSelecionadaObj.vagasSala || 26} vagas
                       </div>
                     )}
                   </div>

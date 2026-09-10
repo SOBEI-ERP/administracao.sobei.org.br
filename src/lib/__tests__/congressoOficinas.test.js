@@ -8,14 +8,26 @@ import {
 } from '../congressoOficinas';
 
 describe('congressoOficinas - Regras de Cotas e Limites por Unidade', () => {
-  test('deve conter as 23 oficinas cadastradas com cotas por unidade', () => {
+  test('deve conter as 23 oficinas cadastradas com cotas por unidade e limite de vagas da sala reduzido em 4', () => {
     expect(OFICINAS_CONGRESSO.length).toBe(23);
     OFICINAS_CONGRESSO.forEach((of) => {
       expect(of.tema).toBeDefined();
       expect(of.ministrante).toBeDefined();
       expect(of.limitesPorUnidade).toBeDefined();
       expect(typeof of.limitesPorUnidade.Montanaro).toBe('number');
+      expect(typeof of.vagasSala).toBe('number');
+      expect(of.vagasSala).toBeGreaterThan(0);
     });
+
+    // Validar limites reduzidos em 4 vagas
+    const cleide = OFICINAS_CONGRESSO.find((o) => o.id === 'cleide-derenzi');
+    expect(cleide.vagasSala).toBe(26);
+
+    const rodrigo = OFICINAS_CONGRESSO.find((o) => o.id === 'rodrigo-candido');
+    expect(rodrigo.vagasSala).toBe(66);
+
+    const cristiano = OFICINAS_CONGRESSO.find((o) => o.id === 'cristiano-santos');
+    expect(cristiano.vagasSala).toBe(31);
   });
 
   test('normalizarNomeUnidade deve tratar prefixos e acentuação', () => {
