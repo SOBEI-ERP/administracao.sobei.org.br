@@ -574,8 +574,8 @@ export default function InscritosCongressoPage() {
                   <th style={{ padding: '12px 8px', textAlign: 'center', width: '13%' }}>CPF</th>
                   <th style={{ padding: '12px 8px', textAlign: 'center', width: '14%' }}>OSC / Unidade</th>
                   <th style={{ padding: '12px 10px', textAlign: 'center', width: '25%' }}>Oficina Pedagógica</th>
-                  <th style={{ padding: '12px 6px', textAlign: 'center', width: '12%' }}>Presença 11/Set</th>
-                  <th style={{ padding: '12px 6px', textAlign: 'center', width: '12%' }}>Presença 12/Set</th>
+                  <th style={{ padding: '12px 2px', textAlign: 'center', width: '96px', minWidth: '96px', maxWidth: '96px', whiteSpace: 'nowrap' }}>Presença 11/Set</th>
+                  <th style={{ padding: '12px 2px', textAlign: 'center', width: '96px', minWidth: '96px', maxWidth: '96px', whiteSpace: 'nowrap' }}>Presença 12/Set</th>
                   <th style={{ padding: '12px 8px', textAlign: 'center', width: '14%' }}>Emissões &amp; Ações</th>
                 </tr>
               </thead>
@@ -693,119 +693,89 @@ export default function InscritosCongressoPage() {
                     </td>
 
                     {/* Presença Dia 11 (Sexta) */}
-                    <td style={{ padding: '12px 6px', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                      <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-                        {inscrito.presenteDia11 ? (
-                          <span style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            padding: '3px 8px',
-                            borderRadius: '12px',
-                            fontSize: '0.75rem',
-                            fontWeight: 'bold',
-                            background: '#10B981',
-                            color: '#FFFFFF',
-                          }}>
-                            <IconCheck size={12} /> Presente {formatHora(inscrito.dataPresencaDia11)}
-                          </span>
+                    <td style={{ padding: 0, textAlign: 'center', whiteSpace: 'nowrap', verticalAlign: 'middle', height: '1px', width: '96px', minWidth: '96px', maxWidth: '96px' }}>
+                      <button
+                        type="button"
+                        onClick={() => podeConfirmarPresenca && handleTogglePresenca(inscrito.id, 11, inscrito.presenteDia11)}
+                        disabled={!podeConfirmarPresenca || updatingAction === `${inscrito.id}-11`}
+                        className={`checkin-square-btn checkin-square-btn--left ${inscrito.presenteDia11 ? 'checkin-square-btn--presente' : 'checkin-square-btn--pendente'}`}
+                        title={
+                          !podeConfirmarPresenca
+                            ? (inscrito.presenteDia11 ? 'Presença confirmada em 11/Set' : 'Presença pendente em 11/Set')
+                            : inscrito.presenteDia11
+                            ? `Presente em 11/Set${formatHora(inscrito.dataPresencaDia11) ? ` às ${formatHora(inscrito.dataPresencaDia11)}` : ''}. Clique para desmarcar`
+                            : 'Pendente em 11/Set. Clique para confirmar check-in'
+                        }
+                      >
+                        {updatingAction === `${inscrito.id}-11` ? (
+                          <div className="checkin-square-btn__loading">
+                            <span className="checkin-square-btn__spinner" />
+                            <span style={{ fontSize: '0.65rem', fontWeight: '700' }}>Salvando...</span>
+                          </div>
+                        ) : inscrito.presenteDia11 ? (
+                          <>
+                            <span className="checkin-square-btn__day">11/Set</span>
+                            <div className="checkin-square-btn__content-default">
+                              <IconCheck size={18} strokeWidth={2.8} />
+                              <span className="checkin-square-btn__status">Presente</span>
+                              {formatHora(inscrito.dataPresencaDia11) && (
+                                <span className="checkin-square-btn__time">{formatHora(inscrito.dataPresencaDia11)}</span>
+                              )}
+                            </div>
+                          </>
                         ) : (
-                          <span style={{
-                            display: 'inline-block',
-                            padding: '3px 8px',
-                            borderRadius: '12px',
-                            fontSize: '0.75rem',
-                            fontWeight: 'bold',
-                            background: '#6B7280',
-                            color: '#FFFFFF',
-                          }}>
-                            Pendente
-                          </span>
+                          <>
+                            <span className="checkin-square-btn__day">11/Set</span>
+                            <div className="checkin-square-btn__content-default">
+                              <IconClock size={16} />
+                              <span className="checkin-square-btn__status">Pendente</span>
+                            </div>
+                          </>
                         )}
-
-                        {podeConfirmarPresenca && (
-                          <button
-                            onClick={() => handleTogglePresenca(inscrito.id, 11, inscrito.presenteDia11)}
-                            disabled={updatingAction === `${inscrito.id}-11`}
-                            style={{
-                              padding: '3px 8px',
-                              borderRadius: '4px',
-                              fontSize: '0.75rem',
-                              fontWeight: 'bold',
-                              cursor: 'pointer',
-                              border: 'none',
-                              transition: 'all 0.2s ease',
-                              backgroundColor: inscrito.presenteDia11 ? '#DC2626' : '#059669',
-                              color: '#FFFFFF',
-                              opacity: updatingAction === `${inscrito.id}-11` ? 0.7 : 1,
-                            }}
-                          >
-                            {updatingAction === `${inscrito.id}-11`
-                              ? '...'
-                              : inscrito.presenteDia11
-                              ? 'Desmarcar'
-                              : 'Check-in 11/Set'}
-                          </button>
-                        )}
-                      </div>
+                      </button>
                     </td>
 
                     {/* Presença Dia 12 (Sábado) */}
-                    <td style={{ padding: '12px 6px', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                      <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-                        {inscrito.presenteDia12 ? (
-                          <span style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            padding: '3px 8px',
-                            borderRadius: '12px',
-                            fontSize: '0.75rem',
-                            fontWeight: 'bold',
-                            background: '#10B981',
-                            color: '#FFFFFF',
-                          }}>
-                            <IconCheck size={12} /> Presente {formatHora(inscrito.dataPresencaDia12)}
-                          </span>
+                    <td style={{ padding: 0, textAlign: 'center', whiteSpace: 'nowrap', verticalAlign: 'middle', height: '1px', width: '96px', minWidth: '96px', maxWidth: '96px' }}>
+                      <button
+                        type="button"
+                        onClick={() => podeConfirmarPresenca && handleTogglePresenca(inscrito.id, 12, inscrito.presenteDia12)}
+                        disabled={!podeConfirmarPresenca || updatingAction === `${inscrito.id}-12`}
+                        className={`checkin-square-btn checkin-square-btn--right ${inscrito.presenteDia12 ? 'checkin-square-btn--presente' : 'checkin-square-btn--pendente'}`}
+                        title={
+                          !podeConfirmarPresenca
+                            ? (inscrito.presenteDia12 ? 'Presença confirmada em 12/Set' : 'Presença pendente em 12/Set')
+                            : inscrito.presenteDia12
+                            ? `Presente em 12/Set${formatHora(inscrito.dataPresencaDia12) ? ` às ${formatHora(inscrito.dataPresencaDia12)}` : ''}. Clique para desmarcar`
+                            : 'Pendente em 12/Set. Clique para confirmar check-in'
+                        }
+                      >
+                        {updatingAction === `${inscrito.id}-12` ? (
+                          <div className="checkin-square-btn__loading">
+                            <span className="checkin-square-btn__spinner" />
+                            <span style={{ fontSize: '0.65rem', fontWeight: '700' }}>Salvando...</span>
+                          </div>
+                        ) : inscrito.presenteDia12 ? (
+                          <>
+                            <span className="checkin-square-btn__day">12/Set</span>
+                            <div className="checkin-square-btn__content-default">
+                              <IconCheck size={18} strokeWidth={2.8} />
+                              <span className="checkin-square-btn__status">Presente</span>
+                              {formatHora(inscrito.dataPresencaDia12) && (
+                                <span className="checkin-square-btn__time">{formatHora(inscrito.dataPresencaDia12)}</span>
+                              )}
+                            </div>
+                          </>
                         ) : (
-                          <span style={{
-                            display: 'inline-block',
-                            padding: '3px 8px',
-                            borderRadius: '12px',
-                            fontSize: '0.75rem',
-                            fontWeight: 'bold',
-                            background: '#6B7280',
-                            color: '#FFFFFF',
-                          }}>
-                            Pendente
-                          </span>
+                          <>
+                            <span className="checkin-square-btn__day">12/Set</span>
+                            <div className="checkin-square-btn__content-default">
+                              <IconClock size={16} />
+                              <span className="checkin-square-btn__status">Pendente</span>
+                            </div>
+                          </>
                         )}
-
-                        {podeConfirmarPresenca && (
-                          <button
-                            onClick={() => handleTogglePresenca(inscrito.id, 12, inscrito.presenteDia12)}
-                            disabled={updatingAction === `${inscrito.id}-12`}
-                            style={{
-                              padding: '3px 8px',
-                              borderRadius: '4px',
-                              fontSize: '0.75rem',
-                              fontWeight: 'bold',
-                              cursor: 'pointer',
-                              border: 'none',
-                              transition: 'all 0.2s ease',
-                              backgroundColor: inscrito.presenteDia12 ? '#DC2626' : '#059669',
-                              color: '#FFFFFF',
-                              opacity: updatingAction === `${inscrito.id}-12` ? 0.7 : 1,
-                            }}
-                          >
-                            {updatingAction === `${inscrito.id}-12`
-                              ? '...'
-                              : inscrito.presenteDia12
-                              ? 'Desmarcar'
-                              : 'Check-in 12/Set'}
-                          </button>
-                        )}
-                      </div>
+                      </button>
                     </td>
 
                     {/* Emissões & Ações: Crachá, Enviar Certificado e Baixar Certificado */}
