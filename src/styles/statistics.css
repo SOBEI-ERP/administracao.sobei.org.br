@@ -74,6 +74,26 @@
   border-radius: 3px 3px 0 0;
 }
 
+.statistics-tab__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-gray-200, #E2E8F0);
+  color: var(--color-gray-600, #475569);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+  line-height: 1;
+  transition: all var(--transition-fast, 0.15s ease);
+}
+
+.statistics-tab--active .statistics-tab__badge {
+  background-color: var(--color-primary, #1B1464);
+  color: #FFFFFF;
+}
+
+
 .statistics-page__title {
   font-family: var(--font-montserrat);
   font-size: var(--font-size-2xl);

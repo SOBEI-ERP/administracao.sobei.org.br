@@ -107,37 +107,51 @@ export default function MensagensPage() {
 
   return (
     <div className="vagas-admin">
-      {/* Header */}
-      <div className="vagas-admin__header" style={{ flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
-        <div>
-          <h1 className="vagas-admin__title" style={{ margin: 0 }}>Mensagens da Unidade</h1>
-        </div>
+      {/* Header com Título Padronizado */}
+      <h1 className="statistics-page__title" style={{ marginBottom: 'var(--spacing-lg)' }}>
+        Mensagens da Unidade
+      </h1>
+
+      {/* Tabs Padronizadas da Plataforma (igual à página de Denúncias e Estatísticas) */}
+      <div className="statistics-tabs">
+        <button
+          type="button"
+          className={`statistics-tab ${!apenasNaoLidas ? 'statistics-tab--active' : ''}`}
+          onClick={() => setApenasNaoLidas(false)}
+        >
+          Todas
+        </button>
+        <button
+          type="button"
+          className={`statistics-tab ${apenasNaoLidas ? 'statistics-tab--active' : ''}`}
+          onClick={() => setApenasNaoLidas(true)}
+        >
+          <span>Não Lidas</span>
+          {naoLidasCount > 0 && (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: apenasNaoLidas ? 'var(--color-primary)' : 'var(--color-gray-400)',
+                color: '#FFFFFF',
+                fontSize: '0.72rem',
+                fontWeight: '700',
+                padding: '2px 7px',
+                borderRadius: '12px',
+                lineHeight: 1,
+              }}
+            >
+              {naoLidasCount}
+            </span>
+          )}
+        </button>
       </div>
 
-      {/* Filtros */}
-      <div className="vagas-admin__filters" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button
-            className={`vagas-admin__filter-btn ${!apenasNaoLidas ? 'vagas-admin__filter-btn--active' : ''}`}
-            onClick={() => setApenasNaoLidas(false)}
-          >
-            Todas ({mensagens.length})
-          </button>
-          <button
-            className={`vagas-admin__filter-btn ${apenasNaoLidas ? 'vagas-admin__filter-btn--active' : ''}`}
-            onClick={() => setApenasNaoLidas(true)}
-          >
-            <span>Não Lidas</span>
-            {naoLidasCount > 0 && (
-              <span className="vagas-admin__filter-badge">
-                {naoLidasCount}
-              </span>
-            )}
-          </button>
-        </div>
-
-        {(user?.nivel?.toLowerCase() === 'suporte' || user?.nivel?.toLowerCase() === 'coordenadora_evento') && (
-          <div className="vagas-admin__unit-filter" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      {/* Filtro por Unidade (Suporte / Coordenadora Geral) */}
+      {(user?.nivel?.toLowerCase() === 'suporte' || user?.nivel?.toLowerCase() === 'coordenadora_evento') && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 'var(--spacing-lg)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--color-text-secondary)' }}>Filtrar por Unidade:</span>
             <CustomSelect
               value={unidadeFilter}
@@ -147,8 +161,8 @@ export default function MensagensPage() {
               style={{ minWidth: '220px' }}
             />
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Lista de Mensagens */}
       {loading ? (

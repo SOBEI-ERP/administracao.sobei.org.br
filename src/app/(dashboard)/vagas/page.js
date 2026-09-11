@@ -18,7 +18,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { UNIDADES } from '@/lib/mockData';
 import CustomSelect from '@/components/admin/CustomSelect';
-import { IconMapPin, IconBriefcase, IconFolder, IconClose, IconTrash, IconMail, IconPhone, IconEye, IconDownload, IconWarning } from '@/components/Icons';
+import { IconMapPin, IconBriefcase, IconFolder, IconClose, IconTrash, IconMail, IconPhone, IconEye, IconDownload, IconWarning, IconPlus, IconClock, IconUser } from '@/components/Icons';
 
 const STATUS_LABELS = {
   ativo: 'Ativo',
@@ -333,123 +333,109 @@ function VagasContent() {
     });
   };
 
+  const totalTalentosBanco = bancos.reduce((acc, b) => acc + (b.totalTalentos || 0), 0);
+
   return (
     <div className="vagas-admin">
-      {/* Header com Seletor de Abas Principais */}
-      <div className="vagas-admin__header" style={{ flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
+      {/* Header com Título Padronizado e Botão de Nova Vaga */}
+      <div className="vagas-admin__header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-lg)' }}>
         <div>
-          <h1 className="vagas-admin__title" style={{ margin: 0 }}>
+          <h1 className="statistics-page__title">
             {mainTab === 'vagas' ? 'Gestão de Vagas' : 'Banco de Talentos'}
           </h1>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
-          {/* Main Tab Toggle Buttons */}
-          <div style={{ 
-            display: 'inline-flex', 
-            background: 'var(--color-gray-100, #f1f5f9)', 
-            padding: '4px', 
-            borderRadius: '10px',
-            border: '1px solid var(--color-gray-200, #e2e8f0)' 
-          }}>
-            <button
-              type="button"
-              onClick={() => setMainTab('vagas')}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
-                border: 'none',
-                backgroundColor: mainTab === 'vagas' ? '#fff' : 'transparent',
-                color: mainTab === 'vagas' ? 'var(--color-primary, #1b1464)' : 'var(--color-gray-600, #64748b)',
-                fontWeight: mainTab === 'vagas' ? 'bold' : '500',
-                fontSize: '14px',
-                boxShadow: mainTab === 'vagas' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
-            >
-              <IconBriefcase size={14} /> Vagas
-            </button>
-            <button
-              type="button"
-              onClick={() => setMainTab('banco-talentos')}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
-                border: 'none',
-                backgroundColor: mainTab === 'banco-talentos' ? '#fff' : 'transparent',
-                color: mainTab === 'banco-talentos' ? 'var(--color-primary, #1b1464)' : 'var(--color-gray-600, #64748b)',
-                fontWeight: mainTab === 'banco-talentos' ? 'bold' : '500',
-                fontSize: '14px',
-                boxShadow: mainTab === 'banco-talentos' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
-            >
-              <IconFolder size={14} /> Banco de Talentos
-            </button>
-          </div>
-
-          {mainTab === 'vagas' && (user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
-            <button className="btn btn--secondary" onClick={handleOpenCreate}>
-              + Nova Vaga
-            </button>
-          )}
-        </div>
+        {(user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
+          <button 
+            type="button" 
+            className="btn btn--primary" 
+            onClick={handleOpenCreate}
+            style={{ 
+              minHeight: '40px', 
+              height: '40px', 
+              padding: '0 20px', 
+              gap: '8px', 
+              fontSize: '13px'
+            }}
+          >
+            <IconPlus size={16} /> Nova Vaga
+          </button>
+        )}
       </div>
+
+      {/* Tabs Padronizadas da Plataforma (igual a Denúncias, Estatísticas e Mensagens) */}
+      <div className="statistics-tabs">
+        <button
+          type="button"
+          className={`statistics-tab ${mainTab === 'vagas' && statusFilter === '' ? 'statistics-tab--active' : ''}`}
+          onClick={() => {
+            setMainTab('vagas');
+            setStatusFilter('');
+          }}
+        >
+          Todas
+        </button>
+        {Object.entries(STATUS_LABELS).map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            className={`statistics-tab ${mainTab === 'vagas' && statusFilter === key ? 'statistics-tab--active' : ''}`}
+            onClick={() => {
+              setMainTab('vagas');
+              setStatusFilter(key);
+            }}
+          >
+            {label}
+          </button>
+        ))}
+        <button
+          type="button"
+          className={`statistics-tab ${mainTab === 'banco-talentos' ? 'statistics-tab--active' : ''}`}
+          onClick={() => setMainTab('banco-talentos')}
+        >
+          <span>Banco de Talentos</span>
+          {totalTalentosBanco > 0 && (
+            <span className="statistics-tab__badge">
+              {totalTalentosBanco}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* Filtro por Unidade para Suporte (Alinhado à direita para ambas as abas) */}
+      {user?.nivel === 'suporte' && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 'var(--spacing-lg)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--color-text-secondary)' }}>Filtrar por Unidade:</span>
+            <CustomSelect
+              value={mainTab === 'vagas' ? unidadeFilter : unidadeFilterBanco}
+              onChange={mainTab === 'vagas' ? setUnidadeFilter : setUnidadeFilterBanco}
+              options={UNIDADES.map((u) => ({ value: u, label: u }))}
+              defaultOption="Todas as Unidades"
+              style={{ minWidth: '220px' }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* CONTEÚDO DA ABA 1: VAGAS */}
       {mainTab === 'vagas' && (
         <>
-          {/* Filtros de Vagas */}
-          <div className="vagas-admin__filters" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--spacing-md)' }}>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                className={`vagas-admin__filter-btn ${statusFilter === '' ? 'vagas-admin__filter-btn--active' : ''}`}
-                onClick={() => setStatusFilter('')}
-              >
-                Todas
-              </button>
-              {Object.entries(STATUS_LABELS).map(([key, label]) => (
-                <button
-                  key={key}
-                  className={`vagas-admin__filter-btn ${statusFilter === key ? 'vagas-admin__filter-btn--active' : ''}`}
-                  onClick={() => setStatusFilter(key)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            {user?.nivel === 'suporte' && (
-              <div className="vagas-admin__unit-filter" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--color-text-secondary)' }}>Filtrar por Unidade:</span>
-                <CustomSelect
-                  value={unidadeFilter}
-                  onChange={setUnidadeFilter}
-                  options={UNIDADES.map((u) => ({ value: u, label: u }))}
-                  defaultOption="Todas as Unidades"
-                  style={{ minWidth: '220px' }}
-                />
-              </div>
-            )}
-          </div>
-
           {/* Lista de Vagas */}
           {loadingVagas ? (
             <div className="vagas-admin__loading">Carregando vagas...</div>
           ) : vagas.length === 0 ? (
-            <div className="vagas-admin__empty">
-              <p>Nenhuma vaga encontrada.</p>
+            <div className="vagas-empty-state">
+              <div className="vagas-empty-state__icon-wrap">
+                <IconBriefcase size={36} />
+              </div>
+              <h3 className="vagas-empty-state__title">Nenhuma vaga encontrada</h3>
+              <p className="vagas-empty-state__description">
+                Não há vagas cadastradas com os filtros selecionados.
+              </p>
               {(user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
-                <button className="btn btn--secondary" onClick={handleOpenCreate}>
-                  Criar primeira vaga
+                <button type="button" className="btn btn--primary" onClick={handleOpenCreate} style={{ minHeight: '38px', height: '38px', padding: '0 18px', fontSize: '13px' }}>
+                  <IconPlus size={15} /> Criar primeira vaga
                 </button>
               )}
             </div>
@@ -468,7 +454,9 @@ function VagasContent() {
                     >
                       {STATUS_LABELS[vaga.status]}
                     </span>
-                    <span className="vaga-card__date">{formatDate(vaga.dataCriacao)}</span>
+                    <span className="vaga-card__date" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <IconClock size={12} /> {formatDate(vaga.dataCriacao)}
+                    </span>
                   </div>
                   <h3 className="vaga-card__title">{vaga.titulo}</h3>
                   <p className="vaga-card__dept">
@@ -492,56 +480,54 @@ function VagasContent() {
       {/* CONTEÚDO DA ABA 2: BANCO DE TALENTOS */}
       {mainTab === 'banco-talentos' && (
         <>
-          {/* Filtro de Unidade para Suporte no Banco de Talentos */}
-          {user?.nivel === 'suporte' && (
-            <div className="vagas-admin__filters" style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
-              <div className="vagas-admin__unit-filter" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--color-text-secondary)' }}>Filtrar por Unidade:</span>
-                <CustomSelect
-                  value={unidadeFilterBanco}
-                  onChange={setUnidadeFilterBanco}
-                  options={UNIDADES.map((u) => ({ value: u, label: u }))}
-                  defaultOption="Todas as Unidades"
-                  style={{ minWidth: '220px' }}
-                />
-              </div>
-            </div>
-          )}
-
           {/* Lista de Bancos por Vaga */}
           {loadingBancos ? (
             <div className="vagas-admin__loading">Carregando banco de talentos...</div>
           ) : bancos.length === 0 ? (
-            <div className="vagas-admin__empty">
-              <p>Nenhum banco de talentos encontrado.</p>
+            <div className="vagas-empty-state">
+              <div className="vagas-empty-state__icon-wrap">
+                <IconFolder size={36} />
+              </div>
+              <h3 className="vagas-empty-state__title">Nenhum currículo no Banco de Talentos</h3>
+              <p className="vagas-empty-state__description">
+                Candidaturas arquivadas de processos seletivos encerrados aparecerão aqui organizadas por cargo para futuras oportunidades.
+              </p>
             </div>
           ) : (
             <div className="vagas-admin__grid">
               {bancos.map((banco) => (
                 <div
                   key={banco.vagaId}
-                  className="vaga-card"
+                  className="banco-card"
                   onClick={() => handleOpenBancoDetail(banco)}
-                  style={{ borderLeft: '4px solid var(--color-primary, #1b1464)' }}
                 >
-                  <div className="vaga-card__header">
-                    <span
-                      className="vaga-card__status"
-                      style={{ backgroundColor: 'var(--color-primary, #1b1464)' }}
-                    >
-                      Banco de Talentos
-                    </span>
-                    <span className="vaga-card__date" title="Última movimentação">
-                      Ativo em: {formatDate(banco.ultimaMovimentacao)}
-                    </span>
+                  <div className="banco-card__header">
+                    <div className="banco-card__tag">
+                      <IconFolder size={13} />
+                      <span>Arquivo de Talentos</span>
+                    </div>
+                    <div className="banco-card__date">
+                      <IconClock size={13} />
+                      <span>Atualizado em {formatDate(banco.ultimaMovimentacao)}</span>
+                    </div>
                   </div>
-                  <h3 className="vaga-card__title">{banco.vagaTitulo}</h3>
-                  <p className="vaga-card__dept">
-                    <IconMapPin size={14} /> {banco.vagaUnidade}
-                  </p>
-                  <div className="vaga-card__footer" style={{ marginTop: 'auto' }}>
-                    <span className="vaga-card__candidaturas">
-                      {banco.totalTalentos || 0} candidato{(banco.totalTalentos || 0) !== 1 ? 's' : ''} arquivado(s)
+
+                  <h3 className="banco-card__title">{banco.vagaTitulo}</h3>
+
+                  <div className="banco-card__dept">
+                    <IconMapPin size={14} />
+                    <span>{banco.vagaUnidade}</span>
+                  </div>
+
+                  <div className="banco-card__footer">
+                    <div className="banco-card__count">
+                      <IconUser size={13} />
+                      <span>
+                        <strong>{banco.totalTalentos || 0}</strong> candidato{(banco.totalTalentos || 0) !== 1 ? 's' : ''} arquivado{(banco.totalTalentos || 0) !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                    <span className="banco-card__action">
+                      Ver currículos <span style={{ fontSize: '15px' }}>&rarr;</span>
                     </span>
                   </div>
                 </div>
@@ -1000,14 +986,46 @@ function VagasContent() {
       {showBancoDetailModal && selectedBanco && (
         <div className="vagas-modal__overlay" onClick={() => setShowBancoDetailModal(false)}>
           <div className="vagas-modal vagas-modal--detail" onClick={(e) => e.stopPropagation()}>
-            <div className="vagas-modal__header">
-              <h2>Banco de Talentos — {selectedBanco.vagaTitulo}</h2>
+            <div className="vagas-modal__header" style={{ alignItems: 'flex-start', paddingBottom: '16px' }}>
+              <div>
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  backgroundColor: '#EEF2FF',
+                  color: 'var(--color-primary, #1B1464)',
+                  padding: '4px 10px',
+                  borderRadius: '12px',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.04em',
+                  marginBottom: '8px'
+                }}>
+                  <IconFolder size={12} /> Banco de Talentos
+                </div>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--color-gray-900)', margin: 0, fontFamily: 'var(--font-montserrat)' }}>
+                  {selectedBanco.vagaTitulo}
+                </h2>
+                <p style={{ margin: '6px 0 0', fontSize: '13px', color: 'var(--color-gray-600)', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <IconMapPin size={13} /> {selectedBanco.vagaUnidade}
+                  </span>
+                  <span>&bull;</span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <IconClock size={13} /> Atualizado em {formatDate(selectedBanco.ultimaMovimentacao)}
+                  </span>
+                </p>
+              </div>
               <button className="vagas-modal__close" onClick={() => setShowBancoDetailModal(false)}><IconClose size={18} /></button>
             </div>
 
-            <div className="vagas-modal__tabs">
-              <button className="vagas-modal__tab vagas-modal__tab--active">
-                Candidatos Arquivados ({selectedBanco.totalTalentos || 0})
+            <div className="statistics-tabs" style={{ padding: '0 24px', margin: 0 }}>
+              <button type="button" className="statistics-tab statistics-tab--active">
+                <span>Candidatos Arquivados</span>
+                <span className="statistics-tab__badge">
+                  {talentos.length}
+                </span>
               </button>
             </div>
 
@@ -1015,23 +1033,43 @@ function VagasContent() {
               {loadingTalentos ? (
                 <div className="vagas-admin__loading">Carregando candidatos...</div>
               ) : talentos.length === 0 ? (
-                <div className="vagas-admin__empty">
-                  <p>Nenhuma candidatura arquivada encontrada.</p>
+                <div className="vagas-empty-state" style={{ margin: '24px', padding: '40px 20px', border: 'none', background: 'transparent' }}>
+                  <div className="vagas-empty-state__icon-wrap">
+                    <IconFolder size={32} />
+                  </div>
+                  <h3 className="vagas-empty-state__title" style={{ fontSize: '1rem' }}>Nenhuma candidatura arquivada encontrada</h3>
+                  <p className="vagas-empty-state__description" style={{ fontSize: '13px' }}>
+                    Não constam currículos arquivados para esta vaga até o momento.
+                  </p>
                 </div>
               ) : (
                 <div className="candidaturas-list">
                   {talentos.map((talento) => (
                     <div key={talento.id} className="candidatura-card">
                       <div className="candidatura-card__info">
-                        <h4 className="candidatura-card__name">{talento.nomeCompleto}</h4>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                          <h4 className="candidatura-card__name" style={{ margin: 0 }}>{talento.nomeCompleto}</h4>
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            fontSize: '11px',
+                            fontWeight: '700',
+                            padding: '2px 8px',
+                            borderRadius: '10px',
+                            backgroundColor: '#FEF3C7',
+                            color: '#92400E'
+                          }}>
+                            Arquivado
+                          </span>
+                        </div>
                         <p className="candidatura-card__detail">
                           <IconMail size={13} /> {talento.email} &nbsp;|&nbsp; <IconPhone size={13} /> {talento.telefone}
                         </p>
-                        <p className="candidatura-card__date">
-                          Enviado originalmente em {formatDate(talento.dataEnvioOriginal)} &nbsp;|&nbsp; Arquivado em {formatDate(talento.dataMovimentacao)}
+                        <p className="candidatura-card__date" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          <IconClock size={12} /> Enviado em {formatDate(talento.dataEnvioOriginal)} &bull; Arquivado em {formatDate(talento.dataMovimentacao)}
                         </p>
                         {talento.cartaApresentacao && (
-                          <div className="candidatura-card__carta">
+                          <div className="candidatura-card__carta" style={{ borderLeft: '3px solid var(--color-primary, #1B1464)', borderRadius: '4px', padding: '10px 14px' }}>
                             <strong>Carta de apresentação:</strong>
                             <p>{talento.cartaApresentacao}</p>
                           </div>
