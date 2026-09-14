@@ -223,28 +223,9 @@ export default function MobileHeader() {
             </>
           )}
 
-          {/* Chamados e Usuários: Apenas SUPORTE */}
+          {/* Usuários: Apenas SUPORTE */}
           {nivel === 'SUPORTE' && (
             <>
-              <div className="mobile-header__divider" />
-              <Link
-                href="/chamados"
-                className={`mobile-header__link ${
-                  pathname === '/chamados' ? 'mobile-header__link--active' : ''
-                }`}
-                onClick={() => setMenuOpen(false)}
-              >
-                <div className="mobile-header__link-content">
-                  <Image
-                    src="/images/warning-triangle.svg"
-                    alt=""
-                    width={20}
-                    height={20}
-                    className="mobile-header__icon"
-                  />
-                  <span>Chamados</span>
-                </div>
-              </Link>
 
               <div className="mobile-header__divider" />
               <Link

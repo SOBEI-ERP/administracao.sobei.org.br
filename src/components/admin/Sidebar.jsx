@@ -151,26 +151,9 @@ export default function Sidebar() {
           </>
         )}
 
-        {/* Chamados e Gerenciamento de Usuários: Apenas SUPORTE */}
+        {/* Gerenciamento de Usuários: Apenas SUPORTE */}
         {user?.nivel?.toUpperCase() === 'SUPORTE' && (
           <>
-            <div className="sidebar__divider" />
-            {/* Chamados */}
-            <Link
-              href="/chamados"
-              className={`sidebar__link ${
-                pathname === '/chamados' ? 'sidebar__link--active' : ''
-              }`}
-            >
-              <Image 
-                src="/images/warning-triangle.svg" 
-                alt="" 
-                width={20} 
-                height={20} 
-                className="sidebar__icon" 
-              />
-              <span className="sidebar__text">Chamados</span>
-            </Link>
 
             <div className="sidebar__divider" />
             {/* Usuários */}
