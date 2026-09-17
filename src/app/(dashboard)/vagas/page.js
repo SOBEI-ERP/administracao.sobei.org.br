@@ -81,15 +81,23 @@ const getAvailableTitles = (unidade, currentTitle) => {
     ];
   }
 
-  if (currentTitle && !titles.includes(currentTitle)) {
-    titles.push(currentTitle);
+  const cleanTitle = currentTitle ? currentTitle.replace(/\s*\(PCD\)\s*/i, '').trim() : '';
+  if (cleanTitle && !titles.includes(cleanTitle)) {
+    titles.push(cleanTitle);
   }
 
   return titles;
 };
 
+const getFinalTitulo = (baseTitulo, isPcd) => {
+  if (!baseTitulo) return '';
+  const clean = baseTitulo.replace(/\s*\(PCD\)\s*/i, '').trim();
+  return isPcd ? `${clean} (PCD)` : clean;
+};
+
 const INITIAL_FORM = {
   titulo: '',
+  isPcd: false,
   departamento: 'Geral',
   descricao: '',
   requisitos: '',
@@ -200,6 +208,7 @@ function VagasContent() {
     setFormData({
       ...INITIAL_FORM,
       unidade: nivel === 'diretora' ? (user?.unidade || '') : '',
+      isPcd: false,
     });
     setFormError('');
     setShowFormModal(true);
@@ -207,8 +216,11 @@ function VagasContent() {
 
   const handleOpenEdit = (vaga) => {
     setEditingVaga(vaga);
+    const isPcd = vaga.titulo ? vaga.titulo.includes('(PCD)') : false;
+    const baseTitulo = vaga.titulo ? vaga.titulo.replace(/\s*\(PCD\)\s*/i, '').trim() : '';
     setFormData({
-      titulo: vaga.titulo,
+      titulo: baseTitulo,
+      isPcd: isPcd,
       departamento: vaga.departamento,
       descricao: vaga.descricao,
       requisitos: vaga.requisitos,
@@ -246,15 +258,23 @@ function VagasContent() {
       return;
     }
 
+    const finalTitulo = getFinalTitulo(formData.titulo, formData.isPcd);
+
     setSubmitting(true);
     let result;
+    const payload = {
+      ...formData,
+      titulo: finalTitulo,
+    };
+    delete payload.isPcd;
+
     if (editingVaga) {
       result = await atualizarVaga(editingVaga.id, {
-        ...formData,
+        ...payload,
         status: formData.status || editingVaga.status,
       });
     } else {
-      result = await criarVaga(formData);
+      result = await criarVaga(payload);
     }
 
     if (result.success) {
@@ -462,7 +482,25 @@ function VagasContent() {
                       <IconClock size={12} /> {formatDate(vaga.dataCriacao)}
                     </span>
                   </div>
-                  <h3 className="vaga-card__title">{vaga.titulo}</h3>
+                  <h3 className="vaga-card__title">
+                    {vaga.titulo}
+                    {vaga.titulo?.includes('(PCD)') && (
+                      <span style={{
+                        marginLeft: '8px',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        padding: '2px 7px',
+                        borderRadius: '4px',
+                        background: 'rgba(46, 49, 146, 0.1)',
+                        color: 'var(--color-primary, #1b1464)',
+                        border: '1px solid rgba(46, 49, 146, 0.2)',
+                        verticalAlign: 'middle',
+                        display: 'inline-block'
+                      }}>
+                        PCD
+                      </span>
+                    )}
+                  </h3>
                   <p className="vaga-card__dept">
                     <IconMapPin size={14} /> {vaga.unidade}
                   </p>
@@ -577,6 +615,43 @@ function VagasContent() {
                   />
                 </div>
 
+                <div className="vagas-form__group" style={{ marginBottom: '14px' }}>
+                  <label className="vagas-pcd-checkbox-label" style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    background: formData.isPcd ? 'rgba(46, 49, 146, 0.08)' : 'var(--color-gray-50, #f8fafc)',
+                    border: formData.isPcd ? '1.5px solid var(--color-primary, #1b1464)' : '1px solid var(--color-gray-200, #e2e8f0)',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                    transition: 'all 0.2s ease',
+                    marginTop: '4px'
+                  }}>
+                    <input
+                      type="checkbox"
+                      id="vaga-is-pcd"
+                      checked={formData.isPcd}
+                      onChange={(e) => setFormData({ ...formData, isPcd: e.target.checked })}
+                      style={{
+                        width: '18px',
+                        height: '18px',
+                        accentColor: 'var(--color-primary, #1b1464)',
+                        cursor: 'pointer'
+                      }}
+                    />
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontSize: '13px', fontWeight: '600', color: formData.isPcd ? 'var(--color-primary, #1b1464)' : 'var(--color-gray-800, #1e293b)' }}>
+                        Vaga afirmativa para PCD (Pessoa com Deficiência)
+                      </span>
+                      <span style={{ fontSize: '11px', color: 'var(--color-gray-500, #64748b)' }}>
+                        O título da vaga será salvo como <strong>"{formData.titulo ? `${formData.titulo.replace(/\s*\(PCD\)\s*/i, '').trim()} (PCD)` : 'Cargo (PCD)'}"</strong>
+                      </span>
+                    </div>
+                  </label>
+                </div>
+
                 <div className="vagas-form__row">
                   <div className="vagas-form__group">
                     <label>Modalidade *</label>
@@ -669,8 +744,21 @@ function VagasContent() {
                     color: '#fff',
                     marginBottom: '16px'
                   }}>
-                    <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: '4px 0 8px', color: '#fff' }}>
-                      {formData.titulo || 'Título da Vaga'}
+                    <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: '4px 0 8px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      {getFinalTitulo(formData.titulo, formData.isPcd) || 'Título da Vaga'}
+                      {formData.isPcd && (
+                        <span style={{
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          padding: '2px 7px',
+                          borderRadius: '4px',
+                          background: 'rgba(255, 255, 255, 0.2)',
+                          color: '#fff',
+                          border: '1px solid rgba(255, 255, 255, 0.4)'
+                        }}>
+                          PCD
+                        </span>
+                      )}
                     </h2>
                     <div style={{ display: 'flex', gap: '12px', fontSize: '11px', color: 'rgba(255,255,255,0.9)' }}>
                       <span><IconMapPin size={11} /> {formData.unidade || user?.unidade || 'Unidade'}</span>
@@ -738,7 +826,22 @@ function VagasContent() {
         <div className="vagas-modal__overlay" onClick={() => setShowDetailModal(false)}>
           <div className="vagas-modal vagas-modal--detail" onClick={(e) => e.stopPropagation()}>
             <div className="vagas-modal__header">
-              <h2>{selectedVaga.titulo}</h2>
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                {selectedVaga.titulo}
+                {selectedVaga.titulo?.includes('(PCD)') && (
+                  <span style={{
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    padding: '2px 8px',
+                    borderRadius: '4px',
+                    background: 'rgba(46, 49, 146, 0.1)',
+                    color: 'var(--color-primary, #1b1464)',
+                    border: '1px solid rgba(46, 49, 146, 0.2)',
+                  }}>
+                    PCD
+                  </span>
+                )}
+              </h2>
               <button className="vagas-modal__close" onClick={() => setShowDetailModal(false)}><IconClose size={18} /></button>
             </div>
 
