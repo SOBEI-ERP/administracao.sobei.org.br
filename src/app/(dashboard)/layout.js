@@ -22,6 +22,8 @@ export default function DashboardLayout({ children }) {
         router.push('/inscritos-congresso');
       } else if (nivel === 'CREDENCIADOR' && !['/inscritos-congresso'].includes(pathname)) {
         router.push('/inscritos-congresso');
+      } else if (nivel === 'DP' && pathname === '/inscritos-congresso') {
+        router.push('/vagas');
       }
     }
   }, [isAuthenticated, loading, router, user, pathname]);

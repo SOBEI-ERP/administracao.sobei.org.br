@@ -104,6 +104,10 @@ function VagasContent() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
 
+  const nivel = user?.nivel?.toLowerCase();
+  const canManageVagas = nivel === 'diretora' || nivel === 'suporte' || nivel === 'dp';
+  const isCentralAdmin = nivel === 'suporte' || nivel === 'dp';
+
   // Tab State: 'vagas' | 'banco-talentos'
   const initialTab = searchParams.get('tab') === 'banco-talentos' ? 'banco-talentos' : 'vagas';
   const [mainTab, setMainTab] = useState(initialTab);
@@ -195,7 +199,7 @@ function VagasContent() {
     setEditingVaga(null);
     setFormData({
       ...INITIAL_FORM,
-      unidade: user?.nivel === 'diretora' ? (user?.unidade || '') : '',
+      unidade: nivel === 'diretora' ? (user?.unidade || '') : '',
     });
     setFormError('');
     setShowFormModal(true);
@@ -233,7 +237,7 @@ function VagasContent() {
     e.preventDefault();
     setFormError('');
 
-    if (user?.nivel === 'suporte' && !formData.unidade) {
+    if (isCentralAdmin && !formData.unidade) {
       setFormError('A unidade é obrigatória');
       return;
     }
@@ -345,7 +349,7 @@ function VagasContent() {
           </h1>
         </div>
 
-        {(user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
+        {canManageVagas && (
           <button 
             type="button" 
             className="btn btn--primary" 
@@ -402,8 +406,8 @@ function VagasContent() {
         </button>
       </div>
 
-      {/* Filtro por Unidade para Suporte (Alinhado à direita para ambas as abas) */}
-      {user?.nivel === 'suporte' && (
+      {/* Filtro por Unidade para Suporte e DP (Alinhado à direita para ambas as abas) */}
+      {isCentralAdmin && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: 'var(--spacing-lg)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--color-text-secondary)' }}>Filtrar por Unidade:</span>
@@ -433,7 +437,7 @@ function VagasContent() {
               <p className="vagas-empty-state__description">
                 Não há vagas cadastradas com os filtros selecionados.
               </p>
-              {(user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
+              {canManageVagas && (
                 <button type="button" className="btn btn--primary" onClick={handleOpenCreate} style={{ minHeight: '38px', height: '38px', padding: '0 18px', fontSize: '13px' }}>
                   <IconPlus size={15} /> Criar primeira vaga
                 </button>
@@ -549,7 +553,7 @@ function VagasContent() {
             <div className="vagas-modal__split-container">
               {/* Form Col */}
               <form onSubmit={handleSubmitForm} className="vagas-modal__form-col">
-                {user?.nivel === 'suporte' && (
+                {isCentralAdmin && (
                   <div className="vagas-form__group">
                     <label>Unidade *</label>
                     <CustomSelect
@@ -810,7 +814,7 @@ function VagasContent() {
                   </div>
                 )}
 
-                {(user?.nivel === 'diretora' || user?.nivel === 'suporte') && (
+                {canManageVagas && (
                   <div className="vagas-detail__actions" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                     <button className="btn btn--secondary btn--sm" onClick={() => handleOpenEdit(selectedVaga)}>
                       Editar Vaga

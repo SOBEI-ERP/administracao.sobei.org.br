@@ -148,8 +148,8 @@ export default function MobileHeader() {
             </>
           )}
 
-          {/* Vagas: DIRETORA e SUPORTE */}
-          {(nivel === 'DIRETORA' || nivel === 'SUPORTE') && (
+          {/* Vagas: DIRETORA, SUPORTE e DP */}
+          {(nivel === 'DIRETORA' || nivel === 'SUPORTE' || nivel === 'DP') && (
             <>
               <div className="mobile-header__divider" />
               <Link
@@ -198,8 +198,8 @@ export default function MobileHeader() {
             </>
           )}
 
-          {/* Congresso (Inscritos): CREDENCIADOR, COORDENADORA, COORDENADORA_EVENTO, SUPORTE, DP e DIRETORA */}
-          {(nivel === 'CREDENCIADOR' || nivel === 'COORDENADORA' || nivel === 'COORDENADORA_EVENTO' || nivel === 'SUPORTE' || nivel === 'DP' || nivel === 'DIRETORA') && (
+          {/* Congresso (Inscritos): CREDENCIADOR, COORDENADORA, COORDENADORA_EVENTO, SUPORTE e DIRETORA */}
+          {(nivel === 'CREDENCIADOR' || nivel === 'COORDENADORA' || nivel === 'COORDENADORA_EVENTO' || nivel === 'SUPORTE' || nivel === 'DIRETORA') && (
             <>
               <div className="mobile-header__divider" />
               <Link

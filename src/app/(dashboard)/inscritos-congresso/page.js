@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   fetchInscritosCongresso,
@@ -19,6 +20,7 @@ import OficinasModal from '@/components/admin/OficinasModal';
 import { IconCheck, IconClose, IconSearch, IconUser, IconMapPin, IconClock } from '@/components/Icons';
 
 export default function InscritosCongressoPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const [inscritos, setInscritos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +44,13 @@ export default function InscritosCongressoPage() {
   const isCoordenadora = nivel === 'COORDENADORA';
   const isSuporte = nivel === 'SUPORTE';
   const isCredenciador = nivel === 'CREDENCIADOR';
-  const podeConfirmarPresenca = nivel === 'CREDENCIADOR' || nivel === 'COORDENADORA_EVENTO' || nivel === 'SUPORTE' || nivel === 'DP' || nivel === 'DIRETORA';
+  const podeConfirmarPresenca = nivel === 'CREDENCIADOR' || nivel === 'COORDENADORA_EVENTO' || nivel === 'SUPORTE' || nivel === 'DIRETORA';
+
+  useEffect(() => {
+    if (nivel === 'DP') {
+      router.push('/vagas');
+    }
+  }, [nivel, router]);
 
   const loadInscritos = useCallback(async () => {
     setLoading(true);
@@ -57,10 +65,16 @@ export default function InscritosCongressoPage() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      loadInscritos();
+      if (nivel !== 'DP') {
+        loadInscritos();
+      }
     }, 250);
     return () => clearTimeout(timer);
-  }, [loadInscritos]);
+  }, [loadInscritos, nivel]);
+
+  if (nivel === 'DP') {
+    return null;
+  }
 
   const handleTogglePresenca = async (id, dia, statusAtual) => {
     if (!podeConfirmarPresenca) return;
