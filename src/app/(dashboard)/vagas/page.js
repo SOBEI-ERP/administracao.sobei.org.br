@@ -482,25 +482,7 @@ function VagasContent() {
                       <IconClock size={12} /> {formatDate(vaga.dataCriacao)}
                     </span>
                   </div>
-                  <h3 className="vaga-card__title">
-                    {vaga.titulo}
-                    {vaga.titulo?.includes('(PCD)') && (
-                      <span style={{
-                        marginLeft: '8px',
-                        fontSize: '11px',
-                        fontWeight: '700',
-                        padding: '2px 7px',
-                        borderRadius: '4px',
-                        background: 'rgba(46, 49, 146, 0.1)',
-                        color: 'var(--color-primary, #1b1464)',
-                        border: '1px solid rgba(46, 49, 146, 0.2)',
-                        verticalAlign: 'middle',
-                        display: 'inline-block'
-                      }}>
-                        PCD
-                      </span>
-                    )}
-                  </h3>
+                  <h3 className="vaga-card__title">{vaga.titulo}</h3>
                   <p className="vaga-card__dept">
                     <IconMapPin size={14} /> {vaga.unidade}
                   </p>
@@ -744,21 +726,8 @@ function VagasContent() {
                     color: '#fff',
                     marginBottom: '16px'
                   }}>
-                    <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: '4px 0 8px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: '4px 0 8px', color: '#fff' }}>
                       {getFinalTitulo(formData.titulo, formData.isPcd) || 'Título da Vaga'}
-                      {formData.isPcd && (
-                        <span style={{
-                          fontSize: '11px',
-                          fontWeight: '700',
-                          padding: '2px 7px',
-                          borderRadius: '4px',
-                          background: 'rgba(255, 255, 255, 0.2)',
-                          color: '#fff',
-                          border: '1px solid rgba(255, 255, 255, 0.4)'
-                        }}>
-                          PCD
-                        </span>
-                      )}
                     </h2>
                     <div style={{ display: 'flex', gap: '12px', fontSize: '11px', color: 'rgba(255,255,255,0.9)' }}>
                       <span><IconMapPin size={11} /> {formData.unidade || user?.unidade || 'Unidade'}</span>
@@ -820,22 +789,7 @@ function VagasContent() {
         <div className="vagas-modal__overlay" onClick={() => setShowDetailModal(false)}>
           <div className="vagas-modal vagas-modal--detail" onClick={(e) => e.stopPropagation()}>
             <div className="vagas-modal__header">
-              <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                {selectedVaga.titulo}
-                {selectedVaga.titulo?.includes('(PCD)') && (
-                  <span style={{
-                    fontSize: '12px',
-                    fontWeight: '700',
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    background: 'rgba(46, 49, 146, 0.1)',
-                    color: 'var(--color-primary, #1b1464)',
-                    border: '1px solid rgba(46, 49, 146, 0.2)',
-                  }}>
-                    PCD
-                  </span>
-                )}
-              </h2>
+              <h2>{selectedVaga.titulo}</h2>
               <button className="vagas-modal__close" onClick={() => setShowDetailModal(false)}><IconClose size={18} /></button>
             </div>
 
