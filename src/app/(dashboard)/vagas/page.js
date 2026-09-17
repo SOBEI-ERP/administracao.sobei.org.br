@@ -643,7 +643,7 @@ function VagasContent() {
                     />
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <span style={{ fontSize: '13px', fontWeight: '600', color: formData.isPcd ? 'var(--color-primary, #1b1464)' : 'var(--color-gray-800, #1e293b)' }}>
-                        Vaga afirmativa para PCD (Pessoa com Deficiência)
+                        Vaga exclusiva para PCD (Pessoa com Deficiência)
                       </span>
                       <span style={{ fontSize: '11px', color: 'var(--color-gray-500, #64748b)' }}>
                         O título da vaga será salvo como <strong>"{formData.titulo ? `${formData.titulo.replace(/\s*\(PCD\)\s*/i, '').trim()} (PCD)` : 'Cargo (PCD)'}"</strong>
