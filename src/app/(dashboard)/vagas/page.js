@@ -778,22 +778,16 @@ function VagasContent() {
                       <h4 style={{ fontSize: '12px', fontWeight: 'bold', borderBottom: '1.5px solid #1b1464', paddingBottom: '4px', marginBottom: '8px', color: '#1b1464' }}>
                         Requisitos e Qualificações
                       </h4>
-                      <ul style={{ paddingLeft: '14px', margin: 0, fontSize: '11px', color: 'var(--color-gray-700)', lineHeight: '1.5' }}>
-                        {(formData.requisitos || '').split('\n').filter(r => r.trim()).length > 0 ? (
-                          (formData.requisitos || '').split('\n').filter(r => r.trim()).map((req, i) => (
-                            <li key={i}>{req}</li>
-                          ))
-                        ) : (
-                          <li style={{ listStyleType: 'none', color: '#999' }}>Requisitos...</li>
-                        )}
-                      </ul>
+                      <p style={{ fontSize: '11px', lineHeight: '1.5', whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: 'var(--color-gray-700)', marginBottom: '12px' }}>
+                        {formData.requisitos || 'Requisitos...'}
+                      </p>
 
                       {formData.beneficios && (
                         <>
                           <h4 style={{ fontSize: '12px', fontWeight: 'bold', borderBottom: '1.5px solid #1b1464', paddingBottom: '4px', marginBottom: '8px', color: '#1b1464', marginTop: '12px' }}>
                             Benefícios
                           </h4>
-                          <p style={{ fontSize: '11px', lineHeight: '1.5', color: 'var(--color-gray-700)' }}>
+                          <p style={{ fontSize: '11px', lineHeight: '1.5', whiteSpace: 'pre-wrap', wordBreak: 'break-word', color: 'var(--color-gray-700)' }}>
                             {formData.beneficios}
                           </p>
                         </>
@@ -902,18 +896,18 @@ function VagasContent() {
 
                 <div className="vagas-detail__section">
                   <h3>Descrição</h3>
-                  <p style={{ whiteSpace: 'pre-wrap' }}>{selectedVaga.descricao}</p>
+                  <p style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{selectedVaga.descricao}</p>
                 </div>
 
                 <div className="vagas-detail__section">
                   <h3>Requisitos</h3>
-                  <p style={{ whiteSpace: 'pre-wrap' }}>{selectedVaga.requisitos}</p>
+                  <p style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{selectedVaga.requisitos}</p>
                 </div>
 
                 {selectedVaga.beneficios && (
                   <div className="vagas-detail__section">
                     <h3>Benefícios</h3>
-                    <p>{selectedVaga.beneficios}</p>
+                    <p style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{selectedVaga.beneficios}</p>
                   </div>
                 )}
 
@@ -1009,7 +1003,7 @@ function VagasContent() {
                           {cand.cartaApresentacao && (
                             <div className="candidatura-card__carta">
                               <strong>Carta de apresentação:</strong>
-                              <p>{cand.cartaApresentacao}</p>
+                              <p style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{cand.cartaApresentacao}</p>
                             </div>
                           )}
                         </div>
@@ -1178,7 +1172,7 @@ function VagasContent() {
                         {talento.cartaApresentacao && (
                           <div className="candidatura-card__carta" style={{ borderLeft: '3px solid var(--color-primary, #1B1464)', borderRadius: '4px', padding: '10px 14px' }}>
                             <strong>Carta de apresentação:</strong>
-                            <p>{talento.cartaApresentacao}</p>
+                            <p style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{talento.cartaApresentacao}</p>
                           </div>
                         )}
                       </div>

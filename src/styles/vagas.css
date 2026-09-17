@@ -657,6 +657,8 @@
   color: var(--color-gray-700);
   line-height: var(--line-height-relaxed);
   margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .vagas-detail__actions {
@@ -752,6 +754,8 @@
   color: var(--color-gray-600);
   margin: var(--spacing-xs) 0 0;
   line-height: var(--line-height-relaxed);
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .candidatura-card__actions {
