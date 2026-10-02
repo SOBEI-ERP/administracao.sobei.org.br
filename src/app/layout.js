@@ -1,15 +1,22 @@
 import './globals.css';
-import '../styles/components.css';
-import '../styles/landing.css';
-import '../styles/forms.css';
-import '../styles/sidebar.css';
-import '../styles/admin.css';
-import '../styles/cards.css';
-import '../styles/modal.css';
-import '../styles/consulta-modal.css';
-import '../styles/statistics.css';
+import { Inter, Montserrat } from 'next/font/google';
 import QueryProvider from '@/components/QueryProvider';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  display: 'swap',
+  variable: '--font-montserrat',
+});
 
 export const metadata = {
   title: 'SOBEI - Portal de Denúncias',
@@ -19,11 +26,12 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pt-BR">
-      <body>
+    <html lang="pt-BR" className={`${inter.variable} ${montserrat.variable}`} suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <QueryProvider>
           <AuthProvider>{children}</AuthProvider>
         </QueryProvider>
+        <SpeedInsights />
       </body>
     </html>
   );

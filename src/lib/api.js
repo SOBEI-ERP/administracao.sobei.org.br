@@ -1,137 +1,1093 @@
 // ============================================
-// SOBEI Portal — Mock API Functions
+// SOBEI Portal — API Integration
 // ============================================
 
-import { MOCK_DENUNCIAS, MOCK_STATS_POR_UNIDADE, MOCK_STATS_DISTRIBUICAO } from './mockData';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/api';
 
-// Simula delay de rede
-const delay = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms));
+function unwrapPayload(payload) {
+  if (!payload || typeof payload !== 'object') return payload;
+  return payload.denuncia || payload.data || payload;
+}
 
-// Gera protocolo aleatório
-function gerarProtocolo() {
-  const letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const l1 = letras[Math.floor(Math.random() * 26)];
-  const l2 = letras[Math.floor(Math.random() * 26)];
-  const l3 = letras[Math.floor(Math.random() * 26)];
-  const n1 = String(Math.floor(Math.random() * 900) + 100);
-  const n2 = String(Math.floor(Math.random() * 900) + 100);
-  return `${l1}${l2}${l3}-${n1}-${n2}`;
+function normalizeMedidas(value, asText = false) {
+  if (!value) return asText ? null : [];
+
+  const medidas = Array.isArray(value) ? value : [value];
+  const normalized = medidas
+    .map((medida, index) => {
+      if (typeof medida === 'string') {
+        return { id: `medida-${index}`, descricao: medida, dataRegistro: null };
+      }
+
+      if (!medida || typeof medida !== 'object') return null;
+
+      return {
+        id: medida.id ?? `medida-${index}`,
+        descricao: medida.descricao || '',
+        dataRegistro: medida.dataRegistro || null,
+        autor: medida.autor || null,
+      };
+    })
+    .filter(Boolean);
+
+  if (asText) {
+    const text = normalized
+      .map((medida) => medida.descricao)
+      .filter(Boolean)
+      .join('\n');
+    return text || null;
+  }
+
+  return normalized;
+}
+
+function normalizeDenuncia(raw) {
+  const denuncia = unwrapPayload(raw);
+  if (!denuncia || typeof denuncia !== 'object') return denuncia;
+
+  return {
+    ...denuncia,
+    id: denuncia.id,
+    protocolo: denuncia.protocolo,
+    status: denuncia.status || denuncia.estado,
+    tipo: denuncia.tipo,
+    unidade: denuncia.unidade,
+    dataEnvio: denuncia.dataEnvio || denuncia.dataAbertura,
+    dataAbertura: denuncia.dataAbertura,
+    ultimaAlteracao: denuncia.ultimaAlteracao,
+    dataFechamento: denuncia.dataFechamento,
+    dataArquivamento: denuncia.dataArquivamento,
+    descricao: denuncia.descricao || '',
+    envolvidos: denuncia.envolvidos || '',
+    testemunhas: denuncia.testemunhas || '',
+    nomeDenunciante: denuncia.nomeDenunciante || '',
+    emailDenunciante: denuncia.emailDenunciante || '',
+    telefoneDenunciante: denuncia.telefoneDenunciante || '',
+    medidasAdotadas: normalizeMedidas(denuncia.medidasAdotadas),
+    relatorioConclusao: denuncia.relatorioConclusao || '',
+    tipoConclusao: denuncia.tipoConclusao || null,
+    prioridade: (denuncia.prioridade || 'NEUTRA').toUpperCase(),
+  };
+}
+
+const PRIORIDADE_WEIGHT = {
+  ALTA: 4,
+  MEDIA: 3,
+  BAIXA: 2,
+  NEUTRA: 1,
+};
+
+function normalizeDenunciasList(raw, ordem = 'antigos') {
+  const list = Array.isArray(raw)
+    ? raw
+    : raw?.content || raw?.items || raw?.denuncias || raw?.data || [];
+
+  const normalized = Array.isArray(list) ? list.map(normalizeDenuncia) : [];
+
+  // Ordenação prioritária automática: maior prioridade sempre no topo
+  return normalized.sort((a, b) => {
+    const wA = PRIORIDADE_WEIGHT[a.prioridade] || 1;
+    const wB = PRIORIDADE_WEIGHT[b.prioridade] || 1;
+    if (wA !== wB) {
+      return wB - wA; // maior prioridade primeiro
+    }
+    const dateA = new Date(a.dataAbertura || a.dataEnvio || 0).getTime();
+    const dateB = new Date(b.dataAbertura || b.dataEnvio || 0).getTime();
+    return ordem === 'antigos' ? dateA - dateB : dateB - dateA;
+  });
+}
+
+function getAuthHeaders() {
+  const headers = {
+    'Content-Type': 'application/json'
+  };
+
+  if (typeof window !== 'undefined') {
+    const token = sessionStorage.getItem('sobei_token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+
+  return headers;
 }
 
 // ---- API Pública ----
 
-export async function enviarDenuncia(data) {
-  await delay(800);
-  const protocolo = gerarProtocolo();
-  return { protocolo, success: true };
+export async function enviarDenuncia(rawData) {
+  try {
+    const data = { ...rawData };
+
+    if (data.tipo === 'anonima') {
+      delete data.nomeCompleto;
+      delete data.email;
+      delete data.telefone;
+    } else {
+      if (!data.nomeCompleto || typeof data.nomeCompleto !== 'string' || !data.nomeCompleto.trim()) {
+        data.nomeCompleto = null;
+      }
+      if (!data.email || typeof data.email !== 'string' || !data.email.trim()) {
+        data.email = null;
+      }
+      if (!data.telefone || typeof data.telefone !== 'string' || !data.telefone.trim()) {
+        data.telefone = null;
+      }
+    }
+
+    if (!data.envolvidos || typeof data.envolvidos !== 'string' || !data.envolvidos.trim()) {
+      data.envolvidos = null;
+    }
+    if (!data.testemunhas || typeof data.testemunhas !== 'string' || !data.testemunhas.trim()) {
+      data.testemunhas = null;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/public/denuncias`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      return { success: false, message: err.message || 'Erro ao enviar denúncia' };
+    }
+
+    const result = await response.json();
+    return { protocolo: result.protocolo, success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão com o servidor' };
+  }
 }
 
 export async function consultarProtocolo(protocolo) {
-  await delay(600);
-  const denuncia = MOCK_DENUNCIAS.find(
-    (d) => d.protocolo.toLowerCase() === protocolo.toLowerCase()
-  );
-
-  if (!denuncia) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/public/denuncias/protocolo/${protocolo}`, {
+      cache: 'no-store'
+    });
+    if (!response.ok) {
+      return { found: false, protocolo, status: null, timeline: [] };
+    }
+    
+    const result = unwrapPayload(await response.json());
+    const estado = result.estado ?? result.status;
+    // A API já envia estado e ultimaAlteracao, simularemos a timeline visual com base no estado retornado
+    const timeline = buildTimeline(estado ? estado.toUpperCase() : '');
+    
+    return {
+      found: true,
+      protocolo: result.protocolo,
+      status: estado ? estado.toLowerCase() : null,
+      timeline: timeline,
+      dataEnvio: result.dataEnvio ?? result.dataAbertura ?? result.criadoEm,
+      unidade: result.unidade,
+      tipo: result.tipo,
+      descricao: result.descricao ?? result.relato ?? '',
+      envolvidos: result.envolvidos ?? result.pessoasEnvolvidas ?? '',
+      testemunhas: result.testemunhas ?? '',
+      relatorioConclusao: result.relatorioConclusao ?? result.relatorioFinal ?? result.relatorioArquivamento,
+      tipoConclusao: result.tipoConclusao ?? result.conclusao?.tipoConclusao,
+    };
+  } catch (error) {
     return { found: false, protocolo, status: null, timeline: [] };
   }
+}
 
+function buildTimeline(estado) {
   const statusMap = {
-    na_fila: [
+    NA_FILA: [
       { label: 'Denúncia recebida!', active: true },
       { label: 'Sua denúncia está sendo analisada', active: false },
-      { label: 'Sua denúncia foi apurada e em breve fecharemos o protocolo', active: false },
       { label: 'Protocolo fechado!', active: false },
     ],
-    em_andamento: [
+    EM_ANDAMENTO: [
       { label: 'Denúncia recebida!', active: true },
       { label: 'Sua denúncia está sendo analisada', active: true },
-      { label: 'Sua denúncia foi apurada e em breve fecharemos o protocolo', active: false },
       { label: 'Protocolo fechado!', active: false },
     ],
-    fechada: [
+    FECHADA: [
       { label: 'Denúncia recebida!', active: true },
       { label: 'Sua denúncia está sendo analisada', active: true },
-      { label: 'Sua denúncia foi apurada e em breve fecharemos o protocolo', active: true },
       { label: 'Protocolo fechado!', active: true },
     ],
-    arquivada: [
+    ARQUIVADA: [
       { label: 'Denúncia recebida!', active: true },
       { label: 'Sua denúncia está sendo analisada', active: true },
       { label: 'Denúncia arquivada', active: true },
-      { label: 'Protocolo fechado!', active: false },
     ],
   };
-
-  return {
-    found: true,
-    protocolo: denuncia.protocolo,
-    status: denuncia.status,
-    timeline: statusMap[denuncia.status] || [],
-    // Dados do denunciante
-    unidade: denuncia.unidade,
-    tipo: denuncia.tipo,
-    dataEnvio: denuncia.dataEnvio,
-    descricao: denuncia.descricao,
-    envolvidos: denuncia.envolvidos,
-    testemunhas: denuncia.testemunhas,
-    // Esclarecimento do admin
-    medidasAdotadas: denuncia.medidasAdotadas || '',
-  };
+  return statusMap[estado] || [];
 }
+
 
 // ---- API Admin ----
 
 export async function loginAdmin(credentials) {
-  await delay(500);
-  // Mock: aceita qualquer login/senha
-  if (credentials.login && credentials.senha) {
-    return { success: true, token: 'mock-jwt-token', user: { nome: credentials.login } };
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ email: credentials.email, senha: credentials.senha }),
+    });
+
+    if (!response.ok) {
+      return { success: false, message: 'Credenciais inválidas ou erro no servidor' };
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
   }
-  return { success: false, message: 'Credenciais inválidas' };
 }
 
 export async function fetchDenunciasPorStatus(status, filtros = {}) {
-  await delay(400);
-  let denuncias = MOCK_DENUNCIAS.filter((d) => d.status === status);
+  try {
+    let url = new URL(`${API_BASE_URL}/admin/denuncias`);
+    if (status) {
+      url.searchParams.append('status', status.toUpperCase());
+    }
+    
+    if (filtros.tipo) url.searchParams.append('tipo', filtros.tipo.toUpperCase());
+    if (filtros.unidade) url.searchParams.append('unidade', filtros.unidade);
+    if (filtros.ordem) url.searchParams.append('ordem', filtros.ordem);
+    if (filtros.prioridadeOrdem) url.searchParams.append('prioridadeOrdem', filtros.prioridadeOrdem);
+    if (filtros.protocolo) url.searchParams.append('protocolo', filtros.protocolo.trim());
+    if (filtros.dataInicio) url.searchParams.append('dataInicio', filtros.dataInicio);
+    if (filtros.dataFim) url.searchParams.append('dataFim', filtros.dataFim);
+    if (filtros.page !== undefined && filtros.page !== null) url.searchParams.append('page', filtros.page);
+    if (filtros.size !== undefined && filtros.size !== null) url.searchParams.append('size', filtros.size);
 
-  // Filtrar por tipo
-  if (filtros.tipo) {
-    denuncias = denuncias.filter((d) => d.tipo === filtros.tipo);
+    const response = await fetch(url, { headers: getAuthHeaders(), credentials: 'include' });
+    
+    if (!response.ok) {
+      if(response.status === 401 || response.status === 403) {
+        throw new Error('Não autorizado. Refaça o login.');
+      }
+      return [];
+    }
+
+    const data = await response.json();
+    return normalizeDenunciasList(data);
+  } catch (error) {
+    console.error(error);
+    return [];
   }
-
-  // Filtrar por unidade
-  if (filtros.unidade) {
-    denuncias = denuncias.filter((d) => d.unidade === filtros.unidade);
-  }
-
-  // Ordenar
-  if (filtros.ordem === 'recentes') {
-    denuncias = [...denuncias].reverse();
-  }
-
-  return denuncias;
 }
 
-export async function fetchDenunciaDetalhes(id) {
-  await delay(300);
-  return MOCK_DENUNCIAS.find((d) => d.id === id) || null;
+export async function fetchDenunciaDetalhes(protocolo) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/denuncias/${protocolo}`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) return null;
+    return normalizeDenuncia(await response.json());
+  } catch (error) {
+    return null;
+  }
 }
 
-export async function atualizarDenuncia(id, data) {
-  await delay(500);
-  const index = MOCK_DENUNCIAS.findIndex((d) => d.id === id);
-  if (index >= 0) {
-    Object.assign(MOCK_DENUNCIAS[index], data);
-    return { success: true, denuncia: MOCK_DENUNCIAS[index] };
+export async function atualizarDenuncia(protocolo, payload) {
+  try {
+    // Backend espera AtualizarDenunciaRequest
+    const requestData = {
+      status: payload.status.toUpperCase(),
+    };
+    if (payload.descricaoAcao) requestData.descricaoAcao = payload.descricaoAcao;
+    if (payload.medidas) {
+      requestData.medidas = payload.medidas.map(m => {
+        const idVal = m.id;
+        const isNumeric = typeof idVal === 'number' || (typeof idVal === 'string' && !isNaN(Number(idVal)) && !idVal.startsWith('medida-'));
+        return {
+          id: isNumeric ? Number(idVal) : null,
+          descricao: m.descricao
+        };
+      });
+    }
+    if (payload.relatorio) requestData.relatorio = payload.relatorio;
+    if (payload.tipoConclusao) requestData.tipoConclusao = payload.tipoConclusao.toUpperCase();
+    if (payload.prioridade) requestData.prioridade = payload.prioridade.toLowerCase();
+
+    const response = await fetch(`${API_BASE_URL}/admin/denuncias/${protocolo}`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify(requestData),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      return { success: false, message: err.message || 'Erro ao atualizar denúncia' };
+    }
+
+    const data = await response.json();
+    return { success: true, denuncia: normalizeDenuncia(data) };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
   }
-  return { success: false };
+}
+
+export async function deletarDenuncia(protocolo) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/denuncias/${protocolo}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao excluir denúncia' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
 }
 
 export async function fetchEstatisticas(filtros = {}) {
-  await delay(400);
-  return {
-    porUnidade: MOCK_STATS_POR_UNIDADE,
-    distribuicao: MOCK_STATS_DISTRIBUICAO,
-  };
+  try {
+    let url = new URL(`${API_BASE_URL}/admin/estatisticas`);
+    if (filtros.tipo) url.searchParams.append('tipo', filtros.tipo);
+    if (filtros.unidade) url.searchParams.append('unidade', filtros.unidade);
+    if (filtros.dataInicio) url.searchParams.append('dataInicio', filtros.dataInicio);
+    if (filtros.dataFim) url.searchParams.append('dataFim', filtros.dataFim);
+
+    const response = await fetch(url, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    return null;
+  }
 }
+
+export async function fetchUsuarios() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/usuarios`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) return [];
+    return await response.json();
+  } catch (error) {
+    return [];
+  }
+}
+
+export async function criarUsuario(payload) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/usuarios`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      return { success: false, message: err.message || 'Erro ao criar usuário' };
+    }
+
+    const data = await response.json();
+    return { success: true, usuario: data };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function alterarSenhaUsuario(id, senha) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/usuarios/${id}/senha`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify({ senha }),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      return { success: false, message: err.message || 'Erro ao alterar senha' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function deletarUsuario(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/usuarios/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      return { success: false, message: err.message || 'Erro ao deletar usuário' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function logoutAdmin() {
+  try {
+    await fetch(`${API_BASE_URL}/admin/auth/logout`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro ao encerrar sessão' };
+  }
+}
+
+export async function fetchMe() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/auth/me`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    return null;
+  }
+}
+
+// ---- API Admin — Vagas ----
+
+export async function fetchVagas(status = '', unidade = '') {
+  try {
+    let url = new URL(`${API_BASE_URL}/admin/vagas`);
+    if (status) url.searchParams.append('status', status);
+    if (unidade) url.searchParams.append('unidade', unidade);
+
+    const response = await fetch(url, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        throw new Error('Não autorizado.');
+      }
+      return [];
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function fetchVagaDetalhes(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/vagas/${id}`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) {
+    return null;
+  }
+}
+
+export async function criarVaga(data) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/vagas`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      return { success: false, message: err.message || 'Erro ao criar vaga' };
+    }
+
+    const vaga = await response.json();
+    return { success: true, vaga };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function atualizarVaga(id, data) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/vagas/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      return { success: false, message: err.message || 'Erro ao atualizar vaga' };
+    }
+
+    const vaga = await response.json();
+    return { success: true, vaga };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function deletarVaga(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/vagas/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao excluir vaga' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function fetchCandidaturas(vagaId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/vagas/${vagaId}/candidaturas`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) return [];
+    return await response.json();
+  } catch (error) {
+    return [];
+  }
+}
+
+export async function downloadCurriculo(candidaturaId, nomeArquivo) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/vagas/candidaturas/${candidaturaId}/curriculo`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return { success: false, message: 'Erro ao baixar currículo' };
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = nomeArquivo || 'curriculo.pdf';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function visualizarCurriculo(candidaturaId, nomeArquivo) {
+  // Abre a nova aba imediatamente (sincronamente) para evitar o bloqueador de pop-ups do navegador
+  const newTab = window.open('about:blank', '_blank');
+  if (newTab) {
+    newTab.document.write('<p style="font-family: sans-serif; text-align: center; margin-top: 100px; color: #666;">Carregando currículo...</p>');
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/vagas/candidaturas/${candidaturaId}/curriculo`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      if (newTab) newTab.close();
+      return { success: false, message: 'Erro ao carregar currículo' };
+    }
+
+    const contentType = response.headers.get('content-type') || 'application/pdf';
+    const blob = await response.blob();
+    const file = new Blob([blob], { type: contentType });
+    const url = window.URL.createObjectURL(file);
+    
+    if (newTab) {
+      newTab.document.title = nomeArquivo || 'Visualizar Currículo';
+      newTab.document.body.innerHTML = `
+        <iframe src="${url}" style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;">
+          Seu navegador não suporta a visualização de PDFs.
+        </iframe>
+      `;
+    } else {
+      window.open(url, '_blank');
+    }
+
+    return { success: true };
+  } catch (error) {
+    if (newTab) newTab.close();
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function fetchBancoTalentos(unidade = '') {
+  try {
+    let url = new URL(`${API_BASE_URL}/admin/banco-talentos`);
+    if (unidade) url.searchParams.append('unidade', unidade);
+
+    const response = await fetch(url, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return [];
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function fetchTalentosPorVaga(vagaId) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/banco-talentos/${vagaId}`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) return [];
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function downloadCurriculoTalento(talentoId, nomeArquivo) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/banco-talentos/talentos/${talentoId}/curriculo`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return { success: false, message: 'Erro ao baixar currículo' };
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = nomeArquivo || 'curriculo.pdf';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function visualizarCurriculoTalento(talentoId, nomeArquivo) {
+  const newTab = window.open('about:blank', '_blank');
+  if (newTab) {
+    newTab.document.write('<p style="font-family: sans-serif; text-align: center; margin-top: 100px; color: #666;">Carregando currículo...</p>');
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/banco-talentos/talentos/${talentoId}/curriculo`, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      if (newTab) newTab.close();
+      return { success: false, message: 'Erro ao carregar currículo' };
+    }
+
+    const contentType = response.headers.get('content-type') || 'application/pdf';
+    const blob = await response.blob();
+    const file = new Blob([blob], { type: contentType });
+    const url = window.URL.createObjectURL(file);
+    
+    if (newTab) {
+      newTab.document.title = nomeArquivo || 'Visualizar Currículo';
+      newTab.document.body.innerHTML = `
+        <iframe src="${url}" style="position:fixed; top:0; left:0; bottom:0; right:0; width:100%; height:100%; border:none; margin:0; padding:0; overflow:hidden; z-index:999999;">
+          Seu navegador não suporta a visualização de PDFs.
+        </iframe>
+      `;
+    } else {
+      window.open(url, '_blank');
+    }
+
+    return { success: true };
+  } catch (error) {
+    if (newTab) newTab.close();
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+// ---- API Admin — Mensagens de Unidade ----
+
+export async function fetchMensagensUnidade(unidade = '', apenasNaoLidas = false) {
+  try {
+    let url = new URL(`${API_BASE_URL}/admin/mensagens-unidade`);
+    if (unidade) url.searchParams.append('unidade', unidade);
+    if (apenasNaoLidas) url.searchParams.append('apenasNaoLidas', 'true');
+
+    const response = await fetch(url, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        throw new Error('Não autorizado.');
+      }
+      return [];
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function marcarMensagemComoLida(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/mensagens-unidade/${id}/lida`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao marcar mensagem como lida' };
+    }
+
+    const mensagem = await response.json();
+    return { success: true, mensagem };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function deletarMensagemUnidade(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/mensagens-unidade/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao excluir mensagem' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+// ---- Inscrições Congresso ----
+
+export async function fetchInscritosCongresso(filtros = {}) {
+  try {
+    const params = new URLSearchParams();
+    if (filtros.termo) params.append('termo', filtros.termo);
+    if (filtros.unidade) params.append('unidade', filtros.unidade);
+    if (filtros.tipoOsc) params.append('tipoOsc', filtros.tipoOsc);
+    if (filtros.presente !== undefined && filtros.presente !== '') params.append('presente', filtros.presente);
+
+    const query = params.toString();
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso${query ? `?${query}` : ''}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error('Erro ao buscar inscritos do congresso:', error);
+    return [];
+  }
+}
+
+export async function alterarPresencaInscrito(id, dia, presente) {
+  try {
+    const params = new URLSearchParams();
+    if (dia !== undefined && dia !== null) params.append('dia', dia);
+    if (presente !== undefined && presente !== null) params.append('presente', presente);
+    const query = params.toString();
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso/${id}/presenca${query ? `?${query}` : ''}`;
+
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao alterar presença' };
+    }
+
+    const inscricao = await response.json();
+    return { success: true, inscricao };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão' };
+  }
+}
+
+export async function enviarCertificadoInscrito(id) {
+  try {
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso/${id}/enviar-certificado`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao enviar certificado' };
+    }
+
+    const data = await response.json();
+    return { success: true, message: data.message || 'Certificado enviado com sucesso!' };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão ao enviar certificado' };
+  }
+}
+
+export async function enviarCertificadosLoteAmbosDias() {
+  try {
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso/enviar-certificados-ambos-dias`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao enviar certificados em lote' };
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      totalElegiveis: data.totalElegiveis,
+      totalEnviados: data.totalEnviados,
+      totalFalhas: data.totalFalhas,
+      message: data.message || 'Certificados enviados com sucesso!',
+    };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão ao enviar certificados em lote' };
+  }
+}
+
+export async function downloadCertificadoInscrito(id, nomeCompleto = 'Participante') {
+  try {
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso/${id}/certificado`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return { success: false, message: 'Erro ao gerar certificado' };
+    }
+
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    const nomeLimpo = nomeCompleto.replace(/[^a-zA-Z0-9]/g, '_');
+    a.download = `Certificado_Congresso_${nomeLimpo}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro ao baixar arquivo do certificado' };
+  }
+}
+
+export async function atualizarOficinasInscrito(id, data) {
+  try {
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso/${id}/oficinas`;
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao atualizar oficinas' };
+    }
+
+    const inscricao = await response.json();
+    return { success: true, inscricao };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão ao salvar oficinas' };
+  }
+}
+
+export async function downloadCrachaInscrito(id, nomeCompleto = 'Participante') {
+  try {
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso/${id}/cracha`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return { success: false, message: 'Erro ao gerar crachá' };
+    }
+
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    const nomeLimpo = nomeCompleto.replace(/[^a-zA-Z0-9]/g, '_');
+    a.download = `Cracha_Congresso_${nomeLimpo}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro ao baixar crachá' };
+  }
+}
+
+export async function downloadCrachasLote(filtros = {}) {
+  try {
+    const params = new URLSearchParams();
+    if (filtros.termo) params.append('termo', filtros.termo);
+    if (filtros.unidade) params.append('unidade', filtros.unidade);
+    if (filtros.tipoOsc) params.append('tipoOsc', filtros.tipoOsc);
+    if (filtros.presente !== undefined && filtros.presente !== '') params.append('presente', filtros.presente);
+
+    const query = params.toString();
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso/crachas-lote${query ? `?${query}` : ''}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao gerar folha de crachás' };
+    }
+
+    const blob = await response.blob();
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    const suf = filtros.unidade ? `_${filtros.unidade.replace(/[^a-zA-Z0-9]/g, '_')}` : '';
+    a.download = `Crachas_Congresso_SOBEI_2026${suf}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(downloadUrl);
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro ao baixar grade de crachás' };
+  }
+}
+
+export async function deletarInscritoCongresso(id) {
+  try {
+    const url = `${API_BASE_URL}/admin/inscricoes-congresso/${id}`;
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return { success: false, message: err.message || 'Erro ao excluir inscrição' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: 'Erro de conexão ao excluir inscrição' };
+  }
+}
+
+export async function fetchEstatisticasCongresso() {
+  try {
+    const url = `${API_BASE_URL}/admin/estatisticas/congresso`;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      console.error('Erro ao buscar estatísticas do congresso: status', response.status);
+      return null;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Erro de rede ao buscar estatísticas do congresso:', error);
+    return null;
+  }
+}
+
+
+

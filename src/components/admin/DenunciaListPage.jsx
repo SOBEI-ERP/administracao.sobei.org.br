@@ -1,0 +1,154 @@
+'use client';
+
+// ============================================
+// SOBEI Portal — Página de Listagem de Denúncias (Reutilizável)
+// ============================================
+// Componente unificado que substitui as 4 páginas duplicadas
+// (fila, andamento, fechadas, arquivadas).
+// Basta passar o `status` como prop e toda a lógica é compartilhada.
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useDenuncias, useAtualizarDenuncia, useDeletarDenuncia } from '@/hooks/useDenuncias';
+import { STATUS_CONFIG, FILTROS_INICIAIS, DENUNCIA_LINKS } from '@/lib/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import dynamic from 'next/dynamic';
+import FilterBar from '@/components/admin/FilterBar';
+import DenunciaCard from '@/components/admin/DenunciaCard';
+import ConfirmModal from '@/components/admin/ConfirmModal';
+
+const DenunciaDetailModal = dynamic(() => import('@/components/admin/DenunciaDetailModal'), {
+  ssr: false
+});
+
+export default function DenunciaListPage({ status }) {
+  const router = useRouter();
+  const { logout } = useAuth();
+  const config = STATUS_CONFIG[status];
+  const [filtros, setFiltros] = useState({ ...FILTROS_INICIAIS });
+  const [filtrosAtivos, setFiltrosAtivos] = useState({ ...FILTROS_INICIAIS });
+  const [selectedDenuncia, setSelectedDenuncia] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
+
+  const { data: denuncias = [], isLoading, isError, error, refetch } = useDenuncias(status, filtrosAtivos);
+  const atualizarMutation = useAtualizarDenuncia();
+  const deletarMutation = useDeletarDenuncia();
+
+  useEffect(() => {
+    if (isError && error) {
+      const msg = error.message || '';
+      if (msg.includes('Não autorizado') || msg.includes('autorizado')) {
+        logout();
+        router.push('/');
+      }
+    }
+  }, [isError, error, router, logout]);
+
+  function handleAplicar() {
+    setFiltrosAtivos({ ...filtros });
+  }
+
+  function handleLimpar() {
+    setFiltros({ ...FILTROS_INICIAIS });
+    setFiltrosAtivos({ ...FILTROS_INICIAIS });
+  }
+
+  function handleAction(action, payload) {
+    if (action === 'deletar') {
+      deletarMutation.mutate(payload.protocolo, {
+        onSuccess: () => {
+          setSelectedDenuncia(null);
+          refetch();
+        },
+        onError: (err) => {
+          setErrorMessage(err.message || 'Erro ao excluir denúncia.');
+        },
+      });
+      return;
+    }
+
+    atualizarMutation.mutate(payload, {
+      onSuccess: () => {
+        setSelectedDenuncia(null);
+        refetch();
+      },
+      onError: (err) => {
+        setErrorMessage(err.message || 'Erro ao processar a ação. Tente novamente.');
+      },
+    });
+  }
+
+  return (
+    <div>
+      <h1 className="statistics-page__title" style={{ marginBottom: 'var(--spacing-lg)' }}>
+        Denúncias
+      </h1>
+
+      {/* Tabs de Status Padronizadas (igual à página de Estatísticas) */}
+      <div className="statistics-tabs">
+        {DENUNCIA_LINKS.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={`statistics-tab ${
+              link.status === status ? 'statistics-tab--active' : ''
+            }`}
+          >
+            {link.label}
+          </Link>
+        ))}
+      </div>
+
+      <FilterBar
+        filtros={filtros}
+        setFiltros={setFiltros}
+        onAplicar={handleAplicar}
+        onLimpar={handleLimpar}
+        status={status}
+      />
+
+      {isLoading ? (
+        <p style={{ color: 'var(--color-gray-500)', padding: '24px 0' }}>Carregando...</p>
+      ) : isError ? (
+        <p style={{ color: '#ef4444', padding: '24px 0' }}>
+          Erro ao carregar denúncias: {error?.message || 'Erro desconhecido'}
+        </p>
+      ) : denuncias.length === 0 ? (
+        <p style={{ color: 'var(--color-gray-500)', padding: '24px 0' }}>
+          {config.mensagemVazia}
+        </p>
+      ) : (
+        <div className="denuncia-cards">
+          {denuncias.map((d) => (
+            <DenunciaCard
+              key={d.id}
+              denuncia={d}
+              status={status}
+              onVerDetalhes={setSelectedDenuncia}
+            />
+          ))}
+        </div>
+      )}
+
+      {selectedDenuncia && (
+        <DenunciaDetailModal
+          denuncia={selectedDenuncia}
+          status={status}
+          onClose={() => setSelectedDenuncia(null)}
+          onAction={handleAction}
+        />
+      )}
+
+      <ConfirmModal
+        isOpen={!!errorMessage}
+        type="danger"
+        title="Erro na Operação"
+        message={errorMessage}
+        confirmText="Entendido"
+        cancelText={null}
+        onClose={() => setErrorMessage(null)}
+      />
+    </div>
+  );
+}

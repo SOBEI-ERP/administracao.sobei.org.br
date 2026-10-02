@@ -24,7 +24,26 @@
   overflow-y: auto;
   padding: var(--spacing-2xl) var(--spacing-xl);
   position: relative;
+  font-family: var(--font-montserrat);
   animation: modalSlideIn 0.35s ease;
+}
+
+.modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal::-webkit-scrollbar-track {
+  background: transparent;
+  margin: var(--radius-xl) 0;
+}
+
+.modal::-webkit-scrollbar-thumb {
+  background-color: var(--color-gray-300);
+  border-radius: var(--radius-full);
+}
+
+.modal::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-gray-400);
 }
 
 .modal__close {
@@ -51,8 +70,9 @@
 }
 
 .modal__title {
+  font-family: var(--font-montserrat);
   font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
+  font-weight: 800;
   color: var(--color-gray-900);
   text-align: center;
   margin-bottom: var(--spacing-lg);
@@ -116,18 +136,64 @@
   transition: border-color var(--transition-fast);
 }
 
-.modal__textarea::placeholder {
-  color: var(--color-gray-400);
+.modal__textarea:hover {
+  border-color: var(--color-primary);
 }
 
 .modal__textarea:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(27, 20, 100, 0.08);
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .modal__textarea--readonly {
   background-color: var(--color-gray-50);
   cursor: default;
+}
+
+.modal--wide {
+  max-width: 980px;
+}
+
+.modal__two-columns {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: var(--spacing-xl);
+  align-items: stretch;
+}
+
+@media (max-width: 860px) {
+  .modal__two-columns {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+  }
+}
+
+.modal__col-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding-right: var(--spacing-xl);
+  border-right: 1.5px solid var(--color-gray-200);
+}
+
+@media (max-width: 860px) {
+  .modal__col-info {
+    padding-right: 0;
+    border-right: none;
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1.5px solid var(--color-gray-200);
+  }
+}
+
+.modal__col-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
 }
 
 .modal__divider {

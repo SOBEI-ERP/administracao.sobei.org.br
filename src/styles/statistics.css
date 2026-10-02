@@ -2,55 +2,169 @@
    SOBEI Portal — Statistics Page Styles
    ============================================ */
 
+.statistics-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.statistics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+  gap: var(--spacing-base);
+}
+
+/* ---- Tabs Padronizadas da Plataforma ---- */
+.statistics-tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  border-bottom: 2px solid var(--color-gray-200);
+  margin-bottom: var(--spacing-xl);
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.statistics-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.statistics-tab {
+  background: none;
+  border: none;
+  padding: var(--spacing-xs) 0;
+  padding-bottom: 12px;
+  font-family: var(--font-montserrat);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-gray-500);
+  cursor: pointer;
+  position: relative;
+  transition: color var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.statistics-tab:hover {
+  color: var(--color-primary);
+}
+
+.statistics-tab--active {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+.statistics-tab--active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--color-primary);
+  border-radius: 3px 3px 0 0;
+}
+
+.statistics-tab__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-gray-200, #E2E8F0);
+  color: var(--color-gray-600, #475569);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+  line-height: 1;
+  transition: all var(--transition-fast, 0.15s ease);
+}
+
+.statistics-tab--active .statistics-tab__badge {
+  background-color: var(--color-primary, #1B1464);
+  color: #FFFFFF;
+}
+
+
 .statistics-page__title {
+  font-family: var(--font-montserrat);
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-black);
-  color: var(--color-primary);
-  margin-bottom: var(--spacing-lg);
-  font-style: italic;
+  color: var(--color-gray-900);
+  margin: 0;
+  font-style: normal;
 }
 
 .statistics-page__chart-title {
+  font-family: var(--font-montserrat);
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-bold);
   color: var(--color-gray-900);
   margin-bottom: var(--spacing-lg);
-  font-style: italic;
+  font-style: normal;
 }
 
 .statistics-page__chart-container {
+  background: var(--color-white);
+  border: 1px solid rgba(27, 20, 100, 0.08);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
   width: 100%;
-  margin-bottom: var(--spacing-2xl);
-  padding-bottom: var(--spacing-lg);
-  border-bottom: 2px solid var(--color-gray-200);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ---- Filters ---- */
+.statistics-filters-glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05);
+  margin-bottom: var(--spacing-xl);
+  position: relative;
+  z-index: 50;
+}
+
 .statistics-filters {
   display: flex;
-  align-items: stretch;
-  gap: var(--spacing-lg);
+  align-items: flex-end;
+  gap: 10px;
   flex-wrap: wrap;
+  padding: 6px 0;
   margin-bottom: var(--spacing-lg);
 }
 
 .statistics-filters__group {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: 6px;
+  flex: 0 0 auto;
 }
 
 .statistics-filters__label {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-size: 13px;
+  font-weight: 500;
   color: var(--color-gray-700);
-  margin-bottom: auto;
+  white-space: nowrap;
+  line-height: 1.2;
 }
 
 .statistics-filters__select {
   padding: var(--spacing-sm) var(--spacing-base);
   padding-right: var(--spacing-2xl);
-  background-color: var(--color-gray-100);
+  background-color: var(--color-white);
   border: 1px solid var(--color-gray-300);
   border-radius: var(--radius-full);
   font-size: var(--font-size-sm);
@@ -72,7 +186,7 @@
 
 .statistics-filters__date-input {
   padding: var(--spacing-sm) var(--spacing-base);
-  background-color: var(--color-gray-100);
+  background-color: var(--color-white);
   border: 1px solid var(--color-gray-300);
   border-radius: var(--radius-full);
   font-size: var(--font-size-sm);
@@ -89,9 +203,10 @@
 
 .statistics-filters__actions {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: 8px;
   margin-left: auto;
   align-self: flex-end;
+  min-height: 38px;
 }
 
 /* ---- Tags ---- */
@@ -133,11 +248,12 @@
   color: var(--color-white);
 }
 
-/* ---- Charts ---- */
-.statistics-charts {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-3xl);
+/* ---- Charts Bento Grid ---- */
+.statistics-bento {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-2xl);
 }
 
 .statistics-chart {
@@ -151,12 +267,12 @@
 
 /* ---- Report Button ---- */
 .statistics-report {
-  margin-top: var(--spacing-2xl);
-  text-align: center;
+  margin-top: 0;
+  text-align: right;
 }
 
 .statistics-report .btn {
-  min-width: 320px;
+  min-width: 200px;
 }
 
 @media (max-width: 900px) {
@@ -174,13 +290,24 @@
   }
 }
 
+@media (max-width: 1024px) {
+  .statistics-bento {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
+  .statistics-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .statistics-page__title {
     font-size: var(--font-size-xl);
   }
 
   .statistics-page__chart-container {
-    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-base);
   }
 
   .statistics-chart__wrapper {
@@ -200,3 +327,89 @@
     min-width: 100%;
   }
 }
+
+
+/* ---- KPI Cards ---- */
+.statistics-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--spacing-base);
+  margin-bottom: var(--spacing-xl);
+}
+
+.kpi-card {
+  background: var(--color-white);
+  border: 1px solid rgba(27, 20, 100, 0.08);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-base);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-montserrat);
+  transition: all var(--transition-base);
+}
+
+.kpi-card:hover {
+  border-color: rgba(27, 20, 100, 0.2);
+}
+
+.kpi-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.kpi-card__title {
+  font-family: var(--font-montserrat);
+  font-size: var(--font-size-xs);
+  font-weight: 800;
+  color: var(--color-gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.kpi-card__value {
+  font-family: var(--font-montserrat);
+  font-size: var(--font-size-2xl);
+  font-weight: 900;
+  color: var(--color-primary);
+  line-height: var(--line-height-tight);
+}
+
+.kpi-card__desc {
+  font-family: var(--font-montserrat);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-gray-600);
+  margin-top: var(--spacing-xs);
+}
+
+/* ---- Chart Explanation Cards ---- */
+.chart-explanation-card {
+  background-color: rgba(27, 20, 100, 0.02);
+  border: 1px solid rgba(27, 20, 100, 0.05);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-base);
+  margin-top: var(--spacing-md);
+}
+
+.chart-explanation-card__text {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-gray-700);
+  margin: 0;
+}
+
+.chart-explanation-card__text strong {
+  color: var(--color-primary);
+}
+
+/* ---- GitHub Heatmap Component ---- */
+.heatmap-cell:hover {
+  filter: brightness(0.85);
+  opacity: 0.88;
+}
+

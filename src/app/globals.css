@@ -1,9 +1,14 @@
-/* ============================================
-   SOBEI Portal — Global Styles
-   ============================================ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+/* Google Fonts loaded via next/font/google in layout.js */
 @import '../styles/variables.css';
+@import '../styles/components.css';
+@import '../styles/forms.css';
+@import '../styles/sidebar.css';
+@import '../styles/admin.css';
+@import '../styles/cards.css';
+@import '../styles/modal.css';
+@import '../styles/statistics.css';
 @import '../styles/mobile-header.css';
+@import '../styles/vagas.css';
 
 /* ---- Reset ---- */
 *,
@@ -15,10 +20,13 @@
 }
 
 html {
+  font-family: var(--font-family);
   font-size: 16px;
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 body {
@@ -29,6 +37,9 @@ body {
   color: var(--color-gray-900);
   background-color: var(--color-white);
   min-height: 100vh;
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
 }
 
 a {
@@ -50,18 +61,18 @@ button {
   cursor: pointer;
   border: none;
   background: none;
-  font-family: inherit;
+  font-family: var(--font-family);
   font-size: inherit;
 }
 
 input, textarea, select {
-  font-family: inherit;
+  font-family: var(--font-family);
   font-size: inherit;
   outline: none;
-  border: none;
 }
 
 h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family);
   line-height: var(--line-height-tight);
   font-weight: var(--font-weight-bold);
 }
@@ -94,6 +105,12 @@ h1, h2, h3, h4, h5, h6 {
 :focus-visible {
   outline: 2px solid var(--color-purple);
   outline-offset: 2px;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
 }
 
 /* ---- Utility Classes ---- */

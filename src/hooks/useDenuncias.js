@@ -9,6 +9,7 @@ import {
   fetchDenunciasPorStatus,
   fetchDenunciaDetalhes,
   atualizarDenuncia,
+  deletarDenuncia,
   fetchEstatisticas,
   consultarProtocolo,
 } from '@/lib/api';
@@ -23,11 +24,11 @@ export function useDenuncias(status, filtros = {}) {
 }
 
 // Buscar detalhes de uma denúncia
-export function useDenunciaDetalhes(id) {
+export function useDenunciaDetalhes(protocolo) {
   return useQuery({
-    queryKey: ['denuncia', id],
-    queryFn: () => fetchDenunciaDetalhes(id),
-    enabled: !!id,
+    queryKey: ['denuncia', protocolo],
+    queryFn: () => fetchDenunciaDetalhes(protocolo),
+    enabled: !!protocolo,
   });
 }
 
@@ -36,7 +37,32 @@ export function useAtualizarDenuncia() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }) => atualizarDenuncia(id, data),
+    mutationFn: async ({ protocolo, data }) => {
+      const result = await atualizarDenuncia(protocolo, data);
+      if (!result || !result.success) {
+        throw new Error(result?.message || 'Erro ao atualizar denúncia');
+      }
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['denuncias'] });
+      queryClient.invalidateQueries({ queryKey: ['denuncia'] });
+    },
+  });
+}
+
+// Deletar denúncia fechada (mutation)
+export function useDeletarDenuncia() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (protocolo) => {
+      const result = await deletarDenuncia(protocolo);
+      if (!result || !result.success) {
+        throw new Error(result?.message || 'Erro ao excluir denúncia');
+      }
+      return result;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['denuncias'] });
       queryClient.invalidateQueries({ queryKey: ['denuncia'] });
@@ -50,6 +76,15 @@ export function useEstatisticas(filtros = {}) {
     queryKey: ['estatisticas', filtros],
     queryFn: () => fetchEstatisticas(filtros),
     staleTime: 60000,
+  });
+}
+
+// Buscar todas as denúncias
+export function useTodasDenuncias(filtros = {}) {
+  return useQuery({
+    queryKey: ['todas-denuncias', filtros],
+    queryFn: () => fetchDenunciasPorStatus('', filtros),
+    staleTime: 30000,
   });
 }
 

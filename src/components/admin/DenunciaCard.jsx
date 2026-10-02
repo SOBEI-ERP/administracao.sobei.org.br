@@ -1,10 +1,49 @@
 'use client';
 
+// ============================================
+// SOBEI Portal — Card de Denúncia
+// ============================================
+
+const DATAS_POR_STATUS = {
+  na_fila: [],
+  em_andamento: [
+    { label: 'Data de abertura', campo: 'dataAbertura' },
+    { label: 'Última alteração', campo: 'ultimaAlteracao' },
+  ],
+  fechada: [
+    { label: 'Data de abertura', campo: 'dataAbertura' },
+    { label: 'Última alteração', campo: 'ultimaAlteracao' },
+    { label: 'Data de fechamento', campo: 'dataFechamento' },
+  ],
+  arquivada: [
+    { label: 'Data de abertura', campo: 'dataAbertura' },
+    { label: 'Última alteração', campo: 'ultimaAlteracao' },
+    { label: 'Data de arquivamento', campo: 'dataArquivamento' },
+  ],
+};
+
+function formatarData(dataStr) {
+  if (!dataStr) return '';
+  if (dataStr.includes('-') || dataStr.includes('T')) {
+    try {
+      const date = new Date(dataStr);
+      if (!isNaN(date.getTime())) {
+        return date.toLocaleDateString('pt-BR');
+      }
+    } catch {
+      return dataStr;
+    }
+  }
+  return dataStr;
+}
+
 export default function DenunciaCard({ denuncia, status, onVerDetalhes }) {
   const hash = denuncia.protocolo
     ? denuncia.protocolo.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
     : 0;
   const animationDelay = `${(hash % 5) * 0.05}s`;
+
+  const datasExtras = DATAS_POR_STATUS[status] || [];
 
   return (
     <div className="denuncia-card" style={{ animationDelay }}>
@@ -13,10 +52,17 @@ export default function DenunciaCard({ denuncia, status, onVerDetalhes }) {
           <strong>Unidade:</strong> {denuncia.unidade}
         </span>
         <span className="denuncia-card__field">
-          <strong>Tipo de denuncia:</strong> Denúncia {denuncia.tipo}
+          <strong>Tipo de denuncia:</strong> Denúncia {denuncia.tipo && denuncia.tipo.toLowerCase() === 'anonima' ? 'anônima' : 'identificada'}
         </span>
+        {status === 'em_andamento' && (
+          <span className="denuncia-card__field" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+            <strong>Prioridade:</strong> <span className={`priority-badge priority-badge--${(denuncia.prioridade || 'neutra').toLowerCase()}`}>
+              {denuncia.prioridade === 'ALTA' ? 'Alta' : denuncia.prioridade === 'MEDIA' ? 'Média' : denuncia.prioridade === 'BAIXA' ? 'Baixa' : 'Neutra'}
+            </span>
+          </span>
+        )}
         <span className="denuncia-card__field">
-          <strong>Data de envio:</strong> {denuncia.dataEnvio}
+          <strong>Data de envio:</strong> {formatarData(denuncia.dataEnvio)}
         </span>
         {status !== 'na_fila' && denuncia.protocolo && (
           <span className="denuncia-card__field">
@@ -32,31 +78,18 @@ export default function DenunciaCard({ denuncia, status, onVerDetalhes }) {
           </span>
         )}
 
-        {(status === 'em_andamento') && (
+        {datasExtras.length > 0 && (
           <div className="denuncia-card__dates">
-            <span className="denuncia-card__date">Data de abertura: {denuncia.dataAbertura}</span>
-            <span className="denuncia-card__date">Ultima alteração: {denuncia.ultimaAlteracao}</span>
-          </div>
-        )}
-
-        {status === 'fechada' && (
-          <div className="denuncia-card__dates">
-            <span className="denuncia-card__date">Data de abertura: {denuncia.dataAbertura}</span>
-            <span className="denuncia-card__date">Ultima alteração: {denuncia.ultimaAlteracao}</span>
-            <span className="denuncia-card__date">Data de fechamento: {denuncia.dataFechamento}</span>
-          </div>
-        )}
-
-        {status === 'arquivada' && (
-          <div className="denuncia-card__dates">
-            <span className="denuncia-card__date">Data de abertura: {denuncia.dataAbertura}</span>
-            <span className="denuncia-card__date">Ultima alteração: {denuncia.ultimaAlteracao}</span>
-            <span className="denuncia-card__date">Data de arquivamento: {denuncia.dataArquivamento}</span>
+            {datasExtras.map(({ label, campo }) => (
+              <span key={campo} className="denuncia-card__date">
+                {label}: {formatarData(denuncia[campo])}
+              </span>
+            ))}
           </div>
         )}
 
         <button
-          className="btn btn--purple btn--sm"
+          className="btn btn--blue btn--sm"
           onClick={() => onVerDetalhes(denuncia)}
           type="button"
         >

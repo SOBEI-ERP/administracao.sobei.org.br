@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-export default function CustomSelect({ value, onChange, options, defaultOption, style, className }) {
+export default function CustomSelect({ value, onChange, options, defaultOption, style, className, allowEmpty = true }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
@@ -20,6 +20,10 @@ export default function CustomSelect({ value, onChange, options, defaultOption, 
     ? options.find(o => o.value === value)?.label || defaultOption
     : defaultOption;
 
+  const displayOptions = allowEmpty 
+    ? options.filter(opt => opt.value !== '' && opt.value !== null && opt.value !== undefined)
+    : options;
+
   return (
     <div className={`custom-select-container ${className || ''}`} style={style} ref={containerRef}>
       <div 
@@ -34,18 +38,21 @@ export default function CustomSelect({ value, onChange, options, defaultOption, 
       
       {isOpen && (
         <div className="custom-select-dropdown">
-          <div 
-            className={`custom-select-option ${!value ? 'custom-select-option--selected' : ''}`}
-            onClick={() => {
-              onChange('');
-              setIsOpen(false);
-            }}
-          >
-            {defaultOption}
-          </div>
-          {options.map((opt) => (
+          {allowEmpty && (
+            <div 
+              className={`custom-select-option ${!value ? 'custom-select-option--selected' : ''}`}
+              onClick={() => {
+                onChange('');
+                setIsOpen(false);
+              }}
+            >
+              {defaultOption}
+            </div>
+          )}
+          {displayOptions.map((opt) => (
             <div 
               key={opt.value}
+              data-value={opt.value}
               className={`custom-select-option ${value === opt.value ? 'custom-select-option--selected' : ''}`}
               onClick={() => {
                 onChange(opt.value);
