@@ -1,0 +1,42 @@
+# Documentação e Design
+*.md
+docs/
+DESIGN.md
+
+# IA / Configurações de Assistentes
+claude.md
+CLAUDE.md
+.claude/
+claude/
+AGENTS.md
+*.local
+
+# Scratch e relatórios locais
+scratch/
+knip-report.txt
+*.tmp
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Testes
+coverage/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+tests/
+__tests__/
+
+# Git
+.git/
+.github/
+.gitignore
+
+# Editores & Sistema Operacional
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

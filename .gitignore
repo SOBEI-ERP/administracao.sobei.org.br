@@ -28,6 +28,8 @@
 .env.development.local
 .env.test.local
 .env.production.local
+!.env.example
+!.env.local.example
 
 # ---- Chaves e certificados (SENSÍVEL) ----
 *.pem
@@ -35,6 +37,8 @@
 *.crt
 *.p12
 *.pfx
+*.secret
+credentials.json
 
 # ---- Logs ----
 npm-debug.log*
@@ -42,6 +46,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 *.log
+logs/
 
 # ---- Sistema operacional ----
 .DS_Store
@@ -68,7 +73,17 @@ ehthumbs.db
 *.tsbuildinfo
 next-env.d.ts
 
-# ---- Misc ----
+# ---- AI Assistants & Prompts ----
+claude.md
+CLAUDE.md
+.claude/
+claude/
+AGENTS.md
+*.local
+
+# ---- Temporary / Scratch & Reports ----
+scratch/
+knip-report.txt
 *.bak
 *.tmp
 *.temp
