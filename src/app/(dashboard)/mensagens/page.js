@@ -9,6 +9,7 @@ import { IconMapPin, IconClock, IconMail, IconPhone, IconChat, IconWhatsApp, Ico
 
 export default function MensagensPage() {
   const { user } = useAuth();
+  const isSuporte = user?.nivel?.toUpperCase() === 'SUPORTE';
   const [mensagens, setMensagens] = useState([]);
   const [loading, setLoading] = useState(true);
   const [apenasNaoLidas, setApenasNaoLidas] = useState(false);
@@ -261,14 +262,16 @@ export default function MensagensPage() {
                     </button>
                   )}
 
-                  <button
-                    type="button"
-                    className="btn-icon-danger-outline btn-icon-danger-outline--sm"
-                    onClick={(e) => handleOpenDelete(e, msg.id)}
-                    title="Excluir mensagem"
-                  >
-                    <IconTrash size={16} />
-                  </button>
+                  {isSuporte && (
+                    <button
+                      type="button"
+                      className="btn-icon-danger-outline btn-icon-danger-outline--sm"
+                      onClick={(e) => handleOpenDelete(e, msg.id)}
+                      title="Excluir mensagem"
+                    >
+                      <IconTrash size={16} />
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -332,14 +335,16 @@ export default function MensagensPage() {
                 </p>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <button
-                  type="button"
-                  className="btn btn--danger btn--sm"
-                  onClick={(e) => handleOpenDelete(e, selectedMensagem.id)}
-                >
-                  <IconTrash size={14} /> Excluir Mensagem
-                </button>
+              <div style={{ display: 'flex', justifyContent: isSuporte ? 'space-between' : 'flex-end', alignItems: 'center' }}>
+                {isSuporte && (
+                  <button
+                    type="button"
+                    className="btn btn--danger btn--sm"
+                    onClick={(e) => handleOpenDelete(e, selectedMensagem.id)}
+                  >
+                    <IconTrash size={14} /> Excluir Mensagem
+                  </button>
+                )}
 
                 <button
                   type="button"

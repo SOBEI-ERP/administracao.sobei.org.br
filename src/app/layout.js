@@ -19,9 +19,9 @@ const montserrat = Montserrat({
 });
 
 export const metadata = {
-  title: 'SOBEI - Portal de Denúncias',
+  title: 'SOBEI - Painel Administrativo',
   description:
-    'Canal de comunicação e denúncias da Sociedade Beneficente Equilíbrio de Interlagos. Relatar condutas inadequadas, violações éticas ou irregularidades de forma segura e confidencial.',
+    'Painel unificado de gestão administrativa, denúncias, processos seletivos e operações da SOBEI.',
 };
 
 export default function RootLayout({ children }) {

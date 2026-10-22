@@ -42,9 +42,13 @@ export default function InscritosCongressoPage() {
 
   const nivel = user?.nivel?.toUpperCase();
   const isCoordenadora = nivel === 'COORDENADORA';
+  const isDiretora = nivel === 'DIRETORA';
+  const isGestoraUnidade = isCoordenadora || isDiretora;
   const isSuporte = nivel === 'SUPORTE';
   const isCredenciador = nivel === 'CREDENCIADOR';
-  const podeConfirmarPresenca = nivel === 'CREDENCIADOR' || nivel === 'COORDENADORA_EVENTO' || nivel === 'SUPORTE' || nivel === 'DIRETORA';
+  const isCoordenadoraEvento = nivel === 'COORDENADORA_EVENTO';
+  const podeConfirmarPresenca = isCredenciador || isCoordenadoraEvento || isSuporte;
+  const podeDispararCertificadosLote = isSuporte || isCoordenadoraEvento;
 
   useEffect(() => {
     if (nivel === 'DP') {
@@ -286,9 +290,24 @@ export default function InscritosCongressoPage() {
   return (
     <div className="admin-page">
       {/* Título da Página */}
-      <h1 className="admin-page__title" style={{ margin: '0 0 var(--spacing-md) 0' }}>
-        Congresso
-      </h1>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', margin: '0 0 var(--spacing-md) 0' }}>
+        <h1 className="admin-page__title" style={{ margin: 0 }}>
+          Congresso
+        </h1>
+        {isGestoraUnidade && user?.unidade && (
+          <span style={{
+            fontSize: '0.85rem',
+            fontWeight: '600',
+            backgroundColor: '#EEF2FF',
+            color: 'var(--color-primary, #1b1464)',
+            padding: '5px 12px',
+            borderRadius: '16px',
+            border: '1px solid #C7D2FE'
+          }}>
+            Unidade: {user.unidade}
+          </span>
+        )}
+      </div>
 
       {/* Toast Feedback Banner */}
       {toastFeedback && (
@@ -398,8 +417,8 @@ export default function InscritosCongressoPage() {
           />
         </div>
 
-        {/* Filtro Tipo OSC (apenas se não for coordenadora) */}
-        {!isCoordenadora && (
+        {/* Filtro Tipo OSC (apenas para administradores gerais do evento) */}
+        {!isGestoraUnidade && (
           <div className="filter-bar__group" style={{ flex: '1', minWidth: '150px' }}>
             <span className="filter-bar__label">Tipo de OSC:</span>
             <CustomSelect
@@ -412,8 +431,8 @@ export default function InscritosCongressoPage() {
           </div>
         )}
 
-        {/* Filtro Unidade SOBEI (apenas se não for coordenadora) */}
-        {!isCoordenadora && (
+        {/* Filtro Unidade SOBEI (apenas para administradores gerais do evento) */}
+        {!isGestoraUnidade && (
           <div className="filter-bar__group" style={{ flex: '1.3', minWidth: '170px' }}>
             <span className="filter-bar__label">Unidade SOBEI:</span>
             <CustomSelect
@@ -458,28 +477,30 @@ export default function InscritosCongressoPage() {
 
       {/* Botões de Ação em Lote (Abaixo dos Dropdowns de Filtro) */}
       <div className="congresso-actions-bar">
-        {/* Botão de Ação em Lote: Enviar Certificados para Presentes em Ambos os Dias */}
-        <button
-          type="button"
-          onClick={() => setShowConfirmModalCertificados(true)}
-          disabled={enviandoLoteCertificados || presentesAmbosDias === 0}
-          className="congresso-btn btn-certificados"
-          style={{
-            cursor: (enviandoLoteCertificados || presentesAmbosDias === 0) ? 'not-allowed' : 'pointer',
-            opacity: (enviandoLoteCertificados || presentesAmbosDias === 0) ? 0.6 : 1,
-          }}
-          title={
-            presentesAmbosDias === 0
-              ? 'Nenhum participante possui check-in em ambos os dias (11 e 12/Set)'
-              : `Disparar certificados por e-mail para ${presentesAmbosDias} participantes com presença em ambos os dias`
-          }
-        >
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="8" r="6" />
-            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
-          </svg>
-          {enviandoLoteCertificados ? 'Enviando Certificados...' : `Enviar Certificados (Ambos os Dias: ${presentesAmbosDias})`}
-        </button>
+        {/* Botão de Ação em Lote: Enviar Certificados para Presentes em Ambos os Dias (Restrito a Suporte/Evento) */}
+        {podeDispararCertificadosLote && (
+          <button
+            type="button"
+            onClick={() => setShowConfirmModalCertificados(true)}
+            disabled={enviandoLoteCertificados || presentesAmbosDias === 0}
+            className="congresso-btn btn-certificados"
+            style={{
+              cursor: (enviandoLoteCertificados || presentesAmbosDias === 0) ? 'not-allowed' : 'pointer',
+              opacity: (enviandoLoteCertificados || presentesAmbosDias === 0) ? 0.6 : 1,
+            }}
+            title={
+              presentesAmbosDias === 0
+                ? 'Nenhum participante possui check-in em ambos os dias (11 e 12/Set)'
+                : `Disparar certificados por e-mail para ${presentesAmbosDias} participantes com presença em ambos os dias`
+            }
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="8" r="6" />
+              <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+            </svg>
+            {enviandoLoteCertificados ? 'Enviando Certificados...' : `Enviar Certificados (Ambos os Dias: ${presentesAmbosDias})`}
+          </button>
+        )}
 
         {/* Botão de Ação em Lote: Imprimir Folha de Crachás */}
         <button
@@ -533,7 +554,7 @@ export default function InscritosCongressoPage() {
           <span className="congresso-metric-value">{presentesAmbosDias}</span>
         </div>
 
-        {!isCoordenadora && (
+        {!isGestoraUnidade && (
           <>
             <div className="congresso-metric-divider-v" />
             <div className="congresso-metric-divider-h" />
