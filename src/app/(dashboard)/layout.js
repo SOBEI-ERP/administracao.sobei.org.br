@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import Sidebar from '@/components/admin/Sidebar';
 import MobileHeader from '@/components/admin/MobileHeader';
+import AdminFooter from '@/components/admin/AdminFooter';
 
 export default function DashboardLayout({ children }) {
   const { isAuthenticated, loading, user } = useAuth();
@@ -52,7 +53,10 @@ export default function DashboardLayout({ children }) {
     <div className="admin-layout">
       <Sidebar />
       <MobileHeader />
-      <main className="admin-content">{children}</main>
+      <div className="admin-main-wrapper" style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: '100vh', width: '100%' }}>
+        <main className="admin-content" style={{ flex: 1 }}>{children}</main>
+        <AdminFooter />
+      </div>
     </div>
   );
 }
