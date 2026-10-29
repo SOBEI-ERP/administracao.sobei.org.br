@@ -61,8 +61,11 @@ export default function AdminLoginPage() {
             src="/images/LOGO AZUL.png"
             alt="SOBEI"
             width={260}
-            height={104}
+            height={122}
+            sizes="260px"
+            style={{ width: '260px', height: 'auto', aspectRatio: '1001 / 468' }}
             priority
+            fetchPriority="high"
           />
         </div>
 

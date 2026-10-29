@@ -6,22 +6,25 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const inter = Inter({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800', '900'],
   display: 'swap',
   variable: '--font-inter',
 });
 
 const montserrat = Montserrat({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800', '900'],
   display: 'swap',
   variable: '--font-montserrat',
 });
 
 export const metadata = {
-  title: 'SOBEI - Portal de Denúncias',
+  metadataBase: new URL('https://administracao.sobei.org.br'),
+  title: 'SOBEI - Painel Administrativo',
   description:
-    'Canal de comunicação e denúncias da Sociedade Beneficente Equilíbrio de Interlagos. Relatar condutas inadequadas, violações éticas ou irregularidades de forma segura e confidencial.',
+    'Painel unificado de gestão administrativa, denúncias, processos seletivos e operações da SOBEI.',
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -31,7 +34,7 @@ export default function RootLayout({ children }) {
         <QueryProvider>
           <AuthProvider>{children}</AuthProvider>
         </QueryProvider>
-        <SpeedInsights />
+        {process.env.VERCEL ? <SpeedInsights /> : null}
       </body>
     </html>
   );

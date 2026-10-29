@@ -18,6 +18,14 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let cancelled = false;
     async function restore() {
+      const token = typeof window !== 'undefined' ? sessionStorage.getItem('sobei_token') : null;
+      if (!token) {
+        if (!cancelled) {
+          setLoading(false);
+        }
+        return;
+      }
+
       try {
         const me = await fetchMe();
         if (!cancelled) {
