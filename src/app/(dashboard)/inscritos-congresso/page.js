@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, useDeferredValue, memo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useDeferredValue, useRef, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   fetchInscritosCongresso,
+  fetchEstatisticasCongresso,
   alterarPresencaInscrito,
   enviarCertificadoInscrito,
   enviarCertificadosLoteAmbosDias,
@@ -19,6 +20,8 @@ import { normalizarNomeUnidade, normalizarTextoOficina } from '@/lib/congressoOf
 import CustomSelect from '@/components/admin/CustomSelect';
 import OficinasModal from '@/components/admin/OficinasModal';
 import { IconCheck, IconClose, IconSearch, IconClock } from '@/components/Icons';
+
+const TAMANHO_PAGINA = 100;
 
 // Formatador único compartilhado (evita instanciar Intl.DateTimeFormat milhares de vezes na renderização)
 const TIME_FORMATTER = new Intl.DateTimeFormat('pt-BR', {
@@ -210,7 +213,7 @@ const InscritoRow = memo(function InscritoRow({
       </td>
 
       {/* Presença Dia 11 (Sexta) */}
-      <td style={{ padding: 0, textAlign: 'center', whiteSpace: 'nowrap', verticalAlign: 'middle', height: '1px', width: '96px', minWidth: '96px', maxWidth: '96px' }}>
+      <td style={{ padding: '4px', textAlign: 'center', whiteSpace: 'nowrap', verticalAlign: 'middle', height: '1px', width: '96px', minWidth: '96px', maxWidth: '96px' }}>
         <button
           type="button"
           onClick={() => podeConfirmarPresenca && onTogglePresenca(inscrito.id, 11, inscrito.presenteDia11)}
@@ -253,7 +256,7 @@ const InscritoRow = memo(function InscritoRow({
       </td>
 
       {/* Presença Dia 12 (Sábado) */}
-      <td style={{ padding: 0, textAlign: 'center', whiteSpace: 'nowrap', verticalAlign: 'middle', height: '1px', width: '96px', minWidth: '96px', maxWidth: '96px' }}>
+      <td style={{ padding: '4px', textAlign: 'center', whiteSpace: 'nowrap', verticalAlign: 'middle', height: '1px', width: '96px', minWidth: '96px', maxWidth: '96px' }}>
         <button
           type="button"
           onClick={() => podeConfirmarPresenca && onTogglePresenca(inscrito.id, 12, inscrito.presenteDia12)}
@@ -296,7 +299,7 @@ const InscritoRow = memo(function InscritoRow({
       </td>
 
       {/* Emissões & Ações: Crachá, Enviar Certificado e Baixar Certificado */}
-      <td style={{ padding: '12px 8px', textAlign: 'center', whiteSpace: 'nowrap' }}>
+      <td style={{ padding: '12px 10px', textAlign: 'center', whiteSpace: 'nowrap', minWidth: '145px' }}>
         <div style={{ display: 'inline-flex', flexDirection: 'column', gap: '4px', width: '100%', maxWidth: '140px' }}>
           {/* Botão 1: Imprimir Crachá Individual */}
           <button
@@ -465,12 +468,17 @@ export default function InscritosCongressoPage() {
   const { user } = useAuth();
   const [inscritos, setInscritos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [pagina, setPagina] = useState(0);
+  const [totalRegistros, setTotalRegistros] = useState(0);
+  const [temMais, setTemMais] = useState(false);
+  const [statsGerais, setStatsGerais] = useState(null);
+
   const [termoBusca, setTermoBusca] = useState('');
   const [unidadeFilter, setUnidadeFilter] = useState('');
   const [tipoOscFilter, setTipoOscFilter] = useState('');
   const [presencaFiltro, setPresencaFiltro] = useState('');
-  const [paginaAtual, setPaginaAtual] = useState(1);
-  const [itensPorPagina, setItensPorPagina] = useState(50);
+
   const [updatingAction, setUpdatingAction] = useState(null); // 'id-11' ou 'id-12'
   const [enviandoCertId, setEnviandoCertId] = useState(null);
   const [baixandoCertId, setBaixandoCertId] = useState(null);
@@ -481,8 +489,9 @@ export default function InscritosCongressoPage() {
   const [selectedInscritoOficinas, setSelectedInscritoOficinas] = useState(null);
   const [inscritoParaExcluir, setInscritoParaExcluir] = useState(null);
   const [deletandoId, setDeletandoId] = useState(null);
-  const [toastFeedback, setToastFeedback] = useState(null); // { type: 'success' | 'error', message: string }
+  const [toastFeedback, setToastFeedback] = useState(null);
 
+  const sentinelRef = useRef(null);
   const termoBuscaDeferred = useDeferredValue(termoBusca);
 
   const nivel = user?.nivel?.toUpperCase();
@@ -501,24 +510,111 @@ export default function InscritosCongressoPage() {
     }
   }, [nivel, router]);
 
-  // Carrega a lista completa uma única vez na montagem (evita refetch e remount de 900 linhas a cada tecla)
-  const loadInscritos = useCallback(async () => {
-    setLoading(true);
-    const data = await fetchInscritosCongresso();
-    setInscritos(Array.isArray(data) ? data.map(enriquecerInscrito) : []);
-    setLoading(false);
+  // Carrega as estatísticas consolidadas uma vez na montagem para preencher o card superior
+  const loadEstatisticas = useCallback(async () => {
+    try {
+      const data = await fetchEstatisticasCongresso();
+      if (data) {
+        setStatsGerais(data);
+      }
+    } catch (err) {
+      console.error('Erro ao buscar estatísticas do congresso:', err);
+    }
   }, []);
 
   useEffect(() => {
     if (nivel && nivel !== 'DP') {
-      loadInscritos();
+      loadEstatisticas();
     }
-  }, [loadInscritos, nivel]);
+  }, [loadEstatisticas, nivel]);
 
-  // Reseta para a página 1 sempre que os filtros mudarem
+  // Busca a primeira página de 100 usuários sempre que os filtros mudarem
+  const carregarPrimeiraPagina = useCallback(async () => {
+    setLoading(true);
+    setPagina(0);
+    try {
+      const res = await fetchInscritosCongresso({
+        termo: termoBuscaDeferred,
+        unidade: unidadeFilter,
+        tipoOsc: tipoOscFilter,
+        statusPresenca: presencaFiltro,
+        page: 0,
+        size: TAMANHO_PAGINA,
+      });
+
+      const items = Array.isArray(res) ? res : (res.items || []);
+      const enriched = items.map(enriquecerInscrito);
+      setInscritos(enriched);
+      setTotalRegistros(res.total ?? enriched.length);
+      setTemMais(Boolean(res.hasNext ?? (enriched.length >= TAMANHO_PAGINA)));
+    } catch (err) {
+      console.error('Erro ao carregar primeira página de inscritos:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [termoBuscaDeferred, unidadeFilter, tipoOscFilter, presencaFiltro]);
+
   useEffect(() => {
-    setPaginaAtual(1);
-  }, [termoBuscaDeferred, unidadeFilter, tipoOscFilter, presencaFiltro, itensPorPagina]);
+    if (nivel && nivel !== 'DP') {
+      const timer = setTimeout(() => {
+        carregarPrimeiraPagina();
+      }, 250);
+      return () => clearTimeout(timer);
+    }
+  }, [carregarPrimeiraPagina, nivel]);
+
+  // Busca a próxima página de 100 usuários e anexa à lista existente
+  const carregarMais = useCallback(async () => {
+    if (loading || loadingMore || !temMais) return;
+    setLoadingMore(true);
+    const proximaPagina = pagina + 1;
+
+    try {
+      const res = await fetchInscritosCongresso({
+        termo: termoBuscaDeferred,
+        unidade: unidadeFilter,
+        tipoOsc: tipoOscFilter,
+        statusPresenca: presencaFiltro,
+        page: proximaPagina,
+        size: TAMANHO_PAGINA,
+      });
+
+      const items = Array.isArray(res) ? res : (res.items || []);
+      const novosEnriquecidos = items.map(enriquecerInscrito);
+
+      setInscritos((prev) => {
+        const idsExistentes = new Set(prev.map((i) => i.id));
+        const unicos = novosEnriquecidos.filter((i) => !idsExistentes.has(i.id));
+        return [...prev, ...unicos];
+      });
+
+      setPagina(proximaPagina);
+      setTotalRegistros(res.total ?? (inscritos.length + novosEnriquecidos.length));
+      setTemMais(Boolean(res.hasNext ?? (novosEnriquecidos.length >= TAMANHO_PAGINA)));
+    } catch (err) {
+      console.error('Erro ao carregar mais participantes:', err);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [loading, loadingMore, temMais, pagina, termoBuscaDeferred, unidadeFilter, tipoOscFilter, presencaFiltro, inscritos.length]);
+
+  // IntersectionObserver no sentinel para auto-carregamento ao chegar no fim
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !temMais || loading || loadingMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          carregarMais();
+        }
+      },
+      { rootMargin: '300px' }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [temMais, loading, loadingMore, carregarMais]);
 
   const handleTogglePresenca = useCallback(async (id, dia, statusAtual) => {
     if (!podeConfirmarPresenca) return;
@@ -530,6 +626,18 @@ export default function InscritosCongressoPage() {
       setInscritos((prev) =>
         prev.map((item) => (item.id === id ? enriquecerInscrito({ ...item, ...res.inscricao }) : item))
       );
+      // Atualiza levemente os contadores das estatísticas gerais
+      setStatsGerais((prev) => {
+        if (!prev) return prev;
+        const diff = novoStatus ? 1 : -1;
+        if (dia === 11) {
+          return { ...prev, presentesDia11: Math.max(0, (prev.presentesDia11 || 0) + diff) };
+        }
+        if (dia === 12) {
+          return { ...prev, presentesDia12: Math.max(0, (prev.presentesDia12 || 0) + diff) };
+        }
+        return prev;
+      });
     }
     setUpdatingAction(null);
   }, [podeConfirmarPresenca]);
@@ -611,100 +719,8 @@ export default function InscritosCongressoPage() {
     setBaixandoCrachaId(null);
   }, []);
 
-  // Filtragem local instantânea por busca, unidade e tipo de OSC (sem round-trip de rede)
-  const inscritosBaseFiltrados = useMemo(() => {
-    const termoNorm = normalizarTextoBusca(termoBuscaDeferred);
-    const termoLower = termoBuscaDeferred.trim().toLowerCase();
-    const termoDigits = termoBuscaDeferred.replace(/\D/g, '');
-    const tipoOscAlvo = tipoOscFilter.trim().toUpperCase();
-    const unidadeAlvoLower = unidadeFilter.trim().toLowerCase();
-    const unidadeAlvoNorm = unidadeFilter ? normalizarNomeUnidade(unidadeFilter) : '';
-
-    if (!termoNorm && !tipoOscAlvo && !unidadeAlvoLower) {
-      return inscritos;
-    }
-
-    return inscritos.filter((item) => {
-      if (tipoOscAlvo && item._tipoOscUpper !== tipoOscAlvo) {
-        return false;
-      }
-
-      if (unidadeAlvoLower) {
-        const matchExato = item._unidadeTrimLower === unidadeAlvoLower;
-        const matchNorm = unidadeAlvoNorm && item._unidadeNorm === unidadeAlvoNorm;
-        if (!matchExato && !matchNorm) {
-          return false;
-        }
-      }
-
-      if (termoNorm) {
-        const matchNome = item._nomeNorm.includes(termoNorm);
-        const matchEmail = item._emailNorm.includes(termoLower);
-        const matchCpfFormatado = item._cpfLower.includes(termoLower);
-        const matchCpfDigitos = termoDigits.length > 0 && item._cpfDigits.includes(termoDigits);
-        if (!matchNome && !matchEmail && !matchCpfFormatado && !matchCpfDigitos) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }, [inscritos, termoBuscaDeferred, tipoOscFilter, unidadeFilter]);
-
-  // Filtro local de presença aplicado sobre o conjunto filtrado
-  const inscritosFiltrados = useMemo(() => {
-    if (!presencaFiltro) return inscritosBaseFiltrados;
-    return inscritosBaseFiltrados.filter((item) => {
-      if (presencaFiltro === 'dia11_presente') return Boolean(item.presenteDia11);
-      if (presencaFiltro === 'dia12_presente') return Boolean(item.presenteDia12);
-      if (presencaFiltro === 'ambos_presente') return Boolean(item.presenteDia11 && item.presenteDia12);
-      if (presencaFiltro === 'nenhum_presente') return !item.presenteDia11 && !item.presenteDia12;
-      return true;
-    });
-  }, [inscritosBaseFiltrados, presencaFiltro]);
-
-  // Contadores consolidados em passagem única O(N)
-  const metricas = useMemo(() => {
-    let p11 = 0;
-    let p12 = 0;
-    let ambos = 0;
-    let sobei = 0;
-
-    for (let i = 0; i < inscritosBaseFiltrados.length; i++) {
-      const item = inscritosBaseFiltrados[i];
-      const d11 = Boolean(item.presenteDia11);
-      const d12 = Boolean(item.presenteDia12);
-      if (d11) p11++;
-      if (d12) p12++;
-      if (d11 && d12) ambos++;
-      if (item._tipoOscUpper === 'SOBEI') sobei++;
-    }
-
-    return {
-      total: inscritosBaseFiltrados.length,
-      presentesDia11: p11,
-      presentesDia12: p12,
-      presentesAmbosDias: ambos,
-      sobeiCount: sobei,
-    };
-  }, [inscritosBaseFiltrados]);
-
-  // Paginação client-side para manter o DOM leve e responsivo
-  const totalPaginas = useMemo(() => {
-    if (itensPorPagina <= 0) return 1;
-    return Math.max(1, Math.ceil(inscritosFiltrados.length / itensPorPagina));
-  }, [inscritosFiltrados.length, itensPorPagina]);
-
-  const paginaSegura = Math.min(paginaAtual, totalPaginas);
-
-  const inscritosPaginados = useMemo(() => {
-    if (itensPorPagina <= 0) return inscritosFiltrados;
-    const inicio = (paginaSegura - 1) * itensPorPagina;
-    return inscritosFiltrados.slice(inicio, inicio + itensPorPagina);
-  }, [inscritosFiltrados, paginaSegura, itensPorPagina]);
-
   const handleBaixarCrachasLote = async () => {
-    if (inscritosFiltrados.length === 0) {
+    if (inscritos.length === 0) {
       setToastFeedback({
         type: 'error',
         message: 'Nenhum inscrito disponível para gerar crachás com os filtros atuais.',
@@ -758,11 +774,13 @@ export default function InscritosCongressoPage() {
     const res = await deletarInscritoCongresso(inscritoParaExcluir.id);
     if (res.success) {
       setInscritos((prev) => prev.filter((i) => i.id !== inscritoParaExcluir.id));
+      setTotalRegistros((prev) => Math.max(0, prev - 1));
       setToastFeedback({
         type: 'success',
         message: `Inscrição de ${inscritoParaExcluir.nomeCompleto} excluída com sucesso!`,
       });
       setInscritoParaExcluir(null);
+      loadEstatisticas();
     } else {
       setToastFeedback({
         type: 'error',
@@ -776,7 +794,17 @@ export default function InscritosCongressoPage() {
     return null;
   }
 
-  const { total, presentesDia11, presentesDia12, presentesAmbosDias, sobeiCount } = metricas;
+  const temFiltroAtivo = Boolean(termoBusca || unidadeFilter || tipoOscFilter || presencaFiltro);
+
+  // Métricas do card superior: reflete dados oficiais de Estatisticas ou contadores reais
+  const metricasCard = {
+    total: statsGerais?.totalInscritos ?? totalRegistros,
+    presentesDia11: statsGerais?.presentesDia11 ?? 0,
+    presentesDia12: statsGerais?.presentesDia12 ?? 0,
+    presentesAmbosDias: statsGerais?.presentesAmbosDias ?? 0,
+    sobeiCount: statsGerais?.totalSobei ?? 0,
+    outraCount: statsGerais?.totalOutrasOsc ?? 0,
+  };
 
   return (
     <div className="admin-page">
@@ -937,7 +965,7 @@ export default function InscritosCongressoPage() {
         )}
 
         {/* Ação Limpar Filtros */}
-        {(termoBusca || unidadeFilter || tipoOscFilter || presencaFiltro) && (
+        {temFiltroAtivo && (
           <div className="filter-bar__actions" style={{ marginLeft: 'auto', alignSelf: 'flex-end', minHeight: '38px' }}>
             <button
               className="btn btn--limpar"
@@ -973,23 +1001,23 @@ export default function InscritosCongressoPage() {
           <button
             type="button"
             onClick={() => setShowConfirmModalCertificados(true)}
-            disabled={enviandoLoteCertificados || presentesAmbosDias === 0}
+            disabled={enviandoLoteCertificados || metricasCard.presentesAmbosDias === 0}
             className="congresso-btn btn-certificados"
             style={{
-              cursor: (enviandoLoteCertificados || presentesAmbosDias === 0) ? 'not-allowed' : 'pointer',
-              opacity: (enviandoLoteCertificados || presentesAmbosDias === 0) ? 0.6 : 1,
+              cursor: (enviandoLoteCertificados || metricasCard.presentesAmbosDias === 0) ? 'not-allowed' : 'pointer',
+              opacity: (enviandoLoteCertificados || metricasCard.presentesAmbosDias === 0) ? 0.6 : 1,
             }}
             title={
-              presentesAmbosDias === 0
+              metricasCard.presentesAmbosDias === 0
                 ? 'Nenhum participante possui check-in em ambos os dias (11 e 12/Set)'
-                : `Disparar certificados por e-mail para ${presentesAmbosDias} participantes com presença em ambos os dias`
+                : `Disparar certificados por e-mail para ${metricasCard.presentesAmbosDias} participantes com presença em ambos os dias`
             }
           >
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="8" r="6" />
               <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
             </svg>
-            {enviandoLoteCertificados ? 'Enviando Certificados...' : `Enviar Certificados (Ambos os Dias: ${presentesAmbosDias})`}
+            {enviandoLoteCertificados ? 'Enviando Certificados...' : `Enviar Certificados (Ambos os Dias: ${metricasCard.presentesAmbosDias})`}
           </button>
         )}
 
@@ -997,11 +1025,11 @@ export default function InscritosCongressoPage() {
         <button
           type="button"
           onClick={handleBaixarCrachasLote}
-          disabled={gerandoLoteCrachas || inscritosFiltrados.length === 0}
+          disabled={gerandoLoteCrachas || inscritos.length === 0}
           className="congresso-btn btn-crachas"
           style={{
-            cursor: (gerandoLoteCrachas || inscritosFiltrados.length === 0) ? 'not-allowed' : 'pointer',
-            opacity: (gerandoLoteCrachas || inscritosFiltrados.length === 0) ? 0.6 : 1,
+            cursor: (gerandoLoteCrachas || inscritos.length === 0) ? 'not-allowed' : 'pointer',
+            opacity: (gerandoLoteCrachas || inscritos.length === 0) ? 0.6 : 1,
           }}
           title="Gerar PDF com grade de 14 etiquetas por folha (2 colunas x 7 linhas - 33,9 x 101,6 mm no padrão Tilibra TB182 A4)"
         >
@@ -1017,8 +1045,12 @@ export default function InscritosCongressoPage() {
       {/* Card Único com Informações e Métricas */}
       <div className="congresso-metrics-card">
         <div className="congresso-metric-item">
-          <span className="congresso-metric-label">Total Inscritos:</span>
-          <span className="congresso-metric-value">{total}</span>
+          <span className="congresso-metric-label">
+            {temFiltroAtivo ? 'Filtro / Total:' : 'Total Inscritos:'}
+          </span>
+          <span className="congresso-metric-value">
+            {temFiltroAtivo ? `${totalRegistros} de ${metricasCard.total}` : metricasCard.total}
+          </span>
         </div>
 
         <div className="congresso-metric-divider-v" />
@@ -1026,7 +1058,7 @@ export default function InscritosCongressoPage() {
 
         <div className="congresso-metric-item">
           <span className="congresso-metric-label">Check-in Dia 11 (Sexta):</span>
-          <span className="congresso-metric-value">{presentesDia11}</span>
+          <span className="congresso-metric-value">{metricasCard.presentesDia11}</span>
         </div>
 
         <div className="congresso-metric-divider-v" />
@@ -1034,7 +1066,7 @@ export default function InscritosCongressoPage() {
 
         <div className="congresso-metric-item">
           <span className="congresso-metric-label">Check-in Dia 12 (Sábado):</span>
-          <span className="congresso-metric-value">{presentesDia12}</span>
+          <span className="congresso-metric-value">{metricasCard.presentesDia12}</span>
         </div>
 
         <div className="congresso-metric-divider-v" />
@@ -1042,7 +1074,7 @@ export default function InscritosCongressoPage() {
 
         <div className="congresso-metric-item">
           <span className="congresso-metric-label">Check-in Ambos os Dias:</span>
-          <span className="congresso-metric-value">{presentesAmbosDias}</span>
+          <span className="congresso-metric-value">{metricasCard.presentesAmbosDias}</span>
         </div>
 
         {!isGestoraUnidade && (
@@ -1052,9 +1084,9 @@ export default function InscritosCongressoPage() {
             <div className="congresso-metric-item">
               <span className="congresso-metric-label">SOBEI vs OSC:</span>
               <span className="congresso-metric-value">
-                {sobeiCount} <span className="congresso-metric-sublabel">SOBEI</span>{' '}
+                {metricasCard.sobeiCount} <span className="congresso-metric-sublabel">SOBEI</span>{' '}
                 <span style={{ color: 'var(--color-gray-300)', margin: '0 2px' }}>/</span>{' '}
-                {total - sobeiCount} <span className="congresso-metric-sublabel">OSC</span>
+                {metricasCard.outraCount} <span className="congresso-metric-sublabel">OSC</span>
               </span>
             </div>
           </>
@@ -1071,12 +1103,12 @@ export default function InscritosCongressoPage() {
       }}>
         {loading ? (
           <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center', color: 'var(--color-gray-500)' }}>
-            Carregando inscritos...
+            Carregando participantes (100 por vez)...
           </div>
-        ) : inscritosFiltrados.length === 0 ? (
+        ) : inscritos.length === 0 ? (
           <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center', color: 'var(--color-gray-500)' }}>
             <p style={{ fontSize: '1.1rem', marginBottom: '8px' }}>Nenhum inscrito encontrado com os filtros aplicados.</p>
-            {(termoBusca || unidadeFilter || tipoOscFilter || presencaFiltro) && (
+            {temFiltroAtivo && (
               <button
                 onClick={() => {
                   setTermoBusca('');
@@ -1100,14 +1132,14 @@ export default function InscritosCongressoPage() {
                     <th style={{ padding: '12px 10px', textAlign: 'center', width: '22%' }}>Participante</th>
                     <th style={{ padding: '12px 8px', textAlign: 'center', width: '13%' }}>CPF</th>
                     <th style={{ padding: '12px 8px', textAlign: 'center', width: '14%' }}>OSC / Unidade</th>
-                    <th style={{ padding: '12px 10px', textAlign: 'center', width: '25%' }}>Oficina Pedagógica</th>
-                    <th style={{ padding: '12px 2px', textAlign: 'center', width: '96px', minWidth: '96px', maxWidth: '96px', whiteSpace: 'nowrap' }}>Presença 11/Set</th>
-                    <th style={{ padding: '12px 2px', textAlign: 'center', width: '96px', minWidth: '96px', maxWidth: '96px', whiteSpace: 'nowrap' }}>Presença 12/Set</th>
-                    <th style={{ padding: '12px 8px', textAlign: 'center', width: '14%' }}>Emissões &amp; Ações</th>
+                    <th style={{ padding: '12px 10px', textAlign: 'center', width: '23%' }}>Oficina Pedagógica</th>
+                    <th style={{ padding: '12px 4px', textAlign: 'center', width: '96px', minWidth: '96px', maxWidth: '96px', whiteSpace: 'nowrap' }}>11/Set</th>
+                    <th style={{ padding: '12px 4px', textAlign: 'center', width: '96px', minWidth: '96px', maxWidth: '96px', whiteSpace: 'nowrap' }}>12/Set</th>
+                    <th style={{ padding: '12px 10px', textAlign: 'center', width: '145px', minWidth: '145px' }}>Emissões &amp; Ações</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {inscritosPaginados.map((inscrito) => (
+                  {inscritos.map((inscrito) => (
                     <InscritoRow
                       key={inscrito.id}
                       inscrito={inscrito}
@@ -1132,106 +1164,81 @@ export default function InscritosCongressoPage() {
               </table>
             </div>
 
-            {/* Barra de Paginação Client-Side */}
-            {inscritosFiltrados.length > 50 && (
+            {/* Elemento Sentinel para Infinite Scroll automático */}
+            <div ref={sentinelRef} style={{ height: '10px' }} />
+
+            {/* Indicador de Carregamento Progressivo (100 por vez) */}
+            {loadingMore ? (
               <div
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
-                  gap: '12px',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  padding: '16px',
+                  backgroundColor: '#f9fafb',
+                  borderTop: '1px solid #e5e7eb',
+                  color: '#4b5563',
+                  fontSize: '0.84rem',
+                  fontWeight: '600',
+                }}
+              >
+                <div
+                  className="checkin-square-btn__spinner"
+                  style={{
+                    width: '18px',
+                    height: '18px',
+                    borderWidth: '2.5px',
+                    borderColor: '#2563EB',
+                    borderTopColor: 'transparent',
+                  }}
+                />
+                <span>Buscando mais 100 participantes...</span>
+              </div>
+            ) : temMais ? (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '14px',
+                  backgroundColor: '#f9fafb',
+                  borderTop: '1px solid #e5e7eb',
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={carregarMais}
+                  className="btn btn--outline"
+                  style={{
+                    fontSize: '0.82rem',
+                    padding: '6px 20px',
+                    borderRadius: '20px',
+                    fontWeight: '700',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <span>Carregar mais 100 participantes (exibindo {inscritos.length} de {totalRegistros})</span>
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </button>
+              </div>
+            ) : (
+              <div
+                style={{
                   padding: '12px 16px',
                   backgroundColor: '#f9fafb',
                   borderTop: '1px solid #e5e7eb',
-                  fontSize: '0.82rem',
-                  color: '#4b5563',
+                  textAlign: 'center',
+                  color: '#9ca3af',
+                  fontSize: '0.80rem',
+                  fontWeight: '600',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span>
-                    Exibindo{' '}
-                    <strong>
-                      {itensPorPagina <= 0
-                        ? 1
-                        : (paginaSegura - 1) * itensPorPagina + 1}
-                    </strong>{' '}
-                    a{' '}
-                    <strong>
-                      {itensPorPagina <= 0
-                        ? inscritosFiltrados.length
-                        : Math.min(paginaSegura * itensPorPagina, inscritosFiltrados.length)}
-                    </strong>{' '}
-                    de <strong>{inscritosFiltrados.length}</strong> participantes
-                  </span>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span>Linhas por página:</span>
-                    <select
-                      value={itensPorPagina}
-                      onChange={(e) => setItensPorPagina(Number(e.target.value))}
-                      style={{
-                        padding: '4px 8px',
-                        borderRadius: '6px',
-                        border: '1px solid #d1d5db',
-                        backgroundColor: '#ffffff',
-                        fontSize: '0.80rem',
-                        color: '#111827',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      <option value={50}>50</option>
-                      <option value={100}>100</option>
-                      <option value={200}>200</option>
-                      <option value={0}>Todos ({inscritosFiltrados.length})</option>
-                    </select>
-                  </div>
-
-                  {itensPorPagina > 0 && totalPaginas > 1 && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <button
-                        type="button"
-                        onClick={() => setPaginaAtual((p) => Math.max(1, p - 1))}
-                        disabled={paginaSegura <= 1}
-                        style={{
-                          padding: '5px 10px',
-                          borderRadius: '6px',
-                          border: '1px solid #d1d5db',
-                          backgroundColor: paginaSegura <= 1 ? '#f3f4f6' : '#ffffff',
-                          color: paginaSegura <= 1 ? '#9ca3af' : '#1f2937',
-                          fontWeight: '600',
-                          fontSize: '0.78rem',
-                          cursor: paginaSegura <= 1 ? 'not-allowed' : 'pointer',
-                        }}
-                      >
-                        Anterior
-                      </button>
-                      <span style={{ fontWeight: '600', padding: '0 4px', color: '#111827' }}>
-                        Página {paginaSegura} de {totalPaginas}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setPaginaAtual((p) => Math.min(totalPaginas, p + 1))}
-                        disabled={paginaSegura >= totalPaginas}
-                        style={{
-                          padding: '5px 10px',
-                          borderRadius: '6px',
-                          border: '1px solid #d1d5db',
-                          backgroundColor: paginaSegura >= totalPaginas ? '#f3f4f6' : '#ffffff',
-                          color: paginaSegura >= totalPaginas ? '#9ca3af' : '#1f2937',
-                          fontWeight: '600',
-                          fontSize: '0.78rem',
-                          cursor: paginaSegura >= totalPaginas ? 'not-allowed' : 'pointer',
-                        }}
-                      >
-                        Próxima
-                      </button>
-                    </div>
-                  )}
-                </div>
+                Exibindo todos os {inscritos.length} participantes encontrados.
               </div>
             )}
           </>
@@ -1307,7 +1314,7 @@ export default function InscritosCongressoPage() {
                   fontWeight: '800',
                   color: 'var(--color-primary)',
                 }}>
-                  {presentesAmbosDias} {presentesAmbosDias === 1 ? 'participante' : 'participantes'}
+                  {metricasCard.presentesAmbosDias} {metricasCard.presentesAmbosDias === 1 ? 'participante' : 'participantes'}
                 </span>
               </div>
 

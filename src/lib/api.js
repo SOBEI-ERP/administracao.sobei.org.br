@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // SOBEI Portal — API Integration
 // ============================================
 
@@ -834,6 +834,8 @@ export async function fetchInscritosCongresso(filtros = {}) {
     if (filtros.unidade) params.append('unidade', filtros.unidade);
     if (filtros.tipoOsc) params.append('tipoOsc', filtros.tipoOsc);
     if (filtros.presente !== undefined && filtros.presente !== '') params.append('presente', filtros.presente);
+    if (filtros.page !== undefined && filtros.page !== null) params.append('page', filtros.page);
+    if (filtros.size !== undefined && filtros.size !== null) params.append('size', filtros.size);
 
     const query = params.toString();
     const url = `${API_BASE_URL}/admin/inscricoes-congresso${query ? `?${query}` : ''}`;
@@ -845,14 +847,31 @@ export async function fetchInscritosCongresso(filtros = {}) {
     });
 
     if (!response.ok) {
-      return [];
+      const empty = [];
+      empty.total = 0;
+      empty.hasNext = false;
+      empty.items = empty;
+      return empty;
     }
 
+    const totalHeader = response.headers.get('X-Total-Count');
+    const hasNextHeader = response.headers.get('X-Has-Next');
     const data = await response.json();
-    return Array.isArray(data) ? data : [];
+    const items = Array.isArray(data) ? data : (data.content || []);
+    const total = totalHeader ? parseInt(totalHeader, 10) : (data.totalElements ?? items.length);
+    const hasNext = hasNextHeader !== null ? (hasNextHeader === 'true') : (items.length >= (filtros.size || 100));
+
+    items.total = total;
+    items.hasNext = hasNext;
+    items.items = items;
+    return items;
   } catch (error) {
     console.error('Erro ao buscar inscritos do congresso:', error);
-    return [];
+    const empty = [];
+    empty.total = 0;
+    empty.hasNext = false;
+    empty.items = empty;
+    return empty;
   }
 }
 
