@@ -4,6 +4,7 @@ import {
   obterCotaUnidade,
   calcularOcupacaoUnidade,
   calcularOcupacaoOutrasOsc,
+  calcularMapaOcupacaoOficinas,
   COTA_OUTRAS_OSC_POR_OFICINA,
 } from '../congressoOficinas';
 
@@ -128,5 +129,26 @@ describe('congressoOficinas - Regras de Cotas e Limites por Unidade', () => {
     expect(ocupOutraPropria.ocupadas).toBe(9);
     expect(ocupOutraPropria.disponiveis).toBe(1);
     expect(ocupOutraPropria.esgotada).toBe(false);
+  });
+
+  test('calcularMapaOcupacaoOficinas deve pré-calcular em lote o status de todas as 23 oficinas', () => {
+    const inscritosMock = [
+      { id: 1, tipoOsc: 'SOBEI', unidade: 'CEI Leblon', oficina: 'Entre contos, brincadeiras e canções.' },
+      { id: 2, tipoOsc: 'SOBEI', unidade: 'CEI Leblon', oficina: 'Quem dança seus males espanta!' },
+    ];
+
+    const novoInscritoLeblon = { id: 99, tipoOsc: 'SOBEI', unidade: 'CEI Leblon' };
+    const mapa = calcularMapaOcupacaoOficinas(novoInscritoLeblon, inscritosMock);
+
+    expect(mapa.size).toBe(23);
+    const ocupContos = mapa.get('Entre contos, brincadeiras e canções.');
+    expect(ocupContos.ocupadas).toBe(1);
+    expect(ocupContos.limite).toBe(1);
+    expect(ocupContos.esgotada).toBe(true);
+
+    const ocupDanca = mapa.get('Quem dança seus males espanta!');
+    expect(ocupDanca.ocupadas).toBe(1);
+    expect(ocupDanca.limite).toBe(3);
+    expect(ocupDanca.esgotada).toBe(false);
   });
 });
