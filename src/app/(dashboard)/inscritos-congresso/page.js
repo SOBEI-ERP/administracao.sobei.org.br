@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useDeferredValue, memo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -15,9 +15,450 @@ import {
   deletarInscritoCongresso,
 } from '@/lib/api';
 import { UNIDADES } from '@/lib/mockData';
+import { normalizarNomeUnidade, normalizarTextoOficina } from '@/lib/congressoOficinas';
 import CustomSelect from '@/components/admin/CustomSelect';
 import OficinasModal from '@/components/admin/OficinasModal';
-import { IconCheck, IconClose, IconSearch, IconUser, IconMapPin, IconClock } from '@/components/Icons';
+import { IconCheck, IconClose, IconSearch, IconClock } from '@/components/Icons';
+
+// Formatador único compartilhado (evita instanciar Intl.DateTimeFormat milhares de vezes na renderização)
+const TIME_FORMATTER = new Intl.DateTimeFormat('pt-BR', {
+  hour: '2-digit',
+  minute: '2-digit',
+});
+
+function formatHoraRapida(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return '';
+  return TIME_FORMATTER.format(d);
+}
+
+function normalizarTextoBusca(str) {
+  if (!str) return '';
+  return String(str)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+}
+
+function enriquecerInscrito(item) {
+  const oficinaEfetiva = item.oficina || item.oficinaManha || item.oficinaTarde || '';
+  return {
+    ...item,
+    _nomeNorm: normalizarTextoBusca(item.nomeCompleto),
+    _emailNorm: (item.email || '').toLowerCase().trim(),
+    _cpfLower: (item.cpf || '').toLowerCase().trim(),
+    _cpfDigits: (item.cpf || '').replace(/\D/g, ''),
+    _tipoOscUpper: (item.tipoOsc || '').trim().toUpperCase(),
+    _unidadeTrimLower: (item.unidade || '').trim().toLowerCase(),
+    _unidadeNorm: normalizarNomeUnidade(item.unidade),
+    _oficinaEfetiva: oficinaEfetiva,
+    _oficinaNorm: normalizarTextoOficina(oficinaEfetiva),
+    _horaDia11: formatHoraRapida(item.dataPresencaDia11),
+    _horaDia12: formatHoraRapida(item.dataPresencaDia12),
+  };
+}
+
+const UNIDADES_OPTIONS = UNIDADES.map((u) => ({ value: u, label: u }));
+
+const OSC_OPTIONS = [
+  { value: 'SOBEI', label: 'Apenas SOBEI' },
+  { value: 'OUTRA', label: 'Outras OSCs' },
+];
+
+const PRESENCA_OPTIONS = [
+  { value: 'dia11_presente', label: 'Presente no Dia 11 (Sexta)' },
+  { value: 'dia12_presente', label: 'Presente no Dia 12 (Sábado)' },
+  { value: 'ambos_presente', label: 'Presente em Ambos os Dias' },
+  { value: 'nenhum_presente', label: 'Pendente em Ambos os Dias' },
+];
+
+/**
+ * Linha individual memoizada para evitar re-renderização das demais linhas
+ * durante check-in, download de crachá/certificado ou digitação.
+ */
+const InscritoRow = memo(function InscritoRow({
+  inscrito,
+  isCredenciador,
+  isSuporte,
+  podeConfirmarPresenca,
+  updatingDia11,
+  updatingDia12,
+  baixandoCracha,
+  enviandoCert,
+  baixandoCert,
+  deletando,
+  onOpenOficinas,
+  onTogglePresenca,
+  onBaixarCracha,
+  onEnviarCertificado,
+  onBaixarCertificado,
+  onSolicitarExclusao,
+}) {
+  const temCheckinAmbosDias = Boolean(inscrito.presenteDia11 && inscrito.presenteDia12);
+  const certificadoBloqueadoCredenciador = isCredenciador && !temCheckinAmbosDias;
+  const oficinaTexto = inscrito._oficinaEfetiva;
+  const hora11 = inscrito._horaDia11;
+  const hora12 = inscrito._horaDia12;
+
+  return (
+    <tr
+      style={{
+        borderBottom: '1px solid #f3f4f6',
+        transition: 'background-color 0.15s ease',
+        backgroundColor: (inscrito.presenteDia11 || inscrito.presenteDia12) ? 'rgba(16, 185, 129, 0.03)' : 'transparent',
+      }}
+    >
+      {/* Nome e Email */}
+      <td style={{ padding: '12px 10px', textAlign: 'center' }}>
+        <div style={{ fontWeight: 'bold', color: '#111827', wordBreak: 'break-word' }}>{inscrito.nomeCompleto}</div>
+        <div style={{ color: '#6b7280', fontSize: '0.80rem', marginTop: '2px', wordBreak: 'break-all' }}>{inscrito.email}</div>
+      </td>
+
+      {/* CPF */}
+      <td style={{ padding: '12px 8px', fontFamily: 'monospace', fontSize: '0.85rem', color: '#374151', whiteSpace: 'nowrap', textAlign: 'center' }}>
+        {inscrito.cpf}
+      </td>
+
+      {/* OSC / Unidade */}
+      <td style={{ padding: '12px 8px', textAlign: 'center' }}>
+        {inscrito.tipoOsc === 'SOBEI' ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
+            <span style={{
+              display: 'inline-block',
+              background: '#1B1464',
+              color: '#FFFFFF',
+              fontSize: '0.70rem',
+              fontWeight: '700',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              lineHeight: '1.2',
+            }}>SOBEI</span>
+            <span style={{ color: '#1f2937', fontWeight: '500', fontSize: '0.82rem', wordBreak: 'break-word', maxWidth: '140px', lineHeight: '1.2' }}>{inscrito.unidade}</span>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
+            <span style={{
+              display: 'inline-block',
+              background: '#D97706',
+              color: '#FFFFFF',
+              fontSize: '0.70rem',
+              fontWeight: '700',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              lineHeight: '1.2',
+            }}>OSC</span>
+            <span style={{ color: '#1f2937', fontSize: '0.82rem', wordBreak: 'break-word', maxWidth: '140px', lineHeight: '1.2' }}>{inscrito.outraOsc}</span>
+          </div>
+        )}
+      </td>
+
+      {/* Oficina Pedagógica Única */}
+      <td style={{ padding: '12px 10px', textAlign: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+          {oficinaTexto ? (
+            <span
+              style={{
+                color: '#0f766e',
+                fontWeight: '600',
+                fontSize: '0.80rem',
+                lineHeight: '1.25',
+                maxWidth: '240px',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                textAlign: 'center',
+              }}
+              title={oficinaTexto}
+            >
+              {oficinaTexto}
+            </span>
+          ) : (
+            <span style={{ color: '#9ca3af', fontStyle: 'italic', fontSize: '0.78rem' }}>Não definida</span>
+          )}
+
+          <button
+            type="button"
+            onClick={() => onOpenOficinas(inscrito)}
+            style={{
+              alignSelf: 'center',
+              marginTop: '2px',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              fontSize: '0.73rem',
+              fontWeight: '700',
+              backgroundColor: oficinaTexto ? '#059669' : '#2563EB',
+              color: '#FFFFFF',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              transition: 'background-color 0.15s ease',
+            }}
+          >
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.2">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+            </svg>
+            {oficinaTexto ? 'Editar Oficina' : 'Definir Oficina'}
+          </button>
+        </div>
+      </td>
+
+      {/* Presença Dia 11 (Sexta) */}
+      <td style={{ padding: 0, textAlign: 'center', whiteSpace: 'nowrap', verticalAlign: 'middle', height: '1px', width: '96px', minWidth: '96px', maxWidth: '96px' }}>
+        <button
+          type="button"
+          onClick={() => podeConfirmarPresenca && onTogglePresenca(inscrito.id, 11, inscrito.presenteDia11)}
+          disabled={!podeConfirmarPresenca || updatingDia11}
+          className={`checkin-square-btn checkin-square-btn--left ${inscrito.presenteDia11 ? 'checkin-square-btn--presente' : 'checkin-square-btn--pendente'}`}
+          title={
+            !podeConfirmarPresenca
+              ? (inscrito.presenteDia11 ? 'Presença confirmada em 11/Set' : 'Presença pendente em 11/Set')
+              : inscrito.presenteDia11
+              ? `Presente em 11/Set${hora11 ? ` às ${hora11}` : ''}. Clique para desmarcar`
+              : 'Pendente em 11/Set. Clique para confirmar check-in'
+          }
+        >
+          {updatingDia11 ? (
+            <div className="checkin-square-btn__loading">
+              <span className="checkin-square-btn__spinner" />
+              <span style={{ fontSize: '0.65rem', fontWeight: '700' }}>Salvando...</span>
+            </div>
+          ) : inscrito.presenteDia11 ? (
+            <>
+              <span className="checkin-square-btn__day">11/Set</span>
+              <div className="checkin-square-btn__content-default">
+                <IconCheck size={18} strokeWidth={2.8} />
+                <span className="checkin-square-btn__status">Presente</span>
+                {hora11 && (
+                  <span className="checkin-square-btn__time">{hora11}</span>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <span className="checkin-square-btn__day">11/Set</span>
+              <div className="checkin-square-btn__content-default">
+                <IconClock size={16} />
+                <span className="checkin-square-btn__status">Pendente</span>
+              </div>
+            </>
+          )}
+        </button>
+      </td>
+
+      {/* Presença Dia 12 (Sábado) */}
+      <td style={{ padding: 0, textAlign: 'center', whiteSpace: 'nowrap', verticalAlign: 'middle', height: '1px', width: '96px', minWidth: '96px', maxWidth: '96px' }}>
+        <button
+          type="button"
+          onClick={() => podeConfirmarPresenca && onTogglePresenca(inscrito.id, 12, inscrito.presenteDia12)}
+          disabled={!podeConfirmarPresenca || updatingDia12}
+          className={`checkin-square-btn checkin-square-btn--right ${inscrito.presenteDia12 ? 'checkin-square-btn--presente' : 'checkin-square-btn--pendente'}`}
+          title={
+            !podeConfirmarPresenca
+              ? (inscrito.presenteDia12 ? 'Presença confirmada em 12/Set' : 'Presença pendente em 12/Set')
+              : inscrito.presenteDia12
+              ? `Presente em 12/Set${hora12 ? ` às ${hora12}` : ''}. Clique para desmarcar`
+              : 'Pendente em 12/Set. Clique para confirmar check-in'
+          }
+        >
+          {updatingDia12 ? (
+            <div className="checkin-square-btn__loading">
+              <span className="checkin-square-btn__spinner" />
+              <span style={{ fontSize: '0.65rem', fontWeight: '700' }}>Salvando...</span>
+            </div>
+          ) : inscrito.presenteDia12 ? (
+            <>
+              <span className="checkin-square-btn__day">12/Set</span>
+              <div className="checkin-square-btn__content-default">
+                <IconCheck size={18} strokeWidth={2.8} />
+                <span className="checkin-square-btn__status">Presente</span>
+                {hora12 && (
+                  <span className="checkin-square-btn__time">{hora12}</span>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <span className="checkin-square-btn__day">12/Set</span>
+              <div className="checkin-square-btn__content-default">
+                <IconClock size={16} />
+                <span className="checkin-square-btn__status">Pendente</span>
+              </div>
+            </>
+          )}
+        </button>
+      </td>
+
+      {/* Emissões & Ações: Crachá, Enviar Certificado e Baixar Certificado */}
+      <td style={{ padding: '12px 8px', textAlign: 'center', whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'inline-flex', flexDirection: 'column', gap: '4px', width: '100%', maxWidth: '140px' }}>
+          {/* Botão 1: Imprimir Crachá Individual */}
+          <button
+            type="button"
+            onClick={() => onBaixarCracha(inscrito)}
+            disabled={baixandoCracha}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '5px',
+              padding: '5px 8px',
+              borderRadius: '6px',
+              fontSize: '0.75rem',
+              fontWeight: '700',
+              cursor: baixandoCracha ? 'wait' : 'pointer',
+              border: 'none',
+              backgroundColor: '#2563EB',
+              color: '#FFFFFF',
+              transition: 'all 0.2s ease',
+              width: '100%',
+              opacity: baixandoCracha ? 0.7 : 1,
+            }}
+            title="Gerar PDF do crachá padronizado deste participante"
+          >
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="16" rx="2" />
+              <circle cx="12" cy="10" r="2" />
+              <path d="M8 16h8" />
+            </svg>
+            {baixandoCracha ? 'Gerando...' : 'Imprimir Crachá'}
+          </button>
+
+          {/* Botão 2: Enviar Certificado por E-mail */}
+          <button
+            type="button"
+            onClick={() => onEnviarCertificado(inscrito)}
+            disabled={enviandoCert || certificadoBloqueadoCredenciador}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '5px',
+              padding: '4px 8px',
+              borderRadius: '6px',
+              fontSize: '0.72rem',
+              fontWeight: '700',
+              cursor: certificadoBloqueadoCredenciador
+                ? 'not-allowed'
+                : enviandoCert
+                ? 'wait'
+                : 'pointer',
+              border: 'none',
+              backgroundColor: certificadoBloqueadoCredenciador ? '#94A3B8' : '#0284C7',
+              color: '#FFFFFF',
+              transition: 'all 0.2s ease',
+              width: '100%',
+              opacity: certificadoBloqueadoCredenciador
+                ? 0.55
+                : enviandoCert
+                ? 0.7
+                : 1,
+            }}
+            title={
+              certificadoBloqueadoCredenciador
+                ? 'Disponível apenas após confirmação de presença (check-in) em ambos os dias (11 e 12/Set)'
+                : 'Gerar Certificado com Nome e CPF e enviar diretamente no e-mail do participante'
+            }
+          >
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="8" r="6" />
+              <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+            </svg>
+            {enviandoCert ? 'Enviando...' : 'Enviar Certificado'}
+          </button>
+
+          {/* Botão 3: Baixar / Visualizar Certificado em PDF */}
+          <button
+            type="button"
+            onClick={() => onBaixarCertificado(inscrito)}
+            disabled={baixandoCert || certificadoBloqueadoCredenciador}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '5px',
+              padding: '3px 8px',
+              borderRadius: '6px',
+              fontSize: '0.70rem',
+              fontWeight: '700',
+              cursor: certificadoBloqueadoCredenciador
+                ? 'not-allowed'
+                : baixandoCert
+                ? 'wait'
+                : 'pointer',
+              border: 'none',
+              backgroundColor: certificadoBloqueadoCredenciador ? '#94A3B8' : '#4B5563',
+              color: '#FFFFFF',
+              transition: 'all 0.2s ease',
+              width: '100%',
+              opacity: certificadoBloqueadoCredenciador
+                ? 0.55
+                : baixandoCert
+                ? 0.7
+                : 1,
+            }}
+            title={
+              certificadoBloqueadoCredenciador
+                ? 'Disponível apenas após confirmação de presença (check-in) em ambos os dias (11 e 12/Set)'
+                : 'Baixar ou visualizar o arquivo PDF do Certificado'
+            }
+          >
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            {baixandoCert ? 'Baixando...' : 'Baixar Certificado'}
+          </button>
+
+          {/* Botão 4: Excluir Inscrição (Exclusivo para nível Suporte) */}
+          {isSuporte && (
+            <button
+              type="button"
+              onClick={() => onSolicitarExclusao(inscrito)}
+              disabled={deletando}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '4px',
+                padding: '4px 8px',
+                borderRadius: '6px',
+                fontSize: '0.70rem',
+                fontWeight: '700',
+                cursor: deletando ? 'not-allowed' : 'pointer',
+                border: 'none',
+                backgroundColor: '#DC2626',
+                color: '#FFFFFF',
+                transition: 'all 0.2s ease',
+                width: '100%',
+                marginTop: '2px',
+                opacity: deletando ? 0.6 : 1,
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#B91C1C'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#DC2626'; }}
+              title="Excluir permanentemente esta inscrição (Acesso exclusivo Suporte)"
+            >
+              <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                <line x1="10" y1="11" x2="10" y2="17" />
+                <line x1="14" y1="11" x2="14" y2="17" />
+              </svg>
+              Excluir Inscrição
+            </button>
+          )}
+        </div>
+      </td>
+    </tr>
+  );
+});
 
 export default function InscritosCongressoPage() {
   const router = useRouter();
@@ -28,6 +469,8 @@ export default function InscritosCongressoPage() {
   const [unidadeFilter, setUnidadeFilter] = useState('');
   const [tipoOscFilter, setTipoOscFilter] = useState('');
   const [presencaFiltro, setPresencaFiltro] = useState('');
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const [itensPorPagina, setItensPorPagina] = useState(50);
   const [updatingAction, setUpdatingAction] = useState(null); // 'id-11' ou 'id-12'
   const [enviandoCertId, setEnviandoCertId] = useState(null);
   const [baixandoCertId, setBaixandoCertId] = useState(null);
@@ -39,6 +482,8 @@ export default function InscritosCongressoPage() {
   const [inscritoParaExcluir, setInscritoParaExcluir] = useState(null);
   const [deletandoId, setDeletandoId] = useState(null);
   const [toastFeedback, setToastFeedback] = useState(null); // { type: 'success' | 'error', message: string }
+
+  const termoBuscaDeferred = useDeferredValue(termoBusca);
 
   const nivel = user?.nivel?.toUpperCase();
   const isCoordenadora = nivel === 'COORDENADORA';
@@ -56,31 +501,26 @@ export default function InscritosCongressoPage() {
     }
   }, [nivel, router]);
 
+  // Carrega a lista completa uma única vez na montagem (evita refetch e remount de 900 linhas a cada tecla)
   const loadInscritos = useCallback(async () => {
     setLoading(true);
-    const data = await fetchInscritosCongresso({
-      termo: termoBusca,
-      unidade: unidadeFilter,
-      tipoOsc: tipoOscFilter,
-    });
-    setInscritos(data);
+    const data = await fetchInscritosCongresso();
+    setInscritos(Array.isArray(data) ? data.map(enriquecerInscrito) : []);
     setLoading(false);
-  }, [termoBusca, unidadeFilter, tipoOscFilter]);
+  }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (nivel !== 'DP') {
-        loadInscritos();
-      }
-    }, 250);
-    return () => clearTimeout(timer);
+    if (nivel && nivel !== 'DP') {
+      loadInscritos();
+    }
   }, [loadInscritos, nivel]);
 
-  if (nivel === 'DP') {
-    return null;
-  }
+  // Reseta para a página 1 sempre que os filtros mudarem
+  useEffect(() => {
+    setPaginaAtual(1);
+  }, [termoBuscaDeferred, unidadeFilter, tipoOscFilter, presencaFiltro, itensPorPagina]);
 
-  const handleTogglePresenca = async (id, dia, statusAtual) => {
+  const handleTogglePresenca = useCallback(async (id, dia, statusAtual) => {
     if (!podeConfirmarPresenca) return;
     const actionKey = `${id}-${dia}`;
     setUpdatingAction(actionKey);
@@ -88,13 +528,13 @@ export default function InscritosCongressoPage() {
     const res = await alterarPresencaInscrito(id, dia, novoStatus);
     if (res.success && res.inscricao) {
       setInscritos((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, ...res.inscricao } : item))
+        prev.map((item) => (item.id === id ? enriquecerInscrito({ ...item, ...res.inscricao }) : item))
       );
     }
     setUpdatingAction(null);
-  };
+  }, [podeConfirmarPresenca]);
 
-  const handleEnviarCertificado = async (inscrito) => {
+  const handleEnviarCertificado = useCallback(async (inscrito) => {
     if (isCredenciador && (!inscrito.presenteDia11 || !inscrito.presenteDia12)) {
       setToastFeedback({
         type: 'error',
@@ -120,9 +560,9 @@ export default function InscritosCongressoPage() {
     setTimeout(() => {
       setToastFeedback((curr) => (curr?.type === 'success' ? null : curr));
     }, 6000);
-  };
+  }, [isCredenciador]);
 
-  const handleBaixarCertificado = async (inscrito) => {
+  const handleBaixarCertificado = useCallback(async (inscrito) => {
     if (isCredenciador && (!inscrito.presenteDia11 || !inscrito.presenteDia12)) {
       setToastFeedback({
         type: 'error',
@@ -139,13 +579,13 @@ export default function InscritosCongressoPage() {
       });
     }
     setBaixandoCertId(null);
-  };
+  }, [isCredenciador]);
 
-  const handleSalvarOficinas = async (id, data) => {
+  const handleSalvarOficinas = useCallback(async (id, data) => {
     const res = await atualizarOficinasInscrito(id, data);
     if (res.success && res.inscricao) {
       setInscritos((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, ...res.inscricao } : item))
+        prev.map((item) => (item.id === id ? enriquecerInscrito({ ...item, ...res.inscricao }) : item))
       );
       setToastFeedback({
         type: 'success',
@@ -157,9 +597,9 @@ export default function InscritosCongressoPage() {
     } else {
       throw new Error(res.message || 'Erro ao atualizar oficina.');
     }
-  };
+  }, []);
 
-  const handleBaixarCracha = async (inscrito) => {
+  const handleBaixarCracha = useCallback(async (inscrito) => {
     setBaixandoCrachaId(inscrito.id);
     const res = await downloadCrachaInscrito(inscrito.id, inscrito.nomeCompleto);
     if (!res.success) {
@@ -169,7 +609,99 @@ export default function InscritosCongressoPage() {
       });
     }
     setBaixandoCrachaId(null);
-  };
+  }, []);
+
+  // Filtragem local instantânea por busca, unidade e tipo de OSC (sem round-trip de rede)
+  const inscritosBaseFiltrados = useMemo(() => {
+    const termoNorm = normalizarTextoBusca(termoBuscaDeferred);
+    const termoLower = termoBuscaDeferred.trim().toLowerCase();
+    const termoDigits = termoBuscaDeferred.replace(/\D/g, '');
+    const tipoOscAlvo = tipoOscFilter.trim().toUpperCase();
+    const unidadeAlvoLower = unidadeFilter.trim().toLowerCase();
+    const unidadeAlvoNorm = unidadeFilter ? normalizarNomeUnidade(unidadeFilter) : '';
+
+    if (!termoNorm && !tipoOscAlvo && !unidadeAlvoLower) {
+      return inscritos;
+    }
+
+    return inscritos.filter((item) => {
+      if (tipoOscAlvo && item._tipoOscUpper !== tipoOscAlvo) {
+        return false;
+      }
+
+      if (unidadeAlvoLower) {
+        const matchExato = item._unidadeTrimLower === unidadeAlvoLower;
+        const matchNorm = unidadeAlvoNorm && item._unidadeNorm === unidadeAlvoNorm;
+        if (!matchExato && !matchNorm) {
+          return false;
+        }
+      }
+
+      if (termoNorm) {
+        const matchNome = item._nomeNorm.includes(termoNorm);
+        const matchEmail = item._emailNorm.includes(termoLower);
+        const matchCpfFormatado = item._cpfLower.includes(termoLower);
+        const matchCpfDigitos = termoDigits.length > 0 && item._cpfDigits.includes(termoDigits);
+        if (!matchNome && !matchEmail && !matchCpfFormatado && !matchCpfDigitos) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [inscritos, termoBuscaDeferred, tipoOscFilter, unidadeFilter]);
+
+  // Filtro local de presença aplicado sobre o conjunto filtrado
+  const inscritosFiltrados = useMemo(() => {
+    if (!presencaFiltro) return inscritosBaseFiltrados;
+    return inscritosBaseFiltrados.filter((item) => {
+      if (presencaFiltro === 'dia11_presente') return Boolean(item.presenteDia11);
+      if (presencaFiltro === 'dia12_presente') return Boolean(item.presenteDia12);
+      if (presencaFiltro === 'ambos_presente') return Boolean(item.presenteDia11 && item.presenteDia12);
+      if (presencaFiltro === 'nenhum_presente') return !item.presenteDia11 && !item.presenteDia12;
+      return true;
+    });
+  }, [inscritosBaseFiltrados, presencaFiltro]);
+
+  // Contadores consolidados em passagem única O(N)
+  const metricas = useMemo(() => {
+    let p11 = 0;
+    let p12 = 0;
+    let ambos = 0;
+    let sobei = 0;
+
+    for (let i = 0; i < inscritosBaseFiltrados.length; i++) {
+      const item = inscritosBaseFiltrados[i];
+      const d11 = Boolean(item.presenteDia11);
+      const d12 = Boolean(item.presenteDia12);
+      if (d11) p11++;
+      if (d12) p12++;
+      if (d11 && d12) ambos++;
+      if (item._tipoOscUpper === 'SOBEI') sobei++;
+    }
+
+    return {
+      total: inscritosBaseFiltrados.length,
+      presentesDia11: p11,
+      presentesDia12: p12,
+      presentesAmbosDias: ambos,
+      sobeiCount: sobei,
+    };
+  }, [inscritosBaseFiltrados]);
+
+  // Paginação client-side para manter o DOM leve e responsivo
+  const totalPaginas = useMemo(() => {
+    if (itensPorPagina <= 0) return 1;
+    return Math.max(1, Math.ceil(inscritosFiltrados.length / itensPorPagina));
+  }, [inscritosFiltrados.length, itensPorPagina]);
+
+  const paginaSegura = Math.min(paginaAtual, totalPaginas);
+
+  const inscritosPaginados = useMemo(() => {
+    if (itensPorPagina <= 0) return inscritosFiltrados;
+    const inicio = (paginaSegura - 1) * itensPorPagina;
+    return inscritosFiltrados.slice(inicio, inicio + itensPorPagina);
+  }, [inscritosFiltrados, paginaSegura, itensPorPagina]);
 
   const handleBaixarCrachasLote = async () => {
     if (inscritosFiltrados.length === 0) {
@@ -240,52 +772,11 @@ export default function InscritosCongressoPage() {
     setDeletandoId(null);
   };
 
-  // Contadores
-  const total = inscritos.length;
-  const presentesDia11 = inscritos.filter((i) => i.presenteDia11).length;
-  const presentesDia12 = inscritos.filter((i) => i.presenteDia12).length;
-  const presentesAmbosDias = inscritos.filter((i) => i.presenteDia11 && i.presenteDia12).length;
-  const sobeiCount = inscritos.filter((i) => i.tipoOsc?.toUpperCase() === 'SOBEI').length;
+  if (nivel === 'DP') {
+    return null;
+  }
 
-  const formatHora = (dateStr) => {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
-  const unidadesOptions = UNIDADES.map((u) => ({ value: u, label: u }));
-
-  const oscOptions = [
-    { value: 'SOBEI', label: 'Apenas SOBEI' },
-    { value: 'OUTRA', label: 'Outras OSCs' },
-  ];
-
-  const presencaOptions = [
-    { value: 'dia11_presente', label: 'Presente no Dia 11 (Sexta)' },
-    { value: 'dia12_presente', label: 'Presente no Dia 12 (Sábado)' },
-    { value: 'ambos_presente', label: 'Presente em Ambos os Dias' },
-    { value: 'nenhum_presente', label: 'Pendente em Ambos os Dias' },
-  ];
-
-  // Filtro local de presença
-  const inscritosFiltrados = inscritos.filter((item) => {
-    if (presencaFiltro === 'dia11_presente') return !!item.presenteDia11;
-    if (presencaFiltro === 'dia12_presente') return !!item.presenteDia12;
-    if (presencaFiltro === 'ambos_presente') return !!item.presenteDia11 && !!item.presenteDia12;
-    if (presencaFiltro === 'nenhum_presente') return !item.presenteDia11 && !item.presenteDia12;
-    return true;
-  });
+  const { total, presentesDia11, presentesDia12, presentesAmbosDias, sobeiCount } = metricas;
 
   return (
     <div className="admin-page">
@@ -302,7 +793,7 @@ export default function InscritosCongressoPage() {
             color: 'var(--color-primary, #1b1464)',
             padding: '5px 12px',
             borderRadius: '16px',
-            border: '1px solid #C7D2FE'
+            border: '1px solid #C7D2FE',
           }}>
             Unidade: {user.unidade}
           </span>
@@ -373,9 +864,9 @@ export default function InscritosCongressoPage() {
                 borderRadius: 'var(--radius-full)',
                 backgroundColor: 'var(--color-white)',
                 fontSize: '13.5px',
-                width: '100%'
+                width: '100%',
               }}
-              placeholder="Nome completo ou CPF..."
+              placeholder="Nome completo, e-mail ou CPF..."
               value={termoBusca}
               onChange={(e) => setTermoBusca(e.target.value)}
             />
@@ -413,7 +904,7 @@ export default function InscritosCongressoPage() {
             onChange={(val) => setPresencaFiltro(val)}
             defaultOption="Todos os status"
             allowEmpty={true}
-            options={presencaOptions}
+            options={PRESENCA_OPTIONS}
           />
         </div>
 
@@ -426,7 +917,7 @@ export default function InscritosCongressoPage() {
               onChange={(val) => setTipoOscFilter(val)}
               defaultOption="Todas as OSCs"
               allowEmpty={true}
-              options={oscOptions}
+              options={OSC_OPTIONS}
             />
           </div>
         )}
@@ -440,7 +931,7 @@ export default function InscritosCongressoPage() {
               onChange={(val) => setUnidadeFilter(val)}
               defaultOption="Todas as unidades"
               allowEmpty={true}
-              options={unidadesOptions}
+              options={UNIDADES_OPTIONS}
             />
           </div>
         )}
@@ -465,7 +956,7 @@ export default function InscritosCongressoPage() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                fontSize: '0.85rem'
+                fontSize: '0.85rem',
               }}
             >
               <IconClose size={13} />
@@ -576,7 +1067,7 @@ export default function InscritosCongressoPage() {
         borderRadius: 'var(--radius-lg)',
         border: '1px solid var(--color-gray-200)',
         overflow: 'hidden',
-        width: '100%'
+        width: '100%',
       }}>
         {loading ? (
           <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center', color: 'var(--color-gray-500)' }}>
@@ -601,385 +1092,149 @@ export default function InscritosCongressoPage() {
             )}
           </div>
         ) : (
-          <div style={{ overflowX: 'auto', width: '100%' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '0.88rem' }}>
-              <thead>
-                <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb', color: '#4b5563', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.04em' }}>
-                  <th style={{ padding: '12px 10px', textAlign: 'center', width: '22%' }}>Participante</th>
-                  <th style={{ padding: '12px 8px', textAlign: 'center', width: '13%' }}>CPF</th>
-                  <th style={{ padding: '12px 8px', textAlign: 'center', width: '14%' }}>OSC / Unidade</th>
-                  <th style={{ padding: '12px 10px', textAlign: 'center', width: '25%' }}>Oficina Pedagógica</th>
-                  <th style={{ padding: '12px 2px', textAlign: 'center', width: '96px', minWidth: '96px', maxWidth: '96px', whiteSpace: 'nowrap' }}>Presença 11/Set</th>
-                  <th style={{ padding: '12px 2px', textAlign: 'center', width: '96px', minWidth: '96px', maxWidth: '96px', whiteSpace: 'nowrap' }}>Presença 12/Set</th>
-                  <th style={{ padding: '12px 8px', textAlign: 'center', width: '14%' }}>Emissões &amp; Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {inscritosFiltrados.map((inscrito) => {
-                  const temCheckinAmbosDias = Boolean(inscrito.presenteDia11 && inscrito.presenteDia12);
-                  const certificadoBloqueadoCredenciador = isCredenciador && !temCheckinAmbosDias;
-
-                  return (
-                  <tr
-                    key={inscrito.id}
-                    style={{
-                      borderBottom: '1px solid #f3f4f6',
-                      transition: 'background-color 0.15s ease',
-                      backgroundColor: (inscrito.presenteDia11 || inscrito.presenteDia12) ? 'rgba(16, 185, 129, 0.03)' : 'transparent',
-                    }}
-                  >
-                    {/* Nome e Email */}
-                    <td style={{ padding: '12px 10px', textAlign: 'center' }}>
-                      <div style={{ fontWeight: 'bold', color: '#111827', wordBreak: 'break-word' }}>{inscrito.nomeCompleto}</div>
-                      <div style={{ color: '#6b7280', fontSize: '0.80rem', marginTop: '2px', wordBreak: 'break-all' }}>{inscrito.email}</div>
-                    </td>
-
-                    {/* CPF */}
-                    <td style={{ padding: '12px 8px', fontFamily: 'monospace', fontSize: '0.85rem', color: '#374151', whiteSpace: 'nowrap', textAlign: 'center' }}>
-                      {inscrito.cpf}
-                    </td>
-
-                    {/* OSC / Unidade */}
-                    <td style={{ padding: '12px 8px', textAlign: 'center' }}>
-                      {inscrito.tipoOsc === 'SOBEI' ? (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
-                          <span style={{
-                            display: 'inline-block',
-                            background: '#1B1464',
-                            color: '#FFFFFF',
-                            fontSize: '0.70rem',
-                            fontWeight: '700',
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            lineHeight: '1.2'
-                          }}>SOBEI</span>
-                          <span style={{ color: '#1f2937', fontWeight: '500', fontSize: '0.82rem', wordBreak: 'break-word', maxWidth: '140px', lineHeight: '1.2' }}>{inscrito.unidade}</span>
-                        </div>
-                      ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
-                          <span style={{
-                            display: 'inline-block',
-                            background: '#D97706',
-                            color: '#FFFFFF',
-                            fontSize: '0.70rem',
-                            fontWeight: '700',
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            lineHeight: '1.2'
-                          }}>OSC</span>
-                          <span style={{ color: '#1f2937', fontSize: '0.82rem', wordBreak: 'break-word', maxWidth: '140px', lineHeight: '1.2' }}>{inscrito.outraOsc}</span>
-                        </div>
-                      )}
-                    </td>
-
-                    {/* Oficina Pedagógica Única */}
-                    <td style={{ padding: '12px 10px', textAlign: 'center' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-                        {(inscrito.oficina || inscrito.oficinaManha || inscrito.oficinaTarde) ? (
-                          <span
-                            style={{
-                              color: '#0f766e',
-                              fontWeight: '600',
-                              fontSize: '0.80rem',
-                              lineHeight: '1.25',
-                              maxWidth: '240px',
-                              display: '-webkit-box',
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: 'vertical',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              textAlign: 'center',
-                            }}
-                            title={inscrito.oficina || inscrito.oficinaManha || inscrito.oficinaTarde}
-                          >
-                            {inscrito.oficina || inscrito.oficinaManha || inscrito.oficinaTarde}
-                          </span>
-                        ) : (
-                          <span style={{ color: '#9ca3af', fontStyle: 'italic', fontSize: '0.78rem' }}>Não definida</span>
-                        )}
-
-                        <button
-                          type="button"
-                          onClick={() => setSelectedInscritoOficinas(inscrito)}
-                          style={{
-                            alignSelf: 'center',
-                            marginTop: '2px',
-                            padding: '4px 10px',
-                            borderRadius: '6px',
-                            fontSize: '0.73rem',
-                            fontWeight: '700',
-                            backgroundColor: (inscrito.oficina || inscrito.oficinaManha || inscrito.oficinaTarde) ? '#059669' : '#2563EB',
-                            color: '#FFFFFF',
-                            border: 'none',
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            transition: 'background-color 0.15s ease',
-                          }}
-                        >
-                          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.2">
-                            <path d="M12 20h9" />
-                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                          </svg>
-                          {(inscrito.oficina || inscrito.oficinaManha || inscrito.oficinaTarde) ? 'Editar Oficina' : 'Definir Oficina'}
-                        </button>
-                      </div>
-                    </td>
-
-                    {/* Presença Dia 11 (Sexta) */}
-                    <td style={{ padding: 0, textAlign: 'center', whiteSpace: 'nowrap', verticalAlign: 'middle', height: '1px', width: '96px', minWidth: '96px', maxWidth: '96px' }}>
-                      <button
-                        type="button"
-                        onClick={() => podeConfirmarPresenca && handleTogglePresenca(inscrito.id, 11, inscrito.presenteDia11)}
-                        disabled={!podeConfirmarPresenca || updatingAction === `${inscrito.id}-11`}
-                        className={`checkin-square-btn checkin-square-btn--left ${inscrito.presenteDia11 ? 'checkin-square-btn--presente' : 'checkin-square-btn--pendente'}`}
-                        title={
-                          !podeConfirmarPresenca
-                            ? (inscrito.presenteDia11 ? 'Presença confirmada em 11/Set' : 'Presença pendente em 11/Set')
-                            : inscrito.presenteDia11
-                            ? `Presente em 11/Set${formatHora(inscrito.dataPresencaDia11) ? ` às ${formatHora(inscrito.dataPresencaDia11)}` : ''}. Clique para desmarcar`
-                            : 'Pendente em 11/Set. Clique para confirmar check-in'
-                        }
-                      >
-                        {updatingAction === `${inscrito.id}-11` ? (
-                          <div className="checkin-square-btn__loading">
-                            <span className="checkin-square-btn__spinner" />
-                            <span style={{ fontSize: '0.65rem', fontWeight: '700' }}>Salvando...</span>
-                          </div>
-                        ) : inscrito.presenteDia11 ? (
-                          <>
-                            <span className="checkin-square-btn__day">11/Set</span>
-                            <div className="checkin-square-btn__content-default">
-                              <IconCheck size={18} strokeWidth={2.8} />
-                              <span className="checkin-square-btn__status">Presente</span>
-                              {formatHora(inscrito.dataPresencaDia11) && (
-                                <span className="checkin-square-btn__time">{formatHora(inscrito.dataPresencaDia11)}</span>
-                              )}
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <span className="checkin-square-btn__day">11/Set</span>
-                            <div className="checkin-square-btn__content-default">
-                              <IconClock size={16} />
-                              <span className="checkin-square-btn__status">Pendente</span>
-                            </div>
-                          </>
-                        )}
-                      </button>
-                    </td>
-
-                    {/* Presença Dia 12 (Sábado) */}
-                    <td style={{ padding: 0, textAlign: 'center', whiteSpace: 'nowrap', verticalAlign: 'middle', height: '1px', width: '96px', minWidth: '96px', maxWidth: '96px' }}>
-                      <button
-                        type="button"
-                        onClick={() => podeConfirmarPresenca && handleTogglePresenca(inscrito.id, 12, inscrito.presenteDia12)}
-                        disabled={!podeConfirmarPresenca || updatingAction === `${inscrito.id}-12`}
-                        className={`checkin-square-btn checkin-square-btn--right ${inscrito.presenteDia12 ? 'checkin-square-btn--presente' : 'checkin-square-btn--pendente'}`}
-                        title={
-                          !podeConfirmarPresenca
-                            ? (inscrito.presenteDia12 ? 'Presença confirmada em 12/Set' : 'Presença pendente em 12/Set')
-                            : inscrito.presenteDia12
-                            ? `Presente em 12/Set${formatHora(inscrito.dataPresencaDia12) ? ` às ${formatHora(inscrito.dataPresencaDia12)}` : ''}. Clique para desmarcar`
-                            : 'Pendente em 12/Set. Clique para confirmar check-in'
-                        }
-                      >
-                        {updatingAction === `${inscrito.id}-12` ? (
-                          <div className="checkin-square-btn__loading">
-                            <span className="checkin-square-btn__spinner" />
-                            <span style={{ fontSize: '0.65rem', fontWeight: '700' }}>Salvando...</span>
-                          </div>
-                        ) : inscrito.presenteDia12 ? (
-                          <>
-                            <span className="checkin-square-btn__day">12/Set</span>
-                            <div className="checkin-square-btn__content-default">
-                              <IconCheck size={18} strokeWidth={2.8} />
-                              <span className="checkin-square-btn__status">Presente</span>
-                              {formatHora(inscrito.dataPresencaDia12) && (
-                                <span className="checkin-square-btn__time">{formatHora(inscrito.dataPresencaDia12)}</span>
-                              )}
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <span className="checkin-square-btn__day">12/Set</span>
-                            <div className="checkin-square-btn__content-default">
-                              <IconClock size={16} />
-                              <span className="checkin-square-btn__status">Pendente</span>
-                            </div>
-                          </>
-                        )}
-                      </button>
-                    </td>
-
-                    {/* Emissões & Ações: Crachá, Enviar Certificado e Baixar Certificado */}
-                    <td style={{ padding: '12px 8px', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                      <div style={{ display: 'inline-flex', flexDirection: 'column', gap: '4px', width: '100%', maxWidth: '140px' }}>
-                        {/* Botão 1: Imprimir Crachá Individual */}
-                        <button
-                          type="button"
-                          onClick={() => handleBaixarCracha(inscrito)}
-                          disabled={baixandoCrachaId === inscrito.id}
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '5px',
-                            padding: '5px 8px',
-                            borderRadius: '6px',
-                            fontSize: '0.75rem',
-                            fontWeight: '700',
-                            cursor: baixandoCrachaId === inscrito.id ? 'wait' : 'pointer',
-                            border: 'none',
-                            backgroundColor: '#2563EB',
-                            color: '#FFFFFF',
-                            transition: 'all 0.2s ease',
-                            width: '100%',
-                            opacity: baixandoCrachaId === inscrito.id ? 0.7 : 1,
-                          }}
-                          title="Gerar PDF do crachá padronizado deste participante"
-                        >
-                          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="4" width="18" height="16" rx="2" />
-                            <circle cx="12" cy="10" r="2" />
-                            <path d="M8 16h8" />
-                          </svg>
-                          {baixandoCrachaId === inscrito.id ? 'Gerando...' : 'Imprimir Crachá'}
-                        </button>
-
-                        {/* Botão 2: Enviar Certificado por E-mail */}
-                        <button
-                          type="button"
-                          onClick={() => handleEnviarCertificado(inscrito)}
-                          disabled={enviandoCertId === inscrito.id || certificadoBloqueadoCredenciador}
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '5px',
-                            padding: '4px 8px',
-                            borderRadius: '6px',
-                            fontSize: '0.72rem',
-                            fontWeight: '700',
-                            cursor: certificadoBloqueadoCredenciador
-                              ? 'not-allowed'
-                              : enviandoCertId === inscrito.id
-                              ? 'wait'
-                              : 'pointer',
-                            border: 'none',
-                            backgroundColor: certificadoBloqueadoCredenciador ? '#94A3B8' : '#0284C7',
-                            color: '#FFFFFF',
-                            transition: 'all 0.2s ease',
-                            width: '100%',
-                            opacity: certificadoBloqueadoCredenciador
-                              ? 0.55
-                              : enviandoCertId === inscrito.id
-                              ? 0.7
-                              : 1,
-                          }}
-                          title={
-                            certificadoBloqueadoCredenciador
-                              ? 'Disponível apenas após confirmação de presença (check-in) em ambos os dias (11 e 12/Set)'
-                              : 'Gerar Certificado com Nome e CPF e enviar diretamente no e-mail do participante'
-                          }
-                        >
-                          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="8" r="6" />
-                            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
-                          </svg>
-                          {enviandoCertId === inscrito.id ? 'Enviando...' : 'Enviar Certificado'}
-                        </button>
-
-                        {/* Botão 3: Baixar / Visualizar Certificado em PDF */}
-                        <button
-                          type="button"
-                          onClick={() => handleBaixarCertificado(inscrito)}
-                          disabled={baixandoCertId === inscrito.id || certificadoBloqueadoCredenciador}
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '5px',
-                            padding: '3px 8px',
-                            borderRadius: '6px',
-                            fontSize: '0.70rem',
-                            fontWeight: '700',
-                            cursor: certificadoBloqueadoCredenciador
-                              ? 'not-allowed'
-                              : baixandoCertId === inscrito.id
-                              ? 'wait'
-                              : 'pointer',
-                            border: 'none',
-                            backgroundColor: certificadoBloqueadoCredenciador ? '#94A3B8' : '#4B5563',
-                            color: '#FFFFFF',
-                            transition: 'all 0.2s ease',
-                            width: '100%',
-                            opacity: certificadoBloqueadoCredenciador
-                              ? 0.55
-                              : baixandoCertId === inscrito.id
-                              ? 0.7
-                              : 1,
-                          }}
-                          title={
-                            certificadoBloqueadoCredenciador
-                              ? 'Disponível apenas após confirmação de presença (check-in) em ambos os dias (11 e 12/Set)'
-                              : 'Baixar ou visualizar o arquivo PDF do Certificado'
-                          }
-                        >
-                          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                            <polyline points="7 10 12 15 17 10" />
-                            <line x1="12" y1="15" x2="12" y2="3" />
-                          </svg>
-                          {baixandoCertId === inscrito.id ? 'Baixando...' : 'Baixar Certificado'}
-                        </button>
-
-                        {/* Botão 4: Excluir Inscrição (Exclusivo para nível Suporte) */}
-                        {isSuporte && (
-                          <button
-                            type="button"
-                            onClick={() => setInscritoParaExcluir(inscrito)}
-                            disabled={deletandoId === inscrito.id}
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              gap: '4px',
-                              padding: '4px 8px',
-                              borderRadius: '6px',
-                              fontSize: '0.70rem',
-                              fontWeight: '700',
-                              cursor: deletandoId === inscrito.id ? 'not-allowed' : 'pointer',
-                              border: 'none',
-                              backgroundColor: '#DC2626',
-                              color: '#FFFFFF',
-                              transition: 'all 0.2s ease',
-                              width: '100%',
-                              marginTop: '2px',
-                              opacity: deletandoId === inscrito.id ? 0.6 : 1,
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#B91C1C'}
-                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#DC2626'}
-                            title="Excluir permanentemente esta inscrição (Acesso exclusivo Suporte)"
-                          >
-                            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="3 6 5 6 21 6" />
-                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                              <line x1="10" y1="11" x2="10" y2="17" />
-                              <line x1="14" y1="11" x2="14" y2="17" />
-                            </svg>
-                            Excluir Inscrição
-                          </button>
-                        )}
-                      </div>
-                    </td>
+          <>
+            <div style={{ overflowX: 'auto', width: '100%' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'center', fontSize: '0.88rem' }}>
+                <thead>
+                  <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb', color: '#4b5563', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.04em' }}>
+                    <th style={{ padding: '12px 10px', textAlign: 'center', width: '22%' }}>Participante</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'center', width: '13%' }}>CPF</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'center', width: '14%' }}>OSC / Unidade</th>
+                    <th style={{ padding: '12px 10px', textAlign: 'center', width: '25%' }}>Oficina Pedagógica</th>
+                    <th style={{ padding: '12px 2px', textAlign: 'center', width: '96px', minWidth: '96px', maxWidth: '96px', whiteSpace: 'nowrap' }}>Presença 11/Set</th>
+                    <th style={{ padding: '12px 2px', textAlign: 'center', width: '96px', minWidth: '96px', maxWidth: '96px', whiteSpace: 'nowrap' }}>Presença 12/Set</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'center', width: '14%' }}>Emissões &amp; Ações</th>
                   </tr>
-                );
-              })}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {inscritosPaginados.map((inscrito) => (
+                    <InscritoRow
+                      key={inscrito.id}
+                      inscrito={inscrito}
+                      isCredenciador={isCredenciador}
+                      isSuporte={isSuporte}
+                      podeConfirmarPresenca={podeConfirmarPresenca}
+                      updatingDia11={updatingAction === `${inscrito.id}-11`}
+                      updatingDia12={updatingAction === `${inscrito.id}-12`}
+                      baixandoCracha={baixandoCrachaId === inscrito.id}
+                      enviandoCert={enviandoCertId === inscrito.id}
+                      baixandoCert={baixandoCertId === inscrito.id}
+                      deletando={deletandoId === inscrito.id}
+                      onOpenOficinas={setSelectedInscritoOficinas}
+                      onTogglePresenca={handleTogglePresenca}
+                      onBaixarCracha={handleBaixarCracha}
+                      onEnviarCertificado={handleEnviarCertificado}
+                      onBaixarCertificado={handleBaixarCertificado}
+                      onSolicitarExclusao={setInscritoParaExcluir}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Barra de Paginação Client-Side */}
+            {inscritosFiltrados.length > 50 && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  backgroundColor: '#f9fafb',
+                  borderTop: '1px solid #e5e7eb',
+                  fontSize: '0.82rem',
+                  color: '#4b5563',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>
+                    Exibindo{' '}
+                    <strong>
+                      {itensPorPagina <= 0
+                        ? 1
+                        : (paginaSegura - 1) * itensPorPagina + 1}
+                    </strong>{' '}
+                    a{' '}
+                    <strong>
+                      {itensPorPagina <= 0
+                        ? inscritosFiltrados.length
+                        : Math.min(paginaSegura * itensPorPagina, inscritosFiltrados.length)}
+                    </strong>{' '}
+                    de <strong>{inscritosFiltrados.length}</strong> participantes
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>Linhas por página:</span>
+                    <select
+                      value={itensPorPagina}
+                      onChange={(e) => setItensPorPagina(Number(e.target.value))}
+                      style={{
+                        padding: '4px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid #d1d5db',
+                        backgroundColor: '#ffffff',
+                        fontSize: '0.80rem',
+                        color: '#111827',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <option value={50}>50</option>
+                      <option value={100}>100</option>
+                      <option value={200}>200</option>
+                      <option value={0}>Todos ({inscritosFiltrados.length})</option>
+                    </select>
+                  </div>
+
+                  {itensPorPagina > 0 && totalPaginas > 1 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setPaginaAtual((p) => Math.max(1, p - 1))}
+                        disabled={paginaSegura <= 1}
+                        style={{
+                          padding: '5px 10px',
+                          borderRadius: '6px',
+                          border: '1px solid #d1d5db',
+                          backgroundColor: paginaSegura <= 1 ? '#f3f4f6' : '#ffffff',
+                          color: paginaSegura <= 1 ? '#9ca3af' : '#1f2937',
+                          fontWeight: '600',
+                          fontSize: '0.78rem',
+                          cursor: paginaSegura <= 1 ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        Anterior
+                      </button>
+                      <span style={{ fontWeight: '600', padding: '0 4px', color: '#111827' }}>
+                        Página {paginaSegura} de {totalPaginas}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setPaginaAtual((p) => Math.min(totalPaginas, p + 1))}
+                        disabled={paginaSegura >= totalPaginas}
+                        style={{
+                          padding: '5px 10px',
+                          borderRadius: '6px',
+                          border: '1px solid #d1d5db',
+                          backgroundColor: paginaSegura >= totalPaginas ? '#f3f4f6' : '#ffffff',
+                          color: paginaSegura >= totalPaginas ? '#9ca3af' : '#1f2937',
+                          fontWeight: '600',
+                          fontSize: '0.78rem',
+                          cursor: paginaSegura >= totalPaginas ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        Próxima
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 

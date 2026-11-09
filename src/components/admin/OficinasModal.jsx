@@ -1,8 +1,15 @@
 'use client';
 
-import { useState } from 'react';
-import { IconClose, IconCheck, IconSearch, IconWarning } from '@/components/Icons';
-import { OFICINAS_CONGRESSO, calcularOcupacaoUnidade, calcularOcupacaoOutrasOsc, normalizarNomeUnidade, UNIDADES_COM_COTA } from '@/lib/congressoOficinas';
+import { useState, useMemo } from 'react';
+import { IconClose, IconSearch, IconWarning } from '@/components/Icons';
+import {
+  OFICINAS_CONGRESSO,
+  calcularOcupacaoUnidade,
+  calcularOcupacaoOutrasOsc,
+  calcularMapaOcupacaoOficinas,
+  normalizarNomeUnidade,
+  UNIDADES_COM_COTA,
+} from '@/lib/congressoOficinas';
 
 export default function OficinasModal({ inscrito, inscritos = [], isSuporte = false, onClose, onSave }) {
   const [oficina, setOficina] = useState(
@@ -13,11 +20,27 @@ export default function OficinasModal({ inscrito, inscritos = [], isSuporte = fa
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState('');
 
+  // Pré-calcula em lote a ocupação das 23 oficinas apenas quando inscrito ou lista de inscritos muda
+  const mapaOcupacao = useMemo(
+    () => calcularMapaOcupacaoOficinas(inscrito, inscritos),
+    [inscrito, inscritos]
+  );
+
   if (!inscrito) return null;
 
   const isSobei = inscrito.tipoOsc?.toUpperCase() === 'SOBEI';
   const unidadeNorm = normalizarNomeUnidade(inscrito.unidade);
   const temCotaUnidade = isSobei && UNIDADES_COM_COTA.includes(unidadeNorm);
+
+  const obterOcupacaoOficina = (tema) => {
+    if (!tema) return null;
+    if (mapaOcupacao.has(tema)) {
+      return mapaOcupacao.get(tema);
+    }
+    return isSobei
+      ? (unidadeNorm ? calcularOcupacaoUnidade(tema, inscrito.unidade, inscritos, inscrito.id) : null)
+      : calcularOcupacaoOutrasOsc(tema, inscritos, inscrito.id);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,22 +49,7 @@ export default function OficinasModal({ inscrito, inscritos = [], isSuporte = fa
 
     // Validação de cota no frontend (ignorada para usuários com perfil SUPORTE)
     if (!isSuporte && oficina) {
-      let ocupacao = null;
-      if (isSobei) {
-        ocupacao = calcularOcupacaoUnidade(
-          oficina,
-          inscrito.unidade,
-          inscritos,
-          inscrito.id
-        );
-      } else {
-        ocupacao = calcularOcupacaoOutrasOsc(
-          oficina,
-          inscritos,
-          inscrito.id
-        );
-      }
-
+      const ocupacao = obterOcupacaoOficina(oficina);
       const oficinaAnterior = (inscrito.oficina || inscrito.oficinaManha || inscrito.oficinaTarde || '').trim().toLowerCase();
       if (ocupacao && ocupacao.esgotada && oficinaAnterior !== oficina.trim().toLowerCase()) {
         if (isSobei) {
@@ -78,26 +86,21 @@ export default function OficinasModal({ inscrito, inscritos = [], isSuporte = fa
     : (inscrito.outraOsc ? inscrito.outraOsc.toUpperCase() : 'OSC / UNIDADE');
 
   const oficinaSelecionadaObj = OFICINAS_CONGRESSO.find((item) => item.tema === oficina);
-  const statusOcupacaoAtual = oficina
-    ? (isSobei
-        ? calcularOcupacaoUnidade(oficina, inscrito.unidade, inscritos, inscrito.id)
-        : calcularOcupacaoOutrasOsc(oficina, inscritos, inscrito.id))
-    : null;
+  const statusOcupacaoAtual = oficina ? obterOcupacaoOficina(oficina) : null;
 
-  // Filtragem das oficinas na coluna da esquerda
+  const termoBuscaLower = busca.trim().toLowerCase();
+
+  // Filtragem rápida O(23) das oficinas na coluna da esquerda usando mapa pré-calculado
   const oficinasFiltradas = OFICINAS_CONGRESSO.filter((item) => {
-    const termo = busca.trim().toLowerCase();
-    const matchTexto = !termo ||
-      item.ministrante.toLowerCase().includes(termo) ||
-      item.tema.toLowerCase().includes(termo) ||
-      item.categoria.toLowerCase().includes(termo);
+    const matchTexto = !termoBuscaLower ||
+      item.ministrante.toLowerCase().includes(termoBuscaLower) ||
+      item.tema.toLowerCase().includes(termoBuscaLower) ||
+      item.categoria.toLowerCase().includes(termoBuscaLower);
 
     if (!matchTexto) return false;
 
     if (filtroDisponibilidade === 'disponiveis') {
-      const ocup = isSobei
-        ? (unidadeNorm ? calcularOcupacaoUnidade(item.tema, inscrito.unidade, inscritos, inscrito.id) : null)
-        : calcularOcupacaoOutrasOsc(item.tema, inscritos, inscrito.id);
+      const ocup = obterOcupacaoOficina(item.tema);
       if (ocup && !isSuporte && ocup.esgotada && oficina !== item.tema) return false;
     }
 
@@ -345,16 +348,10 @@ export default function OficinasModal({ inscrito, inscritos = [], isSuporte = fa
                 ) : (
                   oficinasFiltradas.map((item) => {
                     const isSelected = oficina === item.tema;
-                    let isEsgotada = false;
-                    let ocupStatus = null;
-
-                    if (isSobei && unidadeNorm) {
-                      ocupStatus = calcularOcupacaoUnidade(item.tema, inscrito.unidade, inscritos, inscrito.id);
-                      isEsgotada = !isSuporte && ocupStatus.esgotada && !isSelected;
-                    } else if (!isSobei) {
-                      ocupStatus = calcularOcupacaoOutrasOsc(item.tema, inscritos, inscrito.id);
-                      isEsgotada = !isSuporte && ocupStatus.esgotada && !isSelected;
-                    }
+                    const ocupStatus = (isSobei && unidadeNorm) || !isSobei
+                      ? obterOcupacaoOficina(item.tema)
+                      : null;
+                    const isEsgotada = Boolean(ocupStatus && !isSuporte && ocupStatus.esgotada && !isSelected);
 
                     return (
                       <div

@@ -308,8 +308,13 @@ export const OFICINAS_CONGRESSO = [
 export const UNIDADES_COM_COTA = [
   'Montanaro', 'Leblon', 'Imbuias', 'Bela Vista', 'Sabiás',
   'Acácias', 'Orquídeas', 'Cedro', 'Oliveiras', 'Macaúbas',
-  'Cerejeiras', 'Araucárias', 'Ipês'
+  'Cerejeiras', 'Araucárias', 'Ipês',
 ];
+
+const UNIDADES_COM_COTA_SET = new Set(UNIDADES_COM_COTA);
+const CACHE_UNIDADE_NORM = new Map();
+const CACHE_TEXTO_OFICINA = new Map();
+const CACHE_ENCONTRAR_OFICINA = new Map();
 
 /**
  * Normaliza o nome da unidade para a chave canônica das cotas.
@@ -317,7 +322,11 @@ export const UNIDADES_COM_COTA = [
  */
 export function normalizarNomeUnidade(unidade) {
   if (!unidade) return '';
-  let u = String(unidade).trim();
+  const rawKey = String(unidade);
+  const cached = CACHE_UNIDADE_NORM.get(rawKey);
+  if (cached !== undefined) return cached;
+
+  let u = rawKey.trim();
 
   // Remove prefixos conhecidos
   u = u.replace(/^(CEI|CEDESP|CCINTER|NCI|TELECENTRO)\s+/i, '').trim();
@@ -326,22 +335,26 @@ export function normalizarNomeUnidade(unidade) {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
 
-  if (uLower.includes('montanaro')) return 'Montanaro';
-  if (uLower.includes('leblon')) return 'Leblon';
-  if (uLower.includes('imbuia')) return 'Imbuias';
-  if (uLower.includes('bela vista')) return 'Bela Vista';
-  if (uLower.includes('sabia')) return 'Sabiás';
-  if (uLower.includes('acacia')) return 'Acácias';
-  if (uLower.includes('orquidea')) return 'Orquídeas';
-  if (uLower.includes('cedro')) return 'Cedro';
-  if (uLower.includes('oliveira')) return 'Oliveiras';
-  if (uLower.includes('macauba')) return 'Macaúbas';
-  if (uLower.includes('cerejeira') || uLower.includes('jacomo')) return 'Cerejeiras';
-  if (uLower.includes('araucaria')) return 'Araucárias';
-  if (uLower.includes('ipe')) return 'Ipês';
-  if (uLower.includes('matriz')) return 'Matriz';
+  let res = u;
+  if (uLower.includes('montanaro')) res = 'Montanaro';
+  else if (uLower.includes('leblon')) res = 'Leblon';
+  else if (uLower.includes('imbuia')) res = 'Imbuias';
+  else if (uLower.includes('bela vista')) res = 'Bela Vista';
+  else if (uLower.includes('sabia')) res = 'Sabiás';
+  else if (uLower.includes('acacia')) res = 'Acácias';
+  else if (uLower.includes('orquidea')) res = 'Orquídeas';
+  else if (uLower.includes('cedro')) res = 'Cedro';
+  else if (uLower.includes('oliveira')) res = 'Oliveiras';
+  else if (uLower.includes('macauba')) res = 'Macaúbas';
+  else if (uLower.includes('cerejeira') || uLower.includes('jacomo')) res = 'Cerejeiras';
+  else if (uLower.includes('araucaria')) res = 'Araucárias';
+  else if (uLower.includes('ipe')) res = 'Ipês';
+  else if (uLower.includes('matriz')) res = 'Matriz';
 
-  return u;
+  if (CACHE_UNIDADE_NORM.size < 2000) {
+    CACHE_UNIDADE_NORM.set(rawKey, res);
+  }
+  return res;
 }
 
 /**
@@ -349,40 +362,72 @@ export function normalizarNomeUnidade(unidade) {
  */
 export function normalizarTextoOficina(texto) {
   if (!texto) return '';
-  return String(texto)
+  const rawKey = String(texto);
+  const cached = CACHE_TEXTO_OFICINA.get(rawKey);
+  if (cached !== undefined) return cached;
+
+  const res = rawKey
     .trim()
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[.,;:!?]+$/, '')
     .trim();
+
+  if (CACHE_TEXTO_OFICINA.size < 4000) {
+    CACHE_TEXTO_OFICINA.set(rawKey, res);
+  }
+  return res;
 }
+
+// Pré-computa chaves normalizadas das 23 oficinas uma única vez na inicialização do módulo
+const OFICINAS_INDEXADAS = OFICINAS_CONGRESSO.map((of) => ({
+  oficina: of,
+  idLower: of.id.toLowerCase(),
+  temaNorm: normalizarTextoOficina(of.tema),
+  minNorm: normalizarTextoOficina(of.ministrante),
+}));
 
 /**
  * Retorna o objeto da oficina correspondente pelo tema ou pelo id.
  */
 export function encontrarOficina(temaOuId) {
   if (!temaOuId) return null;
-  const termo = normalizarTextoOficina(temaOuId);
+  const rawKey = String(temaOuId);
+  if (CACHE_ENCONTRAR_OFICINA.has(rawKey)) {
+    return CACHE_ENCONTRAR_OFICINA.get(rawKey);
+  }
+
+  const termo = normalizarTextoOficina(rawKey);
   if (!termo) return null;
-  
+
   // 1. Busca exata
-  const exata = OFICINAS_CONGRESSO.find(
-    (o) => normalizarTextoOficina(o.tema) === termo ||
-           o.id.toLowerCase() === termo ||
-           normalizarTextoOficina(o.ministrante) === termo
+  const exata = OFICINAS_INDEXADAS.find(
+    (item) =>
+      item.temaNorm === termo ||
+      item.idLower === termo ||
+      item.minNorm === termo
   );
-  if (exata) return exata;
+  if (exata) {
+    if (CACHE_ENCONTRAR_OFICINA.size < 2000) {
+      CACHE_ENCONTRAR_OFICINA.set(rawKey, exata.oficina);
+    }
+    return exata.oficina;
+  }
 
   // 2. Busca flexível / parcial
-  return OFICINAS_CONGRESSO.find((o) => {
-    const oTema = normalizarTextoOficina(o.tema);
-    const oMin = normalizarTextoOficina(o.ministrante);
-    return oTema.includes(termo) ||
-           termo.includes(oTema) ||
-           oMin.includes(termo) ||
-           termo.includes(oMin);
-  }) || null;
+  const parcial = OFICINAS_INDEXADAS.find(
+    (item) =>
+      item.temaNorm.includes(termo) ||
+      termo.includes(item.temaNorm) ||
+      item.minNorm.includes(termo) ||
+      termo.includes(item.minNorm)
+  );
+  const resultado = parcial ? parcial.oficina : null;
+  if (CACHE_ENCONTRAR_OFICINA.size < 2000) {
+    CACHE_ENCONTRAR_OFICINA.set(rawKey, resultado);
+  }
+  return resultado;
 }
 
 /**
@@ -393,8 +438,36 @@ export function obterCotaUnidade(oficinaTemaOuId, unidade) {
   const of = encontrarOficina(oficinaTemaOuId);
   if (!of || !of.limitesPorUnidade) return null;
   const unidNorm = normalizarNomeUnidade(unidade);
-  if (!UNIDADES_COM_COTA.includes(unidNorm)) return null;
+  if (!UNIDADES_COM_COTA_SET.has(unidNorm)) return null;
   return of.limitesPorUnidade[unidNorm] ?? null;
+}
+
+/**
+ * Compara o texto normalizado da oficina de um participante contra o tema e ministrante alvo.
+ */
+function verificarMatchOficina(normIOficina, normTemaAlvo, normMin) {
+  if (!normIOficina) return false;
+
+  // 1. Match exato pelo tema normalizado
+  if (normIOficina === normTemaAlvo) return true;
+
+  // 2. Match exato pelo ministrante (caso a oficina tenha sido gravada pelo nome do ministrante)
+  if (normMin && normIOficina === normMin) return true;
+
+  // 3. Match parcial seguro: só aceita se o texto parcial representar pelo menos 60%
+  //    do alvo, para evitar falsos positivos entre oficinas com termos em comum
+  if (normTemaAlvo.length > 15 && normIOficina.length > 15) {
+    const menorLen = Math.min(normTemaAlvo.length, normIOficina.length);
+    const maiorLen = Math.max(normTemaAlvo.length, normIOficina.length);
+    if (menorLen / maiorLen >= 0.6) {
+      if (normIOficina.includes(normTemaAlvo) || normTemaAlvo.includes(normIOficina)) return true;
+    }
+  }
+
+  // 4. Match pelo ministrante contido (ex: inscrito gravado como "Márcia Curti" na oficina)
+  if (normMin && normMin.length >= 8 && normIOficina.includes(normMin)) return true;
+
+  return false;
 }
 
 /**
@@ -412,7 +485,7 @@ export function calcularOcupacaoUnidade(oficinaTema, unidade, todosInscritos = [
   const limite = obterCotaUnidade(oficinaTema, unidade);
   const unidNorm = normalizarNomeUnidade(unidade);
 
-  if (limite === null || !unidNorm || !UNIDADES_COM_COTA.includes(unidNorm)) {
+  if (limite === null || !unidNorm || !UNIDADES_COM_COTA_SET.has(unidNorm)) {
     return {
       temCota: false,
       ocupadas: 0,
@@ -426,40 +499,23 @@ export function calcularOcupacaoUnidade(oficinaTema, unidade, todosInscritos = [
   const normTemaAlvo = normalizarTextoOficina(ofObj ? ofObj.tema : oficinaTema);
   const normMin = ofObj ? normalizarTextoOficina(ofObj.ministrante) : '';
 
-  const ocupadas = todosInscritos.filter((i) => {
-    if (excludeInscritoId && i.id === excludeInscritoId) return false;
-    if (i.tipoOsc && i.tipoOsc.toUpperCase() !== 'SOBEI') return false;
+  let ocupadas = 0;
+  for (let idx = 0; idx < todosInscritos.length; idx++) {
+    const i = todosInscritos[idx];
+    if (excludeInscritoId && i.id === excludeInscritoId) continue;
+    if (i.tipoOsc && i.tipoOsc.toUpperCase() !== 'SOBEI') continue;
 
-    const iUnidNorm = normalizarNomeUnidade(i.unidade);
-    if (iUnidNorm !== unidNorm) return false;
+    const iUnidNorm = i._unidadeNorm !== undefined ? i._unidadeNorm : normalizarNomeUnidade(i.unidade);
+    if (iUnidNorm !== unidNorm) continue;
 
-    const iOficina = (i.oficina || i.oficinaManha || i.oficinaTarde || '');
-    if (!iOficina) return false;
+    const iOficina = i._oficinaEfetiva !== undefined ? i._oficinaEfetiva : (i.oficina || i.oficinaManha || i.oficinaTarde || '');
+    if (!iOficina) continue;
 
-    const normIOficina = normalizarTextoOficina(iOficina);
-
-    // 1. Match exato pelo tema normalizado
-    if (normIOficina === normTemaAlvo) return true;
-
-    // 2. Match exato pelo ministrante (caso a oficina tenha sido gravada pelo nome do ministrante)
-    if (normMin && normIOficina === normMin) return true;
-
-    // 3. Match parcial seguro: só aceita se o texto parcial representar pelo menos 60%
-    //    do alvo, para evitar falsos positivos entre oficinas com termos em comum
-    //    (ex: "inclusão no lúdico" vs "inclusão na primeira infância")
-    if (normTemaAlvo.length > 15 && normIOficina.length > 15) {
-      const menorLen = Math.min(normTemaAlvo.length, normIOficina.length);
-      const maiorLen = Math.max(normTemaAlvo.length, normIOficina.length);
-      if (menorLen / maiorLen >= 0.6) {
-        if (normIOficina.includes(normTemaAlvo) || normTemaAlvo.includes(normIOficina)) return true;
-      }
+    const normIOficina = i._oficinaNorm !== undefined ? i._oficinaNorm : normalizarTextoOficina(iOficina);
+    if (verificarMatchOficina(normIOficina, normTemaAlvo, normMin)) {
+      ocupadas++;
     }
-
-    // 4. Match pelo ministrante contido (ex: inscrito gravado como "Márcia Curti" na oficina)
-    if (normMin && normMin.length >= 8 && normIOficina.includes(normMin)) return true;
-
-    return false;
-  }).length;
+  }
 
   const disponiveis = Math.max(0, limite - ocupadas);
   const esgotada = ocupadas >= limite;
@@ -490,36 +546,20 @@ export function calcularOcupacaoOutrasOsc(oficinaTema, todosInscritos = [], excl
   const normTemaAlvo = normalizarTextoOficina(ofObj ? ofObj.tema : oficinaTema);
   const normMin = ofObj ? normalizarTextoOficina(ofObj.ministrante) : '';
 
-  const ocupadas = todosInscritos.filter((i) => {
-    if (excludeInscritoId && i.id === excludeInscritoId) return false;
-    // Apenas outras OSCs (fora SOBEI)
-    if (i.tipoOsc && i.tipoOsc.toUpperCase() === 'SOBEI') return false;
+  let ocupadas = 0;
+  for (let idx = 0; idx < todosInscritos.length; idx++) {
+    const i = todosInscritos[idx];
+    if (excludeInscritoId && i.id === excludeInscritoId) continue;
+    if (i.tipoOsc && i.tipoOsc.toUpperCase() === 'SOBEI') continue;
 
-    const iOficina = (i.oficina || i.oficinaManha || i.oficinaTarde || '');
-    if (!iOficina) return false;
+    const iOficina = i._oficinaEfetiva !== undefined ? i._oficinaEfetiva : (i.oficina || i.oficinaManha || i.oficinaTarde || '');
+    if (!iOficina) continue;
 
-    const normIOficina = normalizarTextoOficina(iOficina);
-
-    // 1. Match exato pelo tema normalizado
-    if (normIOficina === normTemaAlvo) return true;
-
-    // 2. Match exato pelo ministrante
-    if (normMin && normIOficina === normMin) return true;
-
-    // 3. Match parcial seguro
-    if (normTemaAlvo.length > 15 && normIOficina.length > 15) {
-      const menorLen = Math.min(normTemaAlvo.length, normIOficina.length);
-      const maiorLen = Math.max(normTemaAlvo.length, normIOficina.length);
-      if (menorLen / maiorLen >= 0.6) {
-        if (normIOficina.includes(normTemaAlvo) || normTemaAlvo.includes(normIOficina)) return true;
-      }
+    const normIOficina = i._oficinaNorm !== undefined ? i._oficinaNorm : normalizarTextoOficina(iOficina);
+    if (verificarMatchOficina(normIOficina, normTemaAlvo, normMin)) {
+      ocupadas++;
     }
-
-    // 4. Match pelo ministrante contido
-    if (normMin && normMin.length >= 8 && normIOficina.includes(normMin)) return true;
-
-    return false;
-  }).length;
+  }
 
   const disponiveis = Math.max(0, limite - ocupadas);
   const esgotada = ocupadas >= limite;
@@ -532,4 +572,98 @@ export function calcularOcupacaoOutrasOsc(oficinaTema, todosInscritos = [], excl
     esgotada,
     isOutraOsc: true,
   };
+}
+
+/**
+ * Pré-calcula em lote o status de ocupação de todas as 23 oficinas para um participante específico.
+ * Filtra os participantes elegíveis da mesma unidade/OSC uma única vez (O(N)), evitando
+ * 23 varreduras repetidas sobre toda a lista de inscritos durante a renderização do modal.
+ */
+export function calcularMapaOcupacaoOficinas(inscrito, todosInscritos = []) {
+  const mapa = new Map();
+  if (!inscrito) return mapa;
+
+  const isSobei = inscrito.tipoOsc?.toUpperCase() === 'SOBEI';
+  const unidNorm = normalizarNomeUnidade(inscrito.unidade);
+  const temCotaUnidade = isSobei && Boolean(unidNorm) && UNIDADES_COM_COTA_SET.has(unidNorm);
+  const excludeId = inscrito.id;
+
+  // Pré-filtra apenas os participantes que disputam a mesma cota e que já possuem oficina definida
+  const oficinasDosConcorrentes = [];
+  if (temCotaUnidade || !isSobei) {
+    for (let idx = 0; idx < todosInscritos.length; idx++) {
+      const i = todosInscritos[idx];
+      if (excludeId && i.id === excludeId) continue;
+
+      const iIsSobei = !i.tipoOsc || i.tipoOsc.toUpperCase() === 'SOBEI';
+      if (isSobei) {
+        if (!iIsSobei) continue;
+        const iUnidNorm = i._unidadeNorm !== undefined ? i._unidadeNorm : normalizarNomeUnidade(i.unidade);
+        if (iUnidNorm !== unidNorm) continue;
+      } else {
+        if (iIsSobei) continue;
+      }
+
+      const iOficina = i._oficinaEfetiva !== undefined ? i._oficinaEfetiva : (i.oficina || i.oficinaManha || i.oficinaTarde || '');
+      if (!iOficina) continue;
+
+      const normIOficina = i._oficinaNorm !== undefined ? i._oficinaNorm : normalizarTextoOficina(iOficina);
+      if (normIOficina) {
+        oficinasDosConcorrentes.push(normIOficina);
+      }
+    }
+  }
+
+  for (let k = 0; k < OFICINAS_INDEXADAS.length; k++) {
+    const { oficina: ofObj, temaNorm, minNorm } = OFICINAS_INDEXADAS[k];
+    const vagasSala = ofObj.vagasSala || 26;
+
+    if (isSobei) {
+      const limite = temCotaUnidade ? (ofObj.limitesPorUnidade?.[unidNorm] ?? null) : null;
+      if (limite === null) {
+        mapa.set(ofObj.tema, {
+          temCota: false,
+          ocupadas: 0,
+          limite: null,
+          disponiveis: null,
+          esgotada: false,
+          vagasSala,
+        });
+        continue;
+      }
+
+      let ocupadas = 0;
+      for (let m = 0; m < oficinasDosConcorrentes.length; m++) {
+        if (verificarMatchOficina(oficinasDosConcorrentes[m], temaNorm, minNorm)) {
+          ocupadas++;
+        }
+      }
+      mapa.set(ofObj.tema, {
+        temCota: true,
+        ocupadas,
+        limite,
+        disponiveis: Math.max(0, limite - ocupadas),
+        esgotada: ocupadas >= limite,
+        vagasSala,
+      });
+    } else {
+      const limite = COTA_OUTRAS_OSC_POR_OFICINA;
+      let ocupadas = 0;
+      for (let m = 0; m < oficinasDosConcorrentes.length; m++) {
+        if (verificarMatchOficina(oficinasDosConcorrentes[m], temaNorm, minNorm)) {
+          ocupadas++;
+        }
+      }
+      mapa.set(ofObj.tema, {
+        temCota: true,
+        ocupadas,
+        limite,
+        disponiveis: Math.max(0, limite - ocupadas),
+        esgotada: ocupadas >= limite,
+        isOutraOsc: true,
+      });
+    }
+  }
+
+  return mapa;
 }
