@@ -140,7 +140,7 @@ export default function Sidebar() {
               }`}
             >
               <Image 
-                src="/images/user_icon.svg" 
+                src="/images/congresso.svg" 
                 alt="" 
                 width={20} 
                 height={20} 
@@ -164,7 +164,7 @@ export default function Sidebar() {
               }`}
             >
               <Image 
-                src="/images/user_icon.svg" 
+                src="/images/user-gear.svg" 
                 alt="" 
                 width={20} 
                 height={20} 

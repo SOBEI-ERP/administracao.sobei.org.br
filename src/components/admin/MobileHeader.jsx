@@ -211,7 +211,7 @@ export default function MobileHeader() {
               >
                 <div className="mobile-header__link-content">
                   <Image
-                    src="/images/user_icon.svg"
+                    src="/images/congresso.svg"
                     alt=""
                     width={20}
                     height={20}
@@ -237,7 +237,7 @@ export default function MobileHeader() {
               >
                 <div className="mobile-header__link-content">
                   <Image
-                    src="/images/user_icon.svg"
+                    src="/images/user-gear.svg"
                     alt=""
                     width={20}
                     height={20}
