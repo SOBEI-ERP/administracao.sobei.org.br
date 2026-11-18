@@ -18,7 +18,10 @@ const montserrat = Montserrat({
 
 export const metadata = {
   metadataBase: new URL('https://administracao.sobei.org.br'),
-  title: 'SOBEI - Painel Administrativo',
+  title: {
+    default: 'SOBEI - Painel Administrativo',
+    template: '%s | SOBEI - Painel Administrativo',
+  },
   description:
     'Painel unificado de gestão administrativa, denúncias, processos seletivos e operações da SOBEI.',
   robots: {
